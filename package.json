@@ -1,0 +1,1 @@
+{"name":"haoming-luo-lab","private":true,"version":"1.0.0","scripts":{"build":"node build.mjs","dev":"python3 -m http.server 8784 --bind 127.0.0.1 --directory public"}}
