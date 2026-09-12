@@ -20,10 +20,17 @@
     secondArt.style.opacity=small?1:(secondReady?reveal:0);
     secondArt.style.transform=paused||small?'none':`translate3d(${(1-reveal)*-4}%,0,0)`;
     document.body.classList.toggle('at-end',!small&&p>.98);
-    hint.style.opacity=1-p;document.body.classList.toggle('motion-paused',paused);
+    hint.style.opacity=1-p;document.querySelector('.scene>footer').style.opacity=small?1:clamp((p-.72)/.25);document.body.classList.toggle('motion-paused',paused);
     button.textContent=paused?'开启动效':'暂停动效';button.setAttribute('aria-pressed',String(paused));
   }
   function schedule(){if(!queued){queued=true;requestAnimationFrame(render)}}
   addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule,{passive:true});
   reduced.addEventListener('change',()=>{paused=reduced.matches;schedule()});button.addEventListener('click',()=>{paused=!paused;schedule()});render();
+  // A boundary-only fallback for embedded browsers that retain native rubber-banding.
+  function outward(dy){const root=document.scrollingElement;return dy<0?root.scrollTop<=1:root.scrollTop+root.clientHeight>=root.scrollHeight-1;}
+  addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey&&Math.abs(e.deltaY)>Math.abs(e.deltaX)&&outward(e.deltaY)&&e.cancelable)e.preventDefault();},{passive:false});
+  let touch=null;
+  addEventListener('touchstart',e=>{touch=e.touches.length===1?[e.touches[0].clientX,e.touches[0].clientY]:null;},{passive:true});
+  addEventListener('touchmove',e=>{if(e.touches.length!==1){touch=null;return;}const now=[e.touches[0].clientX,e.touches[0].clientY],old=touch;touch=now;if(old){const dy=old[1]-now[1];if(Math.abs(dy)>Math.abs(old[0]-now[0])&&outward(dy)&&e.cancelable)e.preventDefault();}},{passive:false});
+  addEventListener('touchend',()=>{touch=null;},{passive:true});
 })();

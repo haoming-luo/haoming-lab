@@ -7,7 +7,7 @@ import {gunzipSync} from 'node:zlib';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../public/structural-design');
 for(const file of fs.readdirSync(root).filter(f=>f.endsWith('.js')))new vm.Script(fs.readFileSync(path.join(root,file),'utf8'),{filename:file});
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
-for(const [,name]of html.matchAll(/(?:src|href)="([^"#]+\.(?:js|css))"/g))assert(fs.existsSync(path.join(root,name)),name);
+for(const [,name]of html.matchAll(/(?:src|href)="([^"#]+\.(?:js|css)(?:\?[^"#]*)?)"/g))assert(fs.existsSync(path.join(root,name.split('?')[0])),name);
 for(const href of ['https://lab.haoming-luo.com/structural-design/','https://haoming-luo.github.io/haoming-lab/structural-design/']){
  const requests=[];const base=new URL('.',href);
  const localFetch=async input=>{const url=new URL(input,href);assert(url.href.startsWith(base.href));const name=decodeURIComponent(url.href.slice(base.href.length));requests.push(name);return new Response(fs.readFileSync(path.join(root,name)));};

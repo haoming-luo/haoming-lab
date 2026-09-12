@@ -2,6 +2,12 @@
 
 final result: passed
 
+## Scroll-end and flow refinement
+
+Removed the independent footer scroll segment: footer now resides inside the sticky scene. Browser check at 826×782, document bottom: scene top 0, bottom 782, viewport 782. Top scroll returns to 0. Boundary-only wheel/touch fallback supplements native overscroll:none without taking over mid-page scrolling or pinch zoom. End floating uses pause rather than animation reset. Existing composition retained; footer fades in at final progress. Added top/middle/bottom unit tests.
+
+Full-flow audit also fixed transient legacy setup text, added Lab-home navigation and polite search-result announcements, and removed outdated hard-coded baseline values from method dialog. Header link and Escape-close verified. Asset version tags prevent stale scripts masking updates. Detailed research planning and user-background notes are kept outside this public repository.
+
 ## Follow-up: rotor scene and hard scroll boundary
 
 User requested an alternative second structure, right-side heading and no bottom rubber-band. Verified revised second scene in `docs/qa/lab-rotor-chapter.png` at 826 × 782: turbine rotor on left, heading and CTA on right, no overlap or clipping. Uses actual existing geometry rendered in Blender. Header/first scene unchanged. Browser error log empty. `overscroll-behavior:none` applied to html/body; ambient float disabled at final progress. Physical iPhone elastic-overscroll behavior remains a device check, not claimed as directly tested. Added size and lazy-asset assertions. No remaining actionable P0/P1/P2 findings in checked state.

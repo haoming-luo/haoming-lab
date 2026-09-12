@@ -1,5 +1,8 @@
 /* Keep the original presentation; only disclose the recorded-result mode. */
 (() => {
+  const methodLink=document.querySelector('header a');const nav=document.createElement('nav');nav.className='lab-nav';
+  const home=document.createElement('a');home.href='../';home.textContent='Lab 首页';nav.append(home,methodLink);document.querySelector('header').append(nav);
+  $('search-message').setAttribute('role','status');$('search-message').setAttribute('aria-live','polite');
   const parametersTitle=document.querySelector('#parameters').closest('details').querySelector('summary');
   const fullVersion=document.createElement('small');fullVersion.textContent='完整版需 Python + GINO 环境';fullVersion.style.cssText='display:block;margin:5px 0 8px 14px;font-size:11px;line-height:1.5;color:var(--muted);font-weight:400';parametersTitle.append(fullVersion);
   const originalPrediction=showPrediction;
@@ -28,4 +31,5 @@
     };
     new MutationObserver(sync).observe(cad,{attributes:true,attributeFilter:['href']});sync();
   }).catch(e=>{$('search-message').textContent=e.message;});
+  document.documentElement.classList.remove('lab-boot');
 })();

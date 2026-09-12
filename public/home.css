@@ -12,5 +12,7 @@ header{height:100px;padding:0 3.5vw;display:flex;align-items:center;justify-cont
 @media(prefers-reduced-motion:reduce){.art picture{animation:none}.cta img{transition:none}}
 html,body{overscroll-behavior:none;scroll-behavior:auto}
 .chapter{left:57%;width:40%}.art-secondary{left:1%;top:12%;width:54%;height:72%;opacity:0;mix-blend-mode:normal;pointer-events:none}
-body.at-end .art picture{animation:none}
+body.at-end .art picture{animation-play-state:paused}
 @media(max-width:700px){.art-secondary{left:auto;top:auto;width:100%;height:300px;order:3;opacity:1;margin:65px 0 0}.chapter{left:auto;width:100%;order:4;margin-top:20px}.art:not(.art-secondary){opacity:1!important}}
+.scene>footer{position:absolute;bottom:0;left:0;width:100%;opacity:0;z-index:3;background:var(--bg);padding:22px 3.5vw}
+@media(max-width:700px){.scene>footer{position:relative;order:5;opacity:1!important;margin-top:70px;padding:24px 0 0}.scene{padding-bottom:24px}}
