@@ -1,19 +1,34 @@
-/* Local-only data adapter: recorded GINO results, never a live inference claim.
- * Classic scripts + embedded gzip data work with both file:// and static hosts.
- * No API server, local storage, cookies or runtime files are used.
- */
+/* Static on-demand archive adapter. No live GINO inference or backend. */
 (() => {
   'use strict';
+  const nativeFetch=window.fetch.bind(window);
+  const base=new URL('.',document.currentScript.src);
+  const pending=new Map();
+  async function asset(path,text=false){
+    const url=new URL(path,base).href;
+    if(!pending.has(url))pending.set(url,(async()=>{
+      const response=await nativeFetch(url);if(!response.ok)throw Error('数据加载失败，请重试。');
+      const content=await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).text();
+      return text?content:JSON.parse(content);
+    })().catch(error=>{pending.delete(url);throw error;}));
+    return pending.get(url);
+  }
   const ready=(async()=>{
     if(typeof DecompressionStream==='undefined')throw Error('请使用支持 gzip 解压的新版 Chrome、Edge 或 Safari。');
-    const bytes=Uint8Array.from(atob(window.LAB_PACKED_DATA),c=>c.charCodeAt(0));
-    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-    const data=JSON.parse(await new Response(stream).text());
-    delete window.LAB_PACKED_DATA;
+    const response=await nativeFetch(new URL('assets/index.json',base));
+    if(!response.ok)throw Error('展示目录加载失败，请刷新重试。');
+    const data=await response.json();
     const links={};
-    for(const [path,content]of Object.entries(data.cad))links[path]=URL.createObjectURL(new Blob([content],{type:'application/step'}));
+    for(const [path,file]of Object.entries(data.cad))links[path]=new URL(file,base).href;
     for(const row of data.bank)row.cad=links[row.cad];
     window.LAB_STATIC_LINKS=links;
+    const cadBlobs=new Map();
+    window.LAB_GET_CAD=async path=>{
+      const url=links[path]||path;
+      if(!Object.values(links).includes(url))throw Error('未找到此结构的 CAD。');
+      if(!cadBlobs.has(url))cadBlobs.set(url,URL.createObjectURL(new Blob([await asset(url,true)],{type:'application/step'})));
+      return cadBlobs.get(url);
+    };
     return data;
   })();
   const ranges={depth:[.015,.032],radius:[.010,.023],waist:[.04,.38],bow:[.005,.03]};
@@ -46,7 +61,7 @@
         return reply({...selected,cached:true,precomputed:true,matched:distance(selected)<1e-16,requested_design:target});
       }
       const key=Object.keys(data.files).find(k=>path.endsWith('/'+k));
-      if(key)return reply(data.files[key]);
+      if(key)return reply(await asset(data.files[key]));
       return reply({error:'展示包中没有此资源。'},404);
     }catch(e){return reply({error:e.message},503);}
   };

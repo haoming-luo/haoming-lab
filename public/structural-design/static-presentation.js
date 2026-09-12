@@ -1,5 +1,7 @@
 /* Keep the original presentation; only disclose the recorded-result mode. */
 (() => {
+  const parametersTitle=document.querySelector('#parameters').closest('details').querySelector('summary');
+  const fullVersion=document.createElement('small');fullVersion.textContent='完整版需 Python + GINO 环境';fullVersion.style.cssText='display:block;margin:5px 0 8px 14px;font-size:11px;line-height:1.5;color:var(--muted);font-weight:400';parametersTitle.append(fullVersion);
   const originalPrediction=showPrediction;
   showPrediction=async result=>{
     await originalPrediction(result);
@@ -13,6 +15,13 @@
   };
   window.LAB_STATIC_READY.then(()=>{
     const cad=$('cad');
+    cad.addEventListener('click',async event=>{
+      event.preventDefault();if(cad.dataset.loading)return;
+      cad.dataset.loading='true';const label=cad.textContent;cad.textContent='正在准备 CAD…';
+      try{const url=await window.LAB_GET_CAD(cad.href);const link=document.createElement('a');link.href=url;link.download='支架结构.step';link.click();}
+      catch(error){$('search-message').textContent=error.message;}
+      finally{delete cad.dataset.loading;cad.textContent=label;}
+    });
     const sync=()=>{
       const path=cad.getAttribute('href');const url=window.LAB_STATIC_LINKS[path];
       if(url){cad.href=url;cad.download='支架结构.step';}
