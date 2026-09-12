@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/static-demo.mjs
+      - run: node tests/home.mjs
       - run: node build.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

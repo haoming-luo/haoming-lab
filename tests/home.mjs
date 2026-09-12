@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {readFile,stat} from 'node:fs/promises';
+import vm from 'node:vm';
+const html=await readFile('public/index.html','utf8');
+for(const phrase of ['计算，','触手可及。','力学与智能，','相遇于灵感。','./structural-design/'])assert(html.includes(phrase));
+for(const [,path] of html.matchAll(/(?:src|href|srcset)="\.\/([^"#]+)"/g))await stat(`public/${path}`);
+new vm.Script(await readFile('public/home.js','utf8'));
+assert((await stat('public/assets/bracket-hero.webp')).size<250000);
+assert((await stat('public/assets/bracket-hero-small.webp')).size<100000);
+console.log('Homepage copy, links, assets, syntax and image budgets PASS');
