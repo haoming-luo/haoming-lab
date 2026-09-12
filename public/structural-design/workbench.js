@@ -15,7 +15,16 @@ actions.after(strip);const note=document.createElement('div');note.className='re
 const modal=document.createElement('dialog');modal.id='method-dialog';modal.innerHTML='<button id="close-method">关闭</button><h2>计算如何变成设计能力</h2><p>AgentFEM 生成结构与位移数据，GINO + 位移修正网络学习新几何的响应，再按位移条件筛选候选。当前搜索不是拓扑优化或全局最优求解。</p>';
 document.body.append(modal);modal.append($('learning-evidence'),landscape,document.querySelector('.status'));document.querySelector('.status').style.display='block';
 document.querySelector('header a').textContent='数据与方法';document.querySelector('header a').onclick=e=>{e.preventDefault();modal.showModal();};$('close-method').onclick=()=>modal.close();
-$('toggle-controls').onclick=()=>document.body.classList.toggle('controls-open');
+const controlsAside=document.querySelector('aside');controlsAside.id='structure-controls';
+const controlsBackdrop=document.createElement('button');controlsBackdrop.id='controls-backdrop';controlsBackdrop.type='button';controlsBackdrop.tabIndex=-1;controlsBackdrop.setAttribute('aria-label','收起调节面板');document.body.append(controlsBackdrop);
+const controlsClose=document.createElement('button');controlsClose.id='close-controls';controlsClose.type='button';controlsClose.textContent='×';controlsClose.setAttribute('aria-label','关闭调节面板');controlsAside.prepend(controlsClose);
+const mobileControls=matchMedia('(max-width:650px), (max-height:500px) and (pointer:coarse)');
+const controlsToggle=$('toggle-controls');controlsToggle.setAttribute('aria-controls',controlsAside.id);controlsToggle.setAttribute('aria-expanded','false');
+function closeControls(){document.body.classList.remove('controls-open');controlsToggle.setAttribute('aria-expanded','false');if(mobileControls.matches)controlsToggle.focus({preventScroll:true});}
+controlsToggle.onclick=()=>{const open=!document.body.classList.contains('controls-open');document.body.classList.toggle('controls-open',open);controlsToggle.setAttribute('aria-expanded',String(open));if(open)controlsClose.focus({preventScroll:true});};
+controlsClose.onclick=closeControls;controlsBackdrop.onclick=closeControls;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('controls-open'))closeControls();});
+mobileControls.addEventListener('change',()=>{if(!mobileControls.matches)closeControls();});
 document.querySelector('label[for="limit"]').firstChild.textContent='顶部最多下沉 ';$('search').textContent='寻找更轻支架结构';$('predict').textContent='查看修改后的效果';
 const names={depth:'支撑臂基础宽度',radius:'支撑臂基础厚度',waist:'中段收窄程度',bow:'支撑臂上拱量'};
 const helps={depth:'完整参考宽度；实际截面随收腰变化。',radius:'完整参考厚度；不是椭圆半轴。',waist:'数值越大，中段越细、用料越少。',bow:'相对直线向上弯起的最大距离。'};
@@ -31,7 +40,7 @@ $('compare-saving').textContent=Math.abs(save)<.05?'用料相同':`${save>=0?'�
 $('compare-pass').textContent=b.motion<=lim?'满足下沉限制':'超过下沉限制';$('compare-pass').style.color=b.motion<=lim?'var(--cyan)':'#eea06d';$('compare-limit').textContent=`上限 ${lim.toFixed(2)} mm · 非强度判定`;
 if(!pending)note.textContent=`${save>.05?'用料减少':save<-.05?'用料增加':'用料不变'}，${b.motion>a.motion+.0001?'下沉增大':b.motion<a.motion-.0001?'下沉减小':'下沉基本不变'}。${b.predicted?'右图为 AI 预测响应。':'右图为有限元响应。'}`;
 rebuild();}
-const originalShow=showPrediction;showPrediction=async r=>{await originalShow(r);currentRecord=recordNow();pending=false;highlightArms=false;strip.classList.remove('pending');$('after-label').textContent='修改后 · AI 预测';updateComparison();document.body.classList.remove('controls-open');};
+const originalShow=showPrediction;showPrediction=async r=>{await originalShow(r);currentRecord=recordNow();pending=false;highlightArms=false;strip.classList.remove('pending');$('after-label').textContent='修改后 · AI 预测';updateComparison();if(document.body.classList.contains('controls-open'))closeControls();};
 const originalLoad=load;load=async name=>{await originalLoad(name);currentRecord=recordNow();pending=false;strip.classList.remove('pending');$('after-label').textContent='当前 · 有限元样本';updateComparison();};
 const oldPredict=$('predict'),newPredict=oldPredict.cloneNode(true);oldPredict.replaceWith(newPredict);
 newPredict.onclick=async()=>{if(!ready||busy)return;busy=true;buttons();$('search-message').textContent='正在生成结构并预测…';try{const q=new URLSearchParams();for(const [k]of specs)q.set(k,Number($('p-'+k).value)/(k==='waist'?100:(k==='depth'||k==='radius')?2000:1000));const r=await api('predict?'+q);await showPrediction(r);$('search-message').textContent=r.cached?'已复用此结构的预测结果。':`预测 ${r.inference_ms.toFixed(0)} ms · 连同几何 ${(r.total_ms/1000).toFixed(1)} 秒`;}catch(e){$('search-message').textContent=e.message;}finally{busy=false;buttons();}};
