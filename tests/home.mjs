@@ -7,4 +7,7 @@ for(const [,path] of html.matchAll(/(?:src|href|srcset)="\.\/([^"#]+)"/g))await 
 new vm.Script(await readFile('public/home.js','utf8'));
 assert((await stat('public/assets/bracket-hero.webp')).size<250000);
 assert((await stat('public/assets/bracket-hero-small.webp')).size<100000);
+assert((await stat('public/assets/rotor-hero.webp')).size<150000);
+assert(html.includes('data-src="./assets/rotor-hero.webp"'));
+assert((await readFile('public/home.css','utf8')).includes('overscroll-behavior:none'));
 console.log('Homepage copy, links, assets, syntax and image budgets PASS');

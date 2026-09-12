@@ -2,6 +2,10 @@
 
 final result: passed
 
+## Follow-up: rotor scene and hard scroll boundary
+
+User requested an alternative second structure, right-side heading and no bottom rubber-band. Verified revised second scene in `docs/qa/lab-rotor-chapter.png` at 826 × 782: turbine rotor on left, heading and CTA on right, no overlap or clipping. Uses actual existing geometry rendered in Blender. Header/first scene unchanged. Browser error log empty. `overscroll-behavior:none` applied to html/body; ambient float disabled at final progress. Physical iPhone elastic-overscroll behavior remains a device check, not claimed as directly tested. Added size and lazy-asset assertions. No remaining actionable P0/P1/P2 findings in checked state.
+
 ## Reference and evidence
 
 - Source visual truth: `/Users/luo/.codex/generated_images/01a08172-a7d0-7741-aba1-c9af4a1b09d7/exec-32bc1ce1-36aa-4a54-9c6b-b2a3d4917826.png` (first selected concept, 1487 × 1058 px).

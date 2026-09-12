@@ -6,4 +6,6 @@ Hero made with built-in ImageGen, based on the selected concept. Final prompt: p
 
 Black-background raster is independently composited with lighten blending. This is 2.5D parallax, not a rotatable 3D model, AI-generated video or computed stress visualization. Typography and links are DOM content. No animation library, video download, external fonts, backend or model weights are required on the homepage.
 
+Second scene (September 12 refinement): transparent rotor render from existing PhysicsTwin/native/lp_rotor.blend, using Blender Cycles and scripts/render-home-rotor.py. Original CAD/GLB is not copied into the public project. public/assets/rotor-hero.webp is 68,208 bytes. Desktop requests it after scroll begins; mobile uses native lazy loading. Main text switches to the right and rotor appears on the left. Native overscroll is disabled on the page, and ambient float stops at the end.
+
 Desktop scroll drives two text scenes and a restrained image transform; mobile uses natural document flow. Reduced motion and the pause control suppress spatial movement. No wheel interception. Tabler arrow icon is distributed with its MIT license.
