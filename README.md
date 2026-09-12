@@ -2,8 +2,9 @@
 
 独立的在线交互展示站。个人主页与科研开发项目分别维护。
 
-- 网站：https://haoming-luo.github.io/haoming-lab/
-- 结构实验室：https://haoming-luo.github.io/haoming-lab/structural-design/
+- 网站：https://lab.haoming-luo.com/
+- 结构实验室：https://lab.haoming-luo.com/structural-design/
+- 原 GitHub Pages 地址：https://haoming-luo.github.io/haoming-lab/（绑定后跳转到自定义域名）
 
 ## 项目边界
 
@@ -26,4 +27,9 @@ node build.mjs
 
 推送 main 后 GitHub Actions 自动测试并发布 `dist/`。只有 `public/` 的内容会成为网站；请勿把私密材料、密钥或未授权资源放进来。
 
-以后绑定 lab.haoming-luo.com：在本仓库 Pages 设置域名并配置 DNS，保持个人主站记录不变。目前未绑定自定义域名。
+## 域名配置
+
+2026-09-12 已在本仓库 GitHub Pages 设置中绑定 `lab.haoming-luo.com`。
+Cloudflare DNS 新增 `CNAME lab → haoming-luo.github.io`，仅 DNS，TTL 自动。
+主站 `@`、`www` 及 GitLab 验证记录保持不变。
+此项目使用 Actions 发布，自定义域名以仓库 Pages 设置为准，无需 CNAME 文件。
