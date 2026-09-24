@@ -49,7 +49,25 @@ h1 span{font-size:.63em;font-weight:400;letter-spacing:.02em}
 .ladder-group.featured .ladder-value{color:#a6e5d8}
 .protocol-note{font-size:11px;padding:10px 14px}.statusbar{font-size:10px}
 .panel,.model-card,.result-strip{border-radius:7px}.chart .grid{opacity:.5}
-.result-strip strong{font-weight:500}.path-button{border-radius:5px}
+.result-strip strong{font-weight:500}
+/* The path controls share the architecture selector's quiet visual language. */
+.lab-layout aside{background:#0b1316}
+.path-button{border-radius:7px;transition:background .18s ease,border-color .18s ease;color:var(--text)}
+.path-button:hover{transform:none;background:#142326;border-color:var(--line)}
+.path-button.active{border-color:#426b69;background:linear-gradient(110deg,#1b3434,#152326)}
+.path-copy strong{font-weight:550}.path-index{color:#829d9e;font-variant-numeric:tabular-nums}
+.path-button.active .path-index{color:#a6e5d8}
+.transport button{border-radius:7px;font-size:11px;background:#101b1e;color:#bfd0d1}
+.transport button:hover{background:#1a2b2e;border-color:#426b69}
+.transport .primary{background:linear-gradient(110deg,#1b3434,#152326);border-color:#426b69;color:#b7eee6;font-weight:550}
+.transport .primary[aria-pressed="true"]{background:#21403f;border-color:#65968f}
+.transport .quiet{border-color:transparent;background:none;color:var(--muted)}
+.transport .quiet:hover{border-color:var(--line);background:#142326}
+.check-row{border-radius:5px;transition:color .18s ease}
+.check-row:hover{color:#e7f4f1}
+.check-row input{appearance:none;width:14px;height:14px;flex:0 0 14px;margin:0;border:1px solid #486264;border-radius:4px;background:#101b1e;display:grid;place-content:center;cursor:pointer}
+.check-row input:checked{background:#24443f;border-color:#75b4a8}
+.check-row input:checked::after{content:'';width:6px;height:3px;border-left:1.5px solid #c2f0e3;border-bottom:1.5px solid #c2f0e3;transform:translateY(-1px) rotate(-45deg)}
 footer{padding:9px 30px;color:#8a9b9e}
 @media(min-width:901px) and (max-height:800px){header{padding:12px 24px}.models-view{padding-top:17px}.models-intro{margin-bottom:17px}.models-intro h2{font-size:30px}.architecture-panel{padding:19px 22px 15px;gap:9px}.model-select{min-height:53px}.network-diagram{max-height:40vh;min-height:200px}.architecture-head h2{font-size:25px}.architecture-summary{font-size:11px}}
 @media(max-width:1100px){h1{display:block}h1 span{display:block;margin-top:7px}.model-atlas{grid-template-columns:180px minmax(0,1fr)}.architecture-badge{display:none}.ladder-group{grid-template-columns:22px 160px 160px minmax(60px,1fr) 110px;gap:9px}}
