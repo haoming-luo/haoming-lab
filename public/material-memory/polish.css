@@ -76,7 +76,6 @@ footer{padding:9px 30px;color:#8a9b9e}
 @media(prefers-reduced-motion:reduce){.signal{animation:none}}
 /* Natural aspect ratio remains the mobile / very-short-window fallback. */
 .network-diagram{max-height:none;min-height:0;aspect-ratio:1160 / 470}
-.progression article:last-child{background:linear-gradient(120deg,#25342d,#111b1d);border-top:2px solid #e3ad78}
 .diagram-module:focus-visible{outline:none}
 /* In a desktop or HF iframe, allocate the actual available height to the
    diagram instead of allowing its intrinsic width to grow the whole panel. */
