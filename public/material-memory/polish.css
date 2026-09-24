@@ -56,11 +56,37 @@ footer{padding:9px 30px;color:#8a9b9e}
 @media(max-width:900px){.models-intro{grid-template-columns:1fr}.model-atlas{grid-template-columns:1fr}.model-selector{display:grid;grid-template-columns:repeat(3,1fr);padding:10px}.model-select{min-height:57px}.architecture-panel{padding:20px}.network-diagram{min-width:700px;min-height:0;max-height:none}.architecture-flow{padding:10px 0 2px}.ladder-group{grid-template-columns:25px 1fr 120px}.ladder-protocol{grid-column:2/4}.bar-track{grid-column:1/4}.ladder-value{grid-column:3;grid-row:auto}.models-view,.evidence-view{overflow:visible}.models-intro p{max-width:none}.header-side{flex-direction:row;align-items:center;justify-content:space-between}.provenance{display:none}}
 @media(max-width:600px){header{padding:17px 16px;gap:18px}.header-side{gap:8px}.view-tabs button{padding:7px 9px;min-width:0;font-size:11px}.model-selector{grid-template-columns:repeat(2,1fr)}.models-view,.evidence-view{padding:22px 14px}.models-intro h2{font-size:30px}.architecture-traits{grid-template-columns:1fr 1fr;gap:12px}.architecture-traits div+div{padding-left:0}.model-map-note{flex-direction:column;gap:6px}.diagram-legend{font-size:9px;gap:5px}.diagram-legend i{margin-left:4px}.architecture-summary{font-size:11px}.header-tools{gap:0}.architecture-flow::after{content:'← →';display:block;text-align:center;font-size:12px;color:var(--muted)}}
 @media(prefers-reduced-motion:reduce){.signal{animation:none}}
-/* Give the scientific diagram its natural aspect ratio; do not shrink its labels
-   to squeeze the complete panel into short laptop viewports. */
+/* Natural aspect ratio remains the mobile / very-short-window fallback. */
 .network-diagram{max-height:none;min-height:0;aspect-ratio:1160 / 470}
 .progression article:last-child{background:linear-gradient(120deg,#25342d,#111b1d);border-top:2px solid #e3ad78}
 .diagram-module:focus-visible{outline:none}
+/* In a desktop or HF iframe, allocate the actual available height to the
+   diagram instead of allowing its intrinsic width to grow the whole panel. */
+.shell,header>div,.header-side,.models-view,.model-atlas,.model-selector{min-width:0}
+.lab-home{font-size:12px;color:var(--muted);text-decoration:none;white-space:nowrap;padding:6px 0}
+.lab-home:hover{color:var(--cyan)}
+@media(max-width:600px){.header-tools{gap:10px}}
+@media(min-width:901px) and (min-height:560px){
+  .models-view:not([hidden]){display:flex;flex-direction:column;gap:10px;min-height:0;overflow:hidden;padding:12px 24px}
+  .models-intro{width:100%;flex:none;margin:0;display:block}
+  .models-intro .eyebrow,.models-intro>p{display:none}
+  .models-intro h2{font-size:23px;line-height:1.25}
+  .model-atlas{width:100%;flex:1;min-height:0;grid-template-columns:190px minmax(0,1fr)}
+  .model-selector{min-height:0;padding:10px;gap:4px;justify-content:space-between}
+  .model-select{min-height:0;flex:1;padding:8px 10px}
+  .model-select strong{font-size:12px}.model-select small{font-size:10px;line-height:1.3}
+  .architecture-panel{min-height:0;padding:12px 18px;gap:7px;grid-template-rows:auto minmax(0,1fr) auto auto auto}
+  .architecture-family{display:none}
+  .architecture-head{gap:12px}.architecture-head h2{font-size:23px;margin:0 0 3px}
+  .architecture-head p{font-size:11px;line-height:1.4}
+  .architecture-flow{min-height:0;height:100%;overflow:hidden;padding:0}
+  .network-diagram{width:100%;height:100%;min-width:0;min-height:0;max-height:none;aspect-ratio:auto}
+  .diagram-caption{padding-top:4px}.diagram-caption #flowMotion{padding:3px 6px}
+  .architecture-summary{font-size:11px;line-height:1.4}
+  .architecture-traits div{padding-top:6px;padding-bottom:0}
+  .architecture-traits strong{font-size:11px;margin-top:2px}
+  .model-map-note{display:none}
+}
 @media(max-width:900px){header{align-items:stretch}.interaction-hint{display:none}}
 @media(max-width:600px){
   aside{gap:12px;padding:14px}

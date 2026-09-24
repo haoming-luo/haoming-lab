@@ -12,9 +12,9 @@
     const g=el(p,'g',{class:'diagram-module',tabindex:0,role:'button','aria-label':label+' '+formula});
     el(g,'rect',{x:x+5,y:y-5,width:w,height:h,rx:10,fill:'none',stroke:C[kind]||C.line,opacity:.14});
     el(g,'rect',{x,y,width:w,height:h,rx:10,fill:kind==='learned'?'#211d19':'#102126',stroke:C[kind]||C.line,'stroke-opacity':.5});
-    text(g,x+16,y+25,label,12,C[kind]||C.muted,'start');
+    text(g,x+12,y+25,label,14,C[kind]||C.muted,'start');
     text(g,x+w/2,y+h/2+11,formula,21);
-    if(detail)text(g,x+w/2,y+h-17,detail,11,C.muted);
+    if(detail)text(g,x+w/2,y+h-17,detail,12,C.muted);
     const select=()=>{document.querySelectorAll('.diagram-module').forEach(n=>n.classList.remove('selected'));g.classList.add('selected');};
     g.addEventListener('click',select);g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();}});
     return g;
@@ -92,4 +92,3 @@
   window.DenimArchitecture={render};
   document.addEventListener('denim-language',()=>render());
 })();
-
