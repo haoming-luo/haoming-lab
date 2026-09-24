@@ -22,7 +22,8 @@ body.at-end .art picture{animation-play-state:paused}
 .experience{height:280vh;min-height:1900px}
 .art-secondary picture{position:relative;animation:none}
 .memory-live{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 26px 35px #0008)}
-.chapter-third{left:3.5vw;width:42%}
-.art-third{left:46%;top:12%;width:54%;height:72%;opacity:0;mix-blend-mode:normal;pointer-events:none}
+.chapter-third{left:57%;width:40%}
+.art-third{left:1%;top:12%;width:54%;height:72%;opacity:0;mix-blend-mode:normal;pointer-events:none}
+@media(min-width:701px) and (max-width:1000px){.chapter-third{left:53%;width:44%}}
 .coming-soon{display:inline-block;margin-top:8px;padding:8px 14px;border:1px solid #395158;border-radius:3px;color:#a3b6bb;font-size:13px;letter-spacing:.12em}
 @media(max-width:700px){.experience{height:auto;min-height:0}.art-third{position:relative;left:auto;top:auto;width:100%;height:300px;order:5;opacity:1;margin:65px 0 0}.chapter-third{left:auto;width:100%;order:6;margin-top:20px}.scene>footer{order:7}.chapter .project-entry{margin-top:28px}}
