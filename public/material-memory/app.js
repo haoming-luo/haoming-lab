@@ -201,7 +201,7 @@
     {
       name: 'GRU', short: '时序黑箱', family: '数据驱动 · 隐式记忆', badge: '历史序列 → 应力',
       tagline: '从应变序列中压缩出隐藏历史状态。',
-      nodes: [['输入', '应变历史 ε₀:ₜ', '完整序列'], ['序列编码', 'GRU / LSTM / TCN', '隐状态记忆', 'learned'], ['输出', '应力序列 σ₀:ₜ', '端到端预测']],
+      nodes: [['输入', '应变历史 ε₀:ₜ', '完整序列'], ['序列编码', 'GRU', '隐状态记忆', 'learned'], ['输出', '应力序列 σ₀:ₜ', '端到端预测']],
       summary: '能够识别滞回和反向加载，但记忆完全藏在网络隐状态中；路径分布变化时，外推稳定性受训练数据覆盖范围影响。',
       traits: ['隐状态', '无', '学习全部演化', '中—弱']
     },
@@ -232,15 +232,23 @@
       nodes: [['输入', 'Δε + zₙ', '增量与历史状态'], ['力学骨架', '弹性 · J2 · 流动法则', '显式约束', 'physics'], ['神经闭合', '快—慢记忆通道', '未知硬化演化', 'learned memory'], ['隐式积分', '返回映射', '一致性求解', 'physics'], ['输出', 'σₙ₊₁ + zₙ₊₁', '可追踪状态']],
       summary: '网络不替代整套本构方程，只学习物理骨架未描述的演化项；因此同时保留路径记忆、求解约束和内部状态可解释性。',
       traits: ['显式神经内部变量', '核心骨架', '闭合未知演化', '强']
+    },
+    {
+      name: 'Causal TCN', short: '因果时序卷积', family: '数据驱动 · 有限历史窗口', badge: '只读当前与过去',
+      tagline: '通过多层因果卷积，提取不同时间尺度的加载历史。',
+      summary: '膨胀卷积扩大历史感受野，不读取未来输入；记忆由有限历史窗口提供，而非循环隐状态。',
+      traits: ['历史感受野', '无', '预测全部应力', '依赖训练覆盖']
     }
   ];
 
   function buildModelSelector() {
     const selector = $('modelSelector');
     selector.innerHTML = '';
-    modelAtlas.forEach((model, index) => {
+    [0, 1, 6, 2, 3, 4, 5].forEach(index => {
+      const model = modelAtlas[index];
       const button = document.createElement('button');
       button.type = 'button';
+      button.dataset.modelIndex = index;
       button.className = `model-select${index === 5 ? ' active' : ''}`;
       button.setAttribute('aria-pressed', String(index === 5));
       button.innerHTML = `<strong>${model.name}</strong><small>${model.short}</small>`;
@@ -252,7 +260,7 @@
   function renderArchitecture(index) {
     const model = modelAtlas[index];
     document.querySelectorAll('.model-select').forEach((button, buttonIndex) => {
-      const active = buttonIndex === index;
+      const active = Number(button.dataset.modelIndex) === index;
       button.classList.toggle('active', active);
       button.setAttribute('aria-pressed', String(active));
     });

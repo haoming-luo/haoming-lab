@@ -30,7 +30,7 @@
     const svg=el(host,'svg',{viewBox:'0 0 1160 470',class:'network-diagram'+(paused?' paused':''),role:'img','aria-label':t('模型架构与状态传递','Model architecture and state propagation')});
     const defs=el(svg,'defs');
     ['physics','learned','line'].forEach(k=>{const m=el(defs,'marker',{id:'arrow-'+k,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto-start-reverse'});el(m,'path',{d:'M 1 1 L 9 5 L 1 9',fill:'none',stroke:C[k]});});
-    text(svg,30,24,'ARCHITECTURE / '+String(index+1).padStart(2,'0'),10,C.muted,'start');
+    text(svg,30,24,'ARCHITECTURE / '+String([1,2,4,5,6,7,3][index]).padStart(2,'0'),10,C.muted,'start');
     text(svg,1130,24,index===5?'918 PARAMETERS / 2 MEMORY CHANNELS':t('信息流与状态更新','INFORMATION FLOW & STATE UPDATE'),10,C.muted,'end');
     if(index===5){
       box(svg,25,175,145,112,t('增量与历史','Increment + history'),'Δε, zₙ','physics','εᵖ, p, α₁, α₂');
@@ -60,6 +60,18 @@
       box(svg,920,176,190,114,t('当前应力','Current stress'),'σₜ','physics','6 components');
       wire(svg,'M240 233 H345','learned');wire(svg,'M815 233 H920','learned');
       text(svg,580,442,t('没有历史状态传递','NO STATE TRANSFER BETWEEN INCREMENTS'),12,C.muted);
+    } else if(index===6){
+      text(svg,30,63,t('因果膨胀卷积 · 感受野示意','CAUSAL DILATED CONVOLUTION · RECEPTIVE-FIELD SCHEMATIC'),13,C.learned,'start');
+      const xs=Array.from({length:8},(_,i)=>205+i*89), ys=[364,270,176];
+      // Kernel size 2, dilations 1 and 2 illustrate causality, not trained widths.
+      [1,2].forEach((d,l)=>xs.forEach((x,j)=>[j,j-d].filter(k=>k>=0).forEach(k=>wire(svg,`M${xs[k]} ${ys[l]-10} L${x} ${ys[l+1]+10}`,'learned'))));
+      ys.forEach((y,l)=>{
+        text(svg,30,y+4,l===0?t('加载历史','Loading history'):t('卷积层','Conv layer')+' '+l,13,C.muted,'start');
+        xs.forEach((x,j)=>{el(svg,'circle',{cx:x,cy:y,r:l===0?8:10,fill:l===0?'#102126':'#211d19',stroke:l===0?C.physics:C.learned,'stroke-width':1.5});if(l===0)text(svg,x,y+33,j===7?'t':'t − '+(7-j),12,C.muted);});
+      });
+      box(svg,965,126,170,112,t('当前应力','Current stress'),'σₜ','learned');
+      wire(svg,'M838 176 H965','learned');
+      text(svg,575,435,t('仅连接当前与过去 · 层间跨度扩大 · 不读取未来','PAST & PRESENT ONLY · EXPANDING TEMPORAL REACH · NO FUTURE INPUT'),12,C.physics);
     } else if(index===1||index===2){
       const xs=[250,515,780];
       xs.forEach((x,j)=>{
