@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="面向路径相关弹塑性的材料记忆、神经本构与有限元验证平台。">
+  <title>AgentFEM × DENIM · 材料记忆与神经本构实验室</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090b0c'/%3E%3Cpath d='M6 22c5-15 8 8 13-7s7 4 7 4' fill='none' stroke='%2372d6d1' stroke-width='2.5'/%3E%3Ccircle cx='19' cy='15' r='2.3' fill='%23d38a51'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="polish.css">
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div>
+        <div class="eyebrow author-line">Haoming Luo · AgentFEM</div>
+        <h1><b>AgentFEM × DENIM</b><span>材料记忆与神经本构实验室</span></h1>
+      </div>
+      <div class="header-side">
+        <div class="view-tabs" role="tablist" aria-label="研究视图">
+          <button class="active" role="tab" aria-selected="true" data-view="lab">路径响应</button>
+          <button role="tab" aria-selected="false" data-view="evidence">模型谱系</button>
+          <button role="tab" aria-selected="false" data-view="models">模型图谱</button>
+        </div>
+        <div class="header-tools"><span class="provenance">AgentFEM Research</span><button id="languageToggle" type="button" aria-label="Switch language">EN</button></div>
+      </div>
+    </header>
+
+    <main id="labView" class="lab-layout">
+      <aside>
+        <section>
+          <p class="section-title">加载工况</p>
+          <div id="pathList" class="path-list"></div>
+        </section>
+
+        <section>
+          <p class="section-title">响应对照</p>
+          <label class="check-row"><input type="checkbox" data-series="truth" checked><i class="line truth"></i><span>AgentFEM 参考</span></label>
+          <label class="check-row"><input type="checkbox" data-series="denim" checked><i class="line denim"></i><span>DENIM</span></label>
+          <label class="check-row"><input type="checkbox" data-series="gru"><i class="line gru"></i><span>GRU</span></label>
+        </section>
+
+        <section class="timeline-block">
+          <div class="timeline-head"><p class="section-title">增量进程</p><strong id="stepLabel">121 / 241</strong></div>
+          <input id="timeline" type="range" min="0" max="240" value="120" aria-label="加载进度">
+          <div class="transport">
+            <button id="play" class="primary" type="button" aria-pressed="false">播放路径</button>
+            <button id="memoryPair" type="button">对照记忆</button>
+            <button id="reset" class="quiet" type="button">回到起点</button>
+          </div>
+          <p class="interaction-hint">空格 播放/暂停 · ← → 单步 · M 对照记忆</p>
+        </section>
+
+        <section class="model-card">
+          <div class="model-kicker">物理约束神经本构模型</div>
+          <div class="model-name">DENIM · 918 参数</div>
+          <p>保留弹性、J2 屈服与返回映射，以神经内部变量闭合未知硬化演化。</p>
+          <div class="known-grid">
+            <span>显式约束</span><b>力学骨架</b>
+            <span>神经闭合</span><b>演化规律</b>
+          </div>
+        </section>
+      </aside>
+
+      <section class="stage">
+        <div class="statusbar">
+          <span><b id="pathName">—</b></span>
+          <span id="pathScope">—</span>
+          <span>主分量 <b id="component">—</b></span>
+          <span>响应误差 <b id="currentError">—</b></span>
+          <span>一致性残差 <b id="yieldResidual">—</b></span>
+        </div>
+
+        <div class="workspace">
+          <article class="panel hysteresis-panel">
+            <div class="panel-head">
+              <div><h2>路径相关本构响应</h2><p>滞回 · 卸载 · 反向加载</p></div>
+              <div id="historyBadge" class="badge">历史状态保持</div>
+            </div>
+            <svg id="hysteresisChart" class="chart" role="img" aria-label="应力应变滞回曲线"></svg>
+            <div id="chartTooltip" class="chart-tooltip"></div>
+          </article>
+
+          <article class="panel state-panel">
+            <div class="panel-head">
+              <div><h2>材料记忆状态</h2><p>快—慢通道与硬化演化</p></div>
+              <div class="state-dot"><i></i><span id="stateMode">弹性</span></div>
+            </div>
+            <div class="memory-orbit" aria-hidden="true">
+              <div class="orbit orbit-a"><i id="memoryA"></i></div>
+              <div class="orbit orbit-b"><i id="memoryB"></i></div>
+              <div class="orbit-core"><strong id="stressNow">0.0</strong><span>MPa</span></div>
+            </div>
+            <div class="state-values">
+              <div><span>快记忆</span><strong id="memoryOne">0.0 MPa</strong></div>
+              <div><span>慢记忆</span><strong id="memoryTwo">0.0 MPa</strong></div>
+              <div><span>各向同性半径</span><strong id="isotropicNow">0.0 MPa</strong></div>
+              <div><span>等效塑性应变</span><strong id="peeqNow">0.0000</strong></div>
+            </div>
+          </article>
+
+          <article class="panel path-panel">
+            <div class="panel-head">
+              <div><h2>多轴应变路径</h2><p id="pathAxes">应变分量平面</p></div>
+            </div>
+            <svg id="pathChart" class="chart" role="img" aria-label="多轴应变路径"></svg>
+          </article>
+        </div>
+
+        <div class="result-strip">
+          <div><span>Path-OOD RMSE</span><strong>1.136 MPa</strong><small>DENIM</small></div>
+          <div><span>Path-OOD R²</span><strong>0.999902</strong><small>32 条完整留出轨迹</small></div>
+          <div><span>结构级相对误差</span><strong>0.50–0.64%</strong><small>有限元反力响应</small></div>
+          <div><span>离散稳健性 RMSE</span><strong>0.944 / 0.958</strong><small>121 / 481 增量</small></div>
+        </div>
+      </section>
+    </main>
+
+    <main id="evidenceView" class="evidence-view" hidden>
+      <section class="evidence-intro">
+        <div>
+          <div class="eyebrow">物理—数据融合本构建模</div>
+          <h2>从拟合响应，到学习演化</h2>
+        </div>
+        <p>让已知力学负责约束，让神经网络学习未知硬化。</p>
+      </section>
+
+      <section class="progression">
+        <article><span>01 · 数据驱动</span><h3>路径外推受限</h3><p>黑箱与弱物理时序模型的 Path-OOD RMSE 为 60–106 MPa。</p></article>
+        <article><span>02 · 白盒积分</span><h3>已知方程的精度参照</h3><p>完整 J2/Chaboche 演化形式下，Path-OOD RMSE 为 0.0237 MPa。</p></article>
+        <article><span>03 · DENIM 闭合</span><h3>不完备物理 · 高精度</h3><p>神经内部变量补全未知演化，完整留出路径 RMSE 为 1.136 MPa。</p></article>
+      </section>
+
+      <section class="comparison-panel">
+        <div class="panel-head comparison-head">
+          <div><h2>路径外推表现</h2><p>同组比较 · 更短的条形代表更小误差</p></div>
+          <div class="scale-note">Path-OOD RMSE / MPa</div>
+        </div>
+        <div id="ladder" class="ladder"></div>
+        <div class="protocol-note">
+          <b>研究结论</b>
+          <span>在同一测试协议中，DENIM 的误差约为 Incomplete J2 的 1/52、GRU 的 1/68。</span>
+        </div>
+      </section>
+
+      <section class="evidence-footer">
+        <div class="evidence-card"><span>数据规模</span><strong>128 × 241</strong><p>8 类多轴路径，按路径族严格划分。</p></div>
+        <div class="evidence-card"><span>物理核验</span><strong>4 项</strong><p>屈服、不可压缩、PEEQ 单调与能量平衡。</p></div>
+        <div class="evidence-card"><span>结构验证</span><strong>缺口杆有限元</strong><p>覆盖单调、循环及强循环工况。</p></div>
+        <div class="evidence-links">
+          <a href="https://huggingface.co/datasets/HaomingLuo/AgentFEM-Material-Loading-Memory" target="_blank" rel="noreferrer">开放数据集 ↗</a>
+          <a href="https://huggingface.co/HaomingLuo/AgentFEM-DENIM" target="_blank" rel="noreferrer">开放模型 ↗</a>
+        </div>
+      </section>
+    </main>
+
+    <main id="modelsView" class="models-view" hidden>
+      <section class="models-intro">
+        <div>
+          <div class="eyebrow">模型结构与信息流</div>
+          <h2>让网络，记住材料。</h2>
+        </div>
+        <p>从瞬时映射到内部变量，探索六种建模思路。</p>
+      </section>
+
+      <section class="model-atlas">
+        <nav id="modelSelector" class="model-selector" aria-label="选择模型"></nav>
+        <article class="architecture-panel" aria-live="polite">
+          <div class="architecture-head">
+            <div>
+              <span id="architectureFamily" class="architecture-family">—</span>
+              <h2 id="architectureName">—</h2>
+              <p id="architectureTagline">—</p>
+            </div>
+            <div id="architectureBadge" class="architecture-badge">—</div>
+          </div>
+          <div id="architectureFlow" class="architecture-flow" aria-label="模型信息流"></div>
+          <div class="diagram-caption"><span class="diagram-legend"><i class="physics-key"></i> 力学算子 <i class="neural-key"></i> 可学习模块</span><button id="flowMotion" type="button" aria-pressed="true">暂停流动</button></div><p id="architectureSummary" class="architecture-summary">—</p>
+          <div class="architecture-traits">
+            <div><span>历史记忆</span><strong id="traitMemory">—</strong></div>
+            <div><span>显式物理</span><strong id="traitPhysics">—</strong></div>
+            <div><span>神经网络职责</span><strong id="traitLearning">—</strong></div>
+            <div><span>路径外推</span><strong id="traitOod">—</strong></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="model-map-note">
+        <b>DENIM 的位置</b>
+        <span>918 个参数 · 两条记忆通道 · 学习未知硬化演化</span>
+      </section>
+    </main>
+
+    <footer>
+      <span>AgentFEM Research · DENIM v1</span>
+      <span>预计算结果交互展示</span>
+    </footer>
+  </div>
+  <script src="data.js"></script>
+  <script src="i18n.js"></script>
+  <script src="architecture.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
