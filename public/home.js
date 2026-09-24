@@ -24,6 +24,8 @@
     art.style.opacity=small?1:1-fade;
     secondArt.style.opacity=small?1:(secondReady?reveal*(1-leave):0);
     secondArt.style.transform=paused||small?'none':`translate3d(${(1-reveal)*-4}%,0,0)`;
+    const plotBounds=secondArt.getBoundingClientRect();
+    window.MemoryMotion?.setPlaying(!paused&&(small?plotBounds.bottom>0&&plotBounds.top<innerHeight:reveal*(1-leave)>.15));
     thirdArt.style.opacity=small?1:(thirdImage.complete&&thirdImage.naturalWidth?thirdReveal:0);
     thirdArt.style.transform=paused||small?'none':`translate3d(${(1-thirdReveal)*4}%,0,0)`;
     document.body.classList.toggle('at-end',!small&&p>.98);

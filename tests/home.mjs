@@ -5,6 +5,8 @@ const html=await readFile('public/index.html','utf8');
 for(const phrase of ['计算，','触手可及。','力学与智能，','相遇于灵感。','./structural-design/'])assert(html.includes(phrase));
 for(const [,path] of html.matchAll(/(?:src|href|srcset)="\.\/([^"#]+)"/g))await stat(`public/${path.split('?')[0]}`);
 new vm.Script(await readFile('public/home.js','utf8'));
+new vm.Script(await readFile('public/memory-motion.js','utf8'));
+assert(html.includes('memory-motion.js'));
 assert((await stat('public/assets/bracket-hero.webp')).size<250000);
 assert((await stat('public/assets/bracket-hero-small.webp')).size<100000);
 assert((await stat('public/assets/rotor-hero.webp')).size<150000);
