@@ -37,7 +37,16 @@
       button.type = 'button';
       button.className = `path-button${index === state.trajectory ? ' active' : ''}`;
       button.innerHTML = `<span class="path-index">${String(index + 1).padStart(2, '0')}</span><span class="path-copy"><strong>${item.label}</strong><small>${item.scope}</small></span><span class="split ${item.split}">${item.split === 'validation' ? 'VAL' : item.split.toUpperCase()}</span>`;
-      button.onclick = () => { stopPlayback(); state.trajectory = index; state.step = 0; state.pairToggle = 0; $('timeline').value = 0; buildPathList(); render(); };
+      button.onclick = () => {
+        // Keep the user's transport state; the existing timer reads the current trajectory.
+        if (state.trajectory === index) return;
+        state.trajectory = index;
+        state.step = 0;
+        state.pairToggle = 0;
+        $('timeline').value = 0;
+        buildPathList();
+        render();
+      };
       list.append(button);
     });
   }
