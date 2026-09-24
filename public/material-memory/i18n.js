@@ -112,7 +112,7 @@
   "完整物理 · 神经参数化": "FULL PHYSICS / NEURAL PARAMETERS",
   "正确方程已知": "Known governing equations",
   "已知正确演化形式，网络只识别少量未知关系。": "The governing structure is known; neural parameters complete it.",
-  "当真实方程与内部变量结构已知时，它接近白盒精度上限；其局限是必须事先给出正确物理形式。": "A high-accuracy reference with the correct governing law and internal-state structure supplied.",
+  "在正确演化方程与内部变量结构已知的条件下，提供高精度的白盒参照。": "A high-accuracy reference with the correct governing law and internal-state structure supplied.",
   "显式内部变量": "Explicit state variables",
   "完整": "Full equations",
   "识别未知关系": "Unknown relationships",
