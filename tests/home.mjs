@@ -8,7 +8,7 @@ new vm.Script(await readFile('public/home.js','utf8'));
 assert((await stat('public/assets/bracket-hero.webp')).size<250000);
 assert((await stat('public/assets/bracket-hero-small.webp')).size<100000);
 assert((await stat('public/assets/rotor-hero.webp')).size<150000);
-assert(html.includes('data-src="./assets/denim-memory.svg"'));
+assert(html.includes('data-src="./assets/rotor-hero.webp"'));
 assert(html.includes('href="./material-memory/"'));
 assert((await stat('public/assets/denim-memory.svg')).size<30000);
 const denim=await readFile('public/material-memory/index.html','utf8');
