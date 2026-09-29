@@ -176,15 +176,22 @@
     rows.forEach((row, index) => {
       if (index === 0 || rows[index - 1][1] !== row[1]) groupIndex = 0;
       groupIndex++;
-      if(index===0||rows[index-1][1]!==row[1]){const heading=document.createElement('h3');heading.className='protocol-heading';heading.textContent=row[1]==='closure'?'B · 未知硬化演化':'A · 多材料基准';ladder.append(heading);}
+      if (index === 0 || rows[index - 1][1] !== row[1]) {
+        const heading = document.createElement('div');
+        heading.className = 'protocol-heading';
+        heading.innerHTML = row[1] === 'closure'
+          ? '<strong>B · 未知硬化闭合</strong><span>隐藏三通道 Chaboche 硬化；DENIM、Incomplete J2 与 GRU 按同一协议比较。</span>'
+          : '<strong>A · 已知方程基准</strong><span>完整 J2 / Chaboche 方程与参数已知；比较模型对未见加载路径的预测。</span>';
+        ladder.append(heading);
+      }
       const [name, protocol, value, kind] = row;
       const line = document.createElement('div');
       line.className = `ladder-group${name === 'DENIM' ? ' featured' : ''}`;
       const width = 100 * value / maxValue;
-      let protocolName = protocol === 'full' ? '协议 A · 多材料 Path-OOD' : '协议 B · 不完备物理 Path-OOD';
-      if (name === 'Physics-integrator NN') protocolName = '协议 A · 正确方程已知';
+      let protocolName = protocol === 'full' ? '协议 A · 已知方程 · 新路径' : '协议 B · 未知硬化 · 新路径';
+      if (name === 'Physics-integrator NN') protocolName = '协议 A · 完整方程积分';
       const ratio = value / denimValue;
-      const comparison = protocol === 'full' ? '独立测试协议' : name === 'DENIM' ? 'DENIM 基准' : (ratio >= 1 ? `误差比 DENIM 高 ${ratio.toFixed(ratio >= 10 ? 0 : 1)}×` : `误差比 DENIM 低 ${(1 / ratio).toFixed(0)}×`);
+      const comparison = protocol === 'full' ? '仅在协议 A 内比较' : name === 'DENIM' ? '协议 B 基准' : (ratio >= 1 ? `误差比 DENIM 高 ${ratio.toFixed(ratio >= 10 ? 0 : 1)}×` : `误差比 DENIM 低 ${(1 / ratio).toFixed(0)}×`);
       line.innerHTML = `<div class="ladder-rank">${String(groupIndex).padStart(2, '0')}</div><div class="ladder-model">${name}</div><div class="ladder-protocol"><span class="protocol-pill ${protocol === 'closure' ? 'closure' : ''}">${protocolName}</span></div><div class="bar-track"><div class="bar-fill ${kind}" style="width:${width.toFixed(2)}%"></div></div><div class="ladder-value">${value < .1 ? value.toFixed(4) : value.toFixed(3)} MPa<small>${comparison}</small></div>`;
       ladder.append(line);
     });
@@ -213,11 +220,11 @@
       traits: ['隐状态', '物理特征', '学习状态更新', '中']
     },
     {
-      name: 'Physics-integrator NN', short: '白盒积分器', family: '完整物理 · 神经参数化', badge: '正确方程已知',
-      tagline: '已知正确演化形式，网络只识别少量未知关系。',
-      nodes: [['输入', 'Δε + zₙ', '增量与状态'], ['完整方程', 'J2 / Chaboche', '已知演化结构', 'physics'], ['积分求解', '返回映射', '一致切线', 'physics'], ['输出', 'σₙ₊₁ + zₙ₊₁', '高精度']],
-      summary: '在正确演化方程与内部变量结构已知的条件下，提供高精度的白盒参照。',
-      traits: ['显式内部变量', '完整', '识别未知关系', '强']
+      name: 'Physics-integrator NN', short: '神经辅助积分器', family: '已知方程 · 神经辅助积分', badge: '完整本构方程已知',
+      tagline: '网络修正塑性增量初值，完整方程完成一致性校正。',
+      nodes: [['输入', 'Δε + zₙ', '增量与状态'], ['力学初值', 'Δλ seed', '解析近似', 'physics'], ['神经修正', 'NN correction', '改善初值', 'learned'], ['方程校正', '返回映射', '屈服一致性', 'physics'], ['输出', 'σₙ₊₁ + zₙ₊₁', '高精度']],
+      summary: '网络不学习新的材料规律；J2 / Chaboche 方程、参数和内部变量均已知。它只帮助求解塑性增量，并由完整方程完成最终校正。',
+      traits: ['显式内部变量', '完整方程', '修正塑性增量初值', '强']
     },
     {
       name: 'Incomplete J2', short: '不完备基线', family: '不完备物理 · 无神经闭合', badge: '骨架正确 · 演化缺失',

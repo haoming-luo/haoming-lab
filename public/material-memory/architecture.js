@@ -86,17 +86,26 @@
       text(svg,132,225,'h₀',22,C.learned);wire(svg,'M156 220 H250','learned');
       if(index===2){box(svg,25,324,170,72,t('物理状态特征','Physics features'),'p, εᵖ, …','physics');wire(svg,'M195 360 H266');}
       text(svg,585,450,index===1?t('历史被压缩进隐状态 h','HISTORY ENCODED IN HIDDEN STATE h'):t('物理特征进入网络，状态更新由网络学习','PHYSICS FEATURES IN · LEARNED STATE UPDATE'),12,C.muted);
+    } else if(index===3){
+      box(svg,20,173,150,119,t('增量与状态','Increment + state'),'Δε, zₙ','physics');
+      box(svg,205,173,165,119,t('力学初值','Mechanical seed'),'Δλ₀','physics',t('解析近似','Analytical estimate'));
+      box(svg,405,173,180,119,t('神经修正','Neural correction'),'Δλₙₙ','learned',t('改善求解初值','Improved solve seed'));
+      box(svg,620,173,190,119,t('方程校正','Equation correction'),'f = 0','physics',t('返回映射','Return mapping'));
+      box(svg,850,173,210,119,t('应力与状态','Stress + state'),'σₙ₊₁, zₙ₊₁','physics',t('一致性满足','Consistency satisfied'));
+      [[170,205],[370,405],[585,620],[810,850]].forEach(([a,b],j)=>wire(svg,'M'+a+' 231 H'+b,j===1?'learned':'physics'));
+      wire(svg,'M955 292 V397 H95 V292');
+      text(svg,515,128,t('网络只修正初值','NETWORK ONLY CORRECTS THE INITIAL GUESS'),12,C.learned);
+      text(svg,540,424,t('完整方程和内部变量负责最终状态更新','KNOWN EQUATIONS AND INTERNAL VARIABLES COMPLETE THE FINAL UPDATE'),12,C.physics);
     } else {
       box(svg,35,173,175,119,t('增量与历史','Increment + history'),'Δε, zₙ','physics');
       box(svg,265,173,190,119,t('力学骨架','Mechanical skeleton'),'Elasticity + J2','physics');
-      box(svg,515,173,230,119,index===3?t('完整演化方程','Known evolution law'):t('不完备硬化','Incomplete hardening'),index===3?'J2 / Chaboche':'R(p), α','physics',index===3?t('神经参数识别','Neural parameter identification'):t('有限的记忆表达','Limited memory representation'));
+      box(svg,515,173,230,119,t('不完备硬化','Incomplete hardening'),'R(p), α','physics',t('有限的记忆表达','Limited memory representation'));
       box(svg,805,173,145,119,t('返回映射','Return map'),'f = 0','physics');
       box(svg,1000,173,135,119,t('应力与状态','Stress + state'),'σₙ₊₁, zₙ₊₁','physics');
       [[210,265],[455,515],[745,805],[950,1000]].forEach(([a,b])=>wire(svg,'M'+a+' 231 H'+b));
       wire(svg,'M1067 292 V397 H122 V292');
       text(svg,580,424,t('显式内部变量沿加载路径更新','EXPLICIT INTERNAL VARIABLES EVOLVE ALONG THE PATH'),12,C.physics);
-      if(index===3)text(svg,630,128,t('正确演化形式已知','GOVERNING FORM KNOWN'),12,C.learned);
-      else text(svg,630,128,t('缺少神经闭合','NO LEARNED CLOSURE'),12,C.muted);
+      text(svg,630,128,t('缺少神经闭合','NO LEARNED CLOSURE'),12,C.muted);
     }
     const btn=document.getElementById('flowMotion');btn.textContent=paused?t('播放流动','Play flow'):t('暂停流动','Pause flow');btn.setAttribute('aria-pressed',String(!paused));
     btn.onclick=()=>{paused=!paused;render();};

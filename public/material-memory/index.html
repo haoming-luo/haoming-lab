@@ -7,7 +7,7 @@
   <title>AgentFEM × DENIM · 材料记忆与神经本构实验室</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090b0c'/%3E%3Cpath d='M6 22c5-15 8 8 13-7s7 4 7 4' fill='none' stroke='%2372d6d1' stroke-width='2.5'/%3E%3Ccircle cx='19' cy='15' r='2.3' fill='%23d38a51'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="polish.css?v=20260925-controls2">
+  <link rel="stylesheet" href="polish.css?v=20260929-clarity">
 </head>
 <body>
   <div class="shell">
@@ -127,13 +127,13 @@
 
       <section class="progression">
         <article><span>01 · 数据驱动</span><h3>路径外推受限</h3><p>黑箱与弱物理时序模型的 Path-OOD RMSE 为 60–106 MPa。</p></article>
-        <article><span>02 · 白盒积分</span><h3>已知方程的精度参照</h3><p>完整 J2/Chaboche 演化形式下，Path-OOD RMSE 为 0.0237 MPa。</p></article>
-        <article><span>03 · DENIM 闭合</span><h3>不完备物理 · 高精度</h3><p>神经内部变量补全未知演化，完整留出路径 RMSE 为 1.136 MPa。</p></article>
+        <article><span>02 · 白盒积分</span><h3>已知方程的精度参照</h3><p>完整 J2/Chaboche 方程与参数均已知，神经网络辅助积分；新路径 RMSE 为 0.0237 MPa。</p></article>
+        <article><span>03 · DENIM 闭合</span><h3>未知硬化 · 神经闭合</h3><p>隐藏三通道 Chaboche 硬化，由神经内部变量学习缺失演化；新路径 RMSE 为 1.136 MPa。</p></article>
       </section>
 
       <section class="comparison-panel">
         <div class="panel-head comparison-head">
-          <div><h2>路径外推表现</h2><p>同组比较 · 更短的条形代表更小误差</p></div>
+          <div><h2>路径外推表现</h2><p>组内可以直接比较；A、B 是不同任务 · 条形越短，误差越小</p></div>
           <div class="scale-note">Path-OOD RMSE / MPa</div>
         </div>
         <div id="ladder" class="ladder"></div>
@@ -197,8 +197,8 @@
     </footer>
   </div>
   <script src="data.js"></script>
-  <script src="i18n.js?v=20260925-tcn"></script>
-  <script src="architecture.js?v=20260925-tcn"></script>
-  <script src="app.js?v=20260925-tcn"></script>
+  <script src="i18n.js?v=20260929-clarity"></script>
+  <script src="architecture.js?v=20260929-clarity"></script>
+  <script src="app.js?v=20260929-clarity"></script>
 </body>
 </html>
