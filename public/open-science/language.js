@@ -2,14 +2,14 @@ const button = document.querySelector('#language');
 const elements = [...document.querySelectorAll('[data-i18n]')];
 const english = new Map(elements.map(el => [el, el.innerHTML]));
 const chinese = {
-  skip:'跳至开放资源',back:'← Lab',title:'从数值仿真，<br>走向物理 AI。',
-  intro:'从一个问题出发，探索背后的物理。<br>带走数据，创造下一种可能。',code:'探索 AgentFEM ↗',hub:'查看资源合集 ↗',
-  questions:'三个问题，三个开放的起点。',label:'探索 / 下载 / 创造',
-  memoryTitle:'相同应变，<br>不同经历。',memoryText:'金属记得它曾经如何受力。先看懂滞回，再用完整加载历史训练模型，运行神经本构。',memoryDetail:'DENIM · 合成弹塑性加载历史 · 可学习硬化',
+  skip:'跳至开放资源',back:'← Lab',title:'开放数据<br>与模型',
+  intro:'我们用 AgentFEM 做仿真，也用这些数据训练模型。<br>这里的案例可以在线体验，数据和模型可以下载使用。',code:'AgentFEM 源码 ↗',hub:'Hugging Face 合集 ↗',
+  questions:'案例与数据',label:'在线体验 · 数据下载 · 模型代码',
+  memoryTitle:'金属也有<br>“记忆”？',memoryText:'同样的变形，先前拉过还是压过，应力可能完全不同。在这里改变加载过程，看看 DENIM 如何预测这种差别。',memoryDetail:'DENIM · 弹塑性仿真数据 · 神经本构模型',
   demo:'体验案例 →',data:'数据集 ↗',model:'模型 ↗',
-  structureTitle:'同样载荷，<br>更少材料？',structureText:'探索重量与变形之间的取舍。利用几何到物理场的数据，训练和比较结构代理模型。',structureDetail:'GINO 系列模型 · 三维支架弹性 · 预计算结果演示',
-  heatTitle:'同一状态，<br>三种未来。',heatText:'继续加热、降低功率，还是关闭热源？学习相同温度场在不同操作下如何演化。',heatDetail:'64 个工况 · 192 条轨迹 · 全场、控制与传感器',heatCta:'探索数据集 ↗',
-  buildTitle:'下一个实验，<br>从 AgentFEM 开始。',buildText:'基于 FEniCSx 的开源有限元工作流。通过 Python、命令行或 AI 代理接口，建立、运行、检查和验证仿真。',docs:'阅读文档 ↗',agent:'连接 AI 代理 ↗',community:'参与交流 ↗',foot:'开放的问题，共享的工具，可复用的科学。'
+  structureTitle:'支架还能<br>减轻多少？',structureText:'承受相同载荷，少用一些材料，支架会多变形多少？调整结构试一试，也可以用配套数据训练自己的预测模型。',structureDetail:'GINO 系列模型 · 三维支架 · 网页展示预计算结果',
+  heatTitle:'换种加热方式，<br>温度怎么变？',heatText:'从同一个温度场出发，分别继续加热、降低功率和关闭热源。这组数据记录了三种操作之后的温度变化，可用于训练温度预测模型。',heatDetail:'64 个工况 · 192 组温度演化数据 · 含控制记录和测点读数',heatCta:'查看数据集 ↗',
+  buildTitle:'想算自己的问题？',buildText:'AgentFEM 基于 FEniCSx 开发，代码开源。你可以用 Python 或命令行建立和运行有限元模型，也可以通过 MCP 接入 AI 助手。',docs:'使用文档 ↗',agent:'接入 AI 助手 ↗',community:'讨论与反馈 ↗',foot:'代码、数据和模型，欢迎使用与交流。'
 };
 let language = new URLSearchParams(location.search).get('lang') === 'zh' ? 'zh' : 'en';
 function render() {

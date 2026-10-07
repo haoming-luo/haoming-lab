@@ -7,7 +7,7 @@
   <title>AgentFEM × DENIM · 材料记忆与神经本构实验室</title>
   <link rel="canonical" href="https://lab.haoming-luo.com/material-memory/">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="AgentFEM × DENIM — Material remembers. Your model should, too.">
+  <meta property="og:title" content="AgentFEM × DENIM — Material memory and neural constitutive models">
   <meta property="og:description" content="Explore loading histories, hysteresis, and neural constitutive models in a bilingual interactive lab.">
   <meta property="og:url" content="https://lab.haoming-luo.com/material-memory/">
   <meta name="twitter:card" content="summary">
@@ -25,8 +25,8 @@
       <div class="header-side">
         <div class="view-tabs" role="tablist" aria-label="研究视图">
           <button class="active" role="tab" aria-selected="true" data-view="lab">路径响应</button>
-          <button role="tab" aria-selected="false" data-view="evidence">模型谱系</button>
-          <button role="tab" aria-selected="false" data-view="models">模型图谱</button>
+          <button role="tab" aria-selected="false" data-view="evidence">模型对比</button>
+          <button role="tab" aria-selected="false" data-view="models">模型结构</button>
         </div>
         <div class="header-tools"><a class="lab-home" href="https://lab.haoming-luo.com/" aria-label="Lab home">← Lab</a><button id="languageToggle" type="button" aria-label="Switch language">EN</button></div>
       </div>
@@ -47,23 +47,23 @@
         </section>
 
         <section class="timeline-block">
-          <div class="timeline-head"><p class="section-title">增量进程</p><strong id="stepLabel">121 / 241</strong></div>
+          <div class="timeline-head"><p class="section-title">加载进度</p><strong id="stepLabel">121 / 241</strong></div>
           <input id="timeline" type="range" min="0" max="240" value="120" aria-label="加载进度">
           <div class="transport">
-            <button id="play" class="primary" type="button" aria-pressed="false">播放路径</button>
-            <button id="memoryPair" type="button">对照记忆</button>
+            <button id="play" class="primary" type="button" aria-pressed="false">播放加载过程</button>
+            <button id="memoryPair" type="button">比较两个时刻</button>
             <button id="reset" class="quiet" type="button">回到起点</button>
           </div>
-          <p class="interaction-hint">空格 播放/暂停 · ← → 单步 · M 对照记忆</p>
+          <p class="interaction-hint">空格 播放/暂停 · ← → 单步 · M 比较两个时刻</p>
         </section>
 
         <section class="model-card">
           <div class="model-kicker">物理约束神经本构模型</div>
           <div class="model-name">DENIM · 918 参数</div>
-          <p>保留弹性、J2 屈服与返回映射，以神经内部变量闭合未知硬化演化。</p>
+          <p>弹性和塑性按力学方程计算，未知的硬化规律由神经网络学习。</p>
           <div class="known-grid">
-            <span>显式约束</span><b>力学骨架</b>
-            <span>神经闭合</span><b>演化规律</b>
+            <span>显式约束</span><b>力学方程</b>
+            <span>网络补充</span><b>演化规律</b>
           </div>
         </section>
       </aside>
@@ -80,8 +80,8 @@
         <div class="workspace">
           <article class="panel hysteresis-panel">
             <div class="panel-head">
-              <div><h2>路径相关本构响应</h2><p>滞回 · 卸载 · 反向加载</p></div>
-              <div id="historyBadge" class="badge">历史状态保持</div>
+              <div><h2>应力如何随加载变化</h2><p>滞回 · 卸载 · 反向加载</p></div>
+              <div id="historyBadge" class="badge">保留加载历史</div>
             </div>
             <svg id="hysteresisChart" class="chart" role="img" aria-label="应力应变滞回曲线"></svg>
             <div id="chartTooltip" class="chart-tooltip"></div>
@@ -89,7 +89,7 @@
 
           <article class="panel state-panel">
             <div class="panel-head">
-              <div><h2>材料记忆状态</h2><p>快—慢通道与硬化演化</p></div>
+              <div><h2>材料记忆状态</h2><p>两条记忆通道的变化</p></div>
               <div class="state-dot"><i></i><span id="stateMode">弹性</span></div>
             </div>
             <div class="memory-orbit" aria-hidden="true">
@@ -100,7 +100,7 @@
             <div class="state-values">
               <div><span>快记忆</span><strong id="memoryOne">0.0 MPa</strong></div>
               <div><span>慢记忆</span><strong id="memoryTwo">0.0 MPa</strong></div>
-              <div><span>各向同性半径</span><strong id="isotropicNow">0.0 MPa</strong></div>
+              <div><span>各向同性硬化</span><strong id="isotropicNow">0.0 MPa</strong></div>
               <div><span>等效塑性应变</span><strong id="peeqNow">0.0000</strong></div>
             </div>
           </article>
@@ -117,7 +117,7 @@
           <div><span>Path-OOD RMSE</span><strong>1.136 MPa</strong><small>DENIM</small></div>
           <div><span>Path-OOD R²</span><strong>0.999902</strong><small>32 条完整留出轨迹</small></div>
           <div><span>结构级相对误差</span><strong>0.50–0.64%</strong><small>有限元反力响应</small></div>
-          <div><span>离散稳健性 RMSE</span><strong>0.944 / 0.958</strong><small>121 / 481 增量</small></div>
+          <div><span>不同步长下的 RMSE</span><strong>0.944 / 0.958</strong><small>121 / 481 增量</small></div>
         </div>
       </section>
     </main>
@@ -126,32 +126,32 @@
       <section class="evidence-intro">
         <div>
           <div class="eyebrow">物理—数据融合本构建模</div>
-          <h2>从拟合响应，到学习演化</h2>
+          <h2>换一种加载方式，还能预测准吗？</h2>
         </div>
-        <p>让已知力学负责约束，让神经网络学习未知硬化。</p>
+        <p>DENIM 保留已知力学方程，用网络学习未知的硬化规律。</p>
       </section>
 
       <section class="progression">
-        <article><span>01 · 数据驱动</span><h3>路径外推受限</h3><p>黑箱与弱物理时序模型的 Path-OOD RMSE 为 60–106 MPa。</p></article>
+        <article><span>01 · 数据驱动</span><h3>新加载路径上的误差</h3><p>黑箱与带物理特征的时序网络模型的 Path-OOD RMSE 为 60–106 MPa。</p></article>
         <article><span>02 · 白盒积分</span><h3>已知方程的精度参照</h3><p>完整 J2/Chaboche 方程与参数均已知，神经网络辅助积分；新路径 RMSE 为 0.0237 MPa。</p></article>
-        <article><span>03 · DENIM 闭合</span><h3>未知硬化 · 神经闭合</h3><p>隐藏三通道 Chaboche 硬化，由神经内部变量学习缺失演化；新路径 RMSE 为 1.136 MPa。</p></article>
+        <article><span>03 · DENIM</span><h3>学习未知的硬化规律</h3><p>隐藏三通道 Chaboche 硬化，由神经内部变量学习缺失演化；新路径 RMSE 为 1.136 MPa。</p></article>
       </section>
 
       <section class="comparison-panel">
         <div class="panel-head comparison-head">
-          <div><h2>路径外推表现</h2><p>组内可以直接比较；A、B 是不同任务 · 条形越短，误差越小</p></div>
+          <div><h2>新加载路径上的预测误差</h2><p>A、B 两组任务分别比较；条形越短，误差越小</p></div>
           <div class="scale-note">Path-OOD RMSE / MPa</div>
         </div>
         <div id="ladder" class="ladder"></div>
         <div class="protocol-note">
           <b>研究结论</b>
-          <span>在同一测试协议中，DENIM 的误差约为 Incomplete J2 的 1/52、GRU 的 1/68。</span>
+          <span>在 B 组测试中，DENIM 的误差约为 Incomplete J2 的 1/52、GRU 的 1/68。</span>
         </div>
       </section>
 
       <section class="evidence-footer">
-        <div class="evidence-card"><span>数据规模</span><strong>128 × 241</strong><p>8 类多轴路径，按路径族严格划分。</p></div>
-        <div class="evidence-card"><span>物理核验</span><strong>4 项</strong><p>屈服、不可压缩、PEEQ 单调与能量平衡。</p></div>
+        <div class="evidence-card"><span>数据规模</span><strong>128 × 241</strong><p>8 类多轴加载路径，按路径类型划分训练与测试数据。</p></div>
+        <div class="evidence-card"><span>物理核验</span><strong>4 项</strong><p>检查屈服条件、塑性不可压缩性、累积塑性应变和能量平衡。</p></div>
         <div class="evidence-card"><span>结构验证</span><strong>缺口杆有限元</strong><p>覆盖单调、循环及强循环工况。</p></div>
         <div class="evidence-links">
           <a href="https://huggingface.co/datasets/HaomingLuo/AgentFEM-Material-Loading-Memory" target="_blank" rel="noreferrer">开放数据集 ↗</a>
@@ -164,9 +164,9 @@
       <section class="models-intro">
         <div>
           <div class="eyebrow">模型结构与信息流</div>
-          <h2>让网络，记住材料。</h2>
+          <h2>模型如何保留加载历史？</h2>
         </div>
-        <p>从瞬时映射到内部变量，探索六种建模思路。</p>
+        <p>选择一个模型，查看输入、计算过程，以及历史信息如何保留。</p>
       </section>
 
       <section class="model-atlas">
@@ -181,18 +181,18 @@
             <div id="architectureBadge" class="architecture-badge">—</div>
           </div>
           <div id="architectureFlow" class="architecture-flow" aria-label="模型信息流"></div>
-          <div class="diagram-caption"><span class="diagram-legend"><i class="physics-key"></i> 力学算子 <i class="neural-key"></i> 可学习模块</span><button id="flowMotion" type="button" aria-pressed="true">暂停流动</button></div><p id="architectureSummary" class="architecture-summary">—</p>
+          <div class="diagram-caption"><span class="diagram-legend"><i class="physics-key"></i> 力学算子 <i class="neural-key"></i> 可学习模块</span><button id="flowMotion" type="button" aria-pressed="true">暂停动效</button></div><p id="architectureSummary" class="architecture-summary">—</p>
           <div class="architecture-traits">
-            <div><span>历史记忆</span><strong id="traitMemory">—</strong></div>
-            <div><span>显式物理</span><strong id="traitPhysics">—</strong></div>
-            <div><span>神经网络职责</span><strong id="traitLearning">—</strong></div>
-            <div><span>路径外推</span><strong id="traitOod">—</strong></div>
+            <div><span>如何保留历史</span><strong id="traitMemory">—</strong></div>
+            <div><span>已知力学关系</span><strong id="traitPhysics">—</strong></div>
+            <div><span>网络学习什么</span><strong id="traitLearning">—</strong></div>
+            <div><span>新路径预测</span><strong id="traitOod">—</strong></div>
           </div>
         </article>
       </section>
 
       <section class="model-map-note">
-        <b>DENIM 的位置</b>
+        <b>DENIM 模型</b>
         <span>918 个参数 · 两条记忆通道 · 学习未知硬化演化</span>
       </section>
     </main>
