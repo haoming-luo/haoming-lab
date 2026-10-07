@@ -189,10 +189,10 @@
       const line = document.createElement('div');
       line.className = `ladder-group${name === 'DENIM' ? ' featured' : ''}`;
       const width = 100 * value / maxValue;
-      let protocolName = protocol === 'full' ? '协议 A · 已知方程 · 新路径' : '协议 B · 未知硬化 · 新路径';
-      if (name === 'Physics-integrator NN') protocolName = '协议 A · 完整方程积分';
+      let protocolName = protocol === 'full' ? '测试 A · 已知方程 · 新路径' : '测试 B · 未知硬化 · 新路径';
+      if (name === 'Physics-integrator NN') protocolName = '测试 A · 完整方程积分';
       const ratio = value / denimValue;
-      const comparison = protocol === 'full' ? '仅在协议 A 内比较' : name === 'DENIM' ? '协议 B 基准' : (ratio >= 1 ? `误差是 DENIM 的 ${ratio.toFixed(ratio >= 10 ? 0 : 1)} 倍` : `误差仅为 DENIM 的 1/${(1 / ratio).toFixed(0)}`);
+      const comparison = protocol === 'full' ? '仅与 A 组模型比较' : name === 'DENIM' ? 'B 组参考' : (ratio >= 1 ? `误差是 DENIM 的 ${ratio.toFixed(ratio >= 10 ? 0 : 1)} 倍` : `误差仅为 DENIM 的 1/${(1 / ratio).toFixed(0)}`);
       line.innerHTML = `<div class="ladder-rank">${String(groupIndex).padStart(2, '0')}</div><div class="ladder-model">${name}</div><div class="ladder-protocol"><span class="protocol-pill ${protocol === 'closure' ? 'closure' : ''}">${protocolName}</span></div><div class="bar-track"><div class="bar-fill ${kind}" style="width:${width.toFixed(2)}%"></div></div><div class="ladder-value">${value < .1 ? value.toFixed(4) : value.toFixed(3)} MPa<small>${comparison}</small></div>`;
       ladder.append(line);
     });
