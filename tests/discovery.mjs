@@ -27,6 +27,7 @@ button.toggle();
 assert.equal(document.documentElement.lang,'en');
 for(const [,ref] of html.matchAll(/(?:src|href)="([^"#]+)"/g)){
   if(ref.startsWith('https:')||ref.startsWith('data:'))continue;
-  assert(fs.existsSync(new URL(ref,new URL('../public/open-science/',import.meta.url))),ref);
+  const local=new URL(ref,new URL('../public/open-science/',import.meta.url));local.search='';
+  assert(fs.existsSync(local),ref);
 }
 console.log('Canonical URLs, metadata, sitemap, bilingual copy and local links PASS');
