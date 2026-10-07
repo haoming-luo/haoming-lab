@@ -1,0 +1,43 @@
+{
+  "beam_fe_mm": 0.3831966966987316,
+  "beam_theory_mm": 0.380952380952381,
+  "beam_theory_difference_percent": 0.5891328834170206,
+  "cylinder_fe_um": 2.269841254425098,
+  "cylinder_50_analytic_um": 2.26984126984127,
+  "cylinder_60_analytic_um": 2.0028011204481793,
+  "cylinder_reduction_percent": 11.764705882352954,
+  "steady_center_c": 59.99999999999653,
+  "flux45_w_m2": 36000,
+  "flux90_w_m2": 72000,
+  "thermal_diffusivity_m2_s": 1.1538461538461538e-05,
+  "time_rows": [
+    {
+      "time_s": 60,
+      "fe_dt2_c": 34.14656394329114,
+      "fe_dt1_c": 34.23055369163279,
+      "analytic_c": 34.31894353506623
+    },
+    {
+      "time_s": 120,
+      "fe_dt2_c": 46.81404116713031,
+      "fe_dt1_c": 46.91390450403179,
+      "analytic_c": 47.013928449361615
+    },
+    {
+      "time_s": 300,
+      "fe_dt2_c": 58.26316103083036,
+      "fe_dt1_c": 58.29588937902531,
+      "analytic_c": 58.32796339740017
+    },
+    {
+      "time_s": 600,
+      "fe_dt2_c": 59.94077661955993,
+      "fe_dt1_c": 59.94298755714095,
+      "analytic_c": 59.94510643319248
+    }
+  ],
+  "time_step_max_difference_c": 0.13276185034311538,
+  "time_step_final_difference_c": 0.0022109375810259735,
+  "source_commit": "a05b293104c15f8ca3916b98edb24801e0e9ab6c",
+  "note": "The 400 N beam value is obtained by linear scaling; the 60 mm cylinder answer is analytical. Other finite-element values are from recorded AgentFEM runs."
+}
