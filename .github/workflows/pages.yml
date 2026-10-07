@@ -19,6 +19,7 @@ jobs:
       - run: node tests/static-demo.mjs
       - run: node tests/home.mjs
       - run: node tests/discovery.mjs
+      - run: node tests/copy.mjs
       - run: node build.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

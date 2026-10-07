@@ -130,7 +130,7 @@
     $('memoryB').style.transform = `rotate(${-320 * item.memory_2_mpa[i] / maxB + 45}deg)`;
     const pair = item.memory_pair;
     const closeToPair = Math.abs(i - pair[0]) < 2 || Math.abs(i - pair[1]) < 2;
-    $('historyBadge').textContent = closeToPair ? '同应变 · 异历史' : (plastic ? '塑性状态演化' : '历史状态保持');
+    $('historyBadge').textContent = closeToPair ? '相近应变，不同应力' : (plastic ? '塑性状态演化' : '保留加载历史');
   }
 
   function render() { updateState(); drawHysteresis(); drawPathPlane(); }
@@ -138,13 +138,13 @@
   function stopPlayback() {
     state.playing = false;
     clearInterval(timer);
-    $('play').textContent = '播放路径';
+    $('play').textContent = '播放加载过程';
     $('play').setAttribute('aria-pressed', 'false');
   }
 
   function togglePlayback() {
     state.playing = !state.playing;
-    $('play').textContent = state.playing ? '暂停播放' : '播放路径';
+    $('play').textContent = state.playing ? '暂停播放' : '播放加载过程';
     $('play').setAttribute('aria-pressed', String(state.playing));
     clearInterval(timer);
     if (state.playing) timer = setInterval(() => {
@@ -180,7 +180,7 @@
         const heading = document.createElement('div');
         heading.className = 'protocol-heading';
         heading.innerHTML = row[1] === 'closure'
-          ? '<strong>B · 未知硬化闭合</strong><span>隐藏三通道 Chaboche 硬化；DENIM、Incomplete J2 与 GRU 按同一协议比较。</span>'
+          ? '<strong>B · 未知硬化预测</strong><span>隐藏三通道 Chaboche 硬化；DENIM、Incomplete J2 与 GRU 按同一协议比较。</span>'
           : '<strong>A · 已知方程基准</strong><span>完整 J2 / Chaboche 方程与参数已知；比较模型对未见加载路径的预测。</span>';
         ladder.append(heading);
       }
@@ -191,7 +191,7 @@
       let protocolName = protocol === 'full' ? '协议 A · 已知方程 · 新路径' : '协议 B · 未知硬化 · 新路径';
       if (name === 'Physics-integrator NN') protocolName = '协议 A · 完整方程积分';
       const ratio = value / denimValue;
-      const comparison = protocol === 'full' ? '仅在协议 A 内比较' : name === 'DENIM' ? '协议 B 基准' : (ratio >= 1 ? `误差比 DENIM 高 ${ratio.toFixed(ratio >= 10 ? 0 : 1)}×` : `误差比 DENIM 低 ${(1 / ratio).toFixed(0)}×`);
+      const comparison = protocol === 'full' ? '仅在协议 A 内比较' : name === 'DENIM' ? '协议 B 基准' : (ratio >= 1 ? `误差是 DENIM 的 ${ratio.toFixed(ratio >= 10 ? 0 : 1)} 倍` : `误差仅为 DENIM 的 1/${(1 / ratio).toFixed(0)}`);
       line.innerHTML = `<div class="ladder-rank">${String(groupIndex).padStart(2, '0')}</div><div class="ladder-model">${name}</div><div class="ladder-protocol"><span class="protocol-pill ${protocol === 'closure' ? 'closure' : ''}">${protocolName}</span></div><div class="bar-track"><div class="bar-fill ${kind}" style="width:${width.toFixed(2)}%"></div></div><div class="ladder-value">${value < .1 ? value.toFixed(4) : value.toFixed(3)} MPa<small>${comparison}</small></div>`;
       ladder.append(line);
     });
@@ -206,45 +206,45 @@
       traits: ['无', '无', '预测全部应力', '弱']
     },
     {
-      name: 'GRU', short: '时序黑箱', family: '数据驱动 · 隐式记忆', badge: '历史序列 → 应力',
-      tagline: '从应变序列中压缩出隐藏历史状态。',
+      name: 'GRU', short: '时序网络', family: '数据驱动 · 隐式记忆', badge: '历史序列 → 应力',
+      tagline: '用隐状态记录此前的加载过程。',
       nodes: [['输入', '应变历史 ε₀:ₜ', '完整序列'], ['序列编码', 'GRU', '隐状态记忆', 'learned'], ['输出', '应力序列 σ₀:ₜ', '端到端预测']],
-      summary: '能够识别滞回和反向加载，但记忆完全藏在网络隐状态中；路径分布变化时，外推稳定性受训练数据覆盖范围影响。',
+      summary: 'GRU 用隐状态记录加载历史，再预测应力。遇到训练中没有见过的加载方式时，预测效果取决于训练数据的覆盖范围。',
       traits: ['隐状态', '无', '学习全部演化', '中—弱']
     },
     {
-      name: 'Physics-state GRU', short: '弱物理时序', family: '物理增强 · 隐状态', badge: '物理特征 + 时序网络',
+      name: 'Physics-state GRU', short: '带物理特征的时序网络', family: '物理增强 · 隐状态', badge: '物理特征 + 时序网络',
       tagline: '把物理状态作为特征交给循环网络。',
       nodes: [['输入', '应变 + 物理特征', '状态提示', 'physics'], ['状态更新', 'Physics-state GRU', '学习时序演化', 'learned'], ['输出', '应力 + 隐状态', '弱物理约束']],
-      summary: '物理特征改善了网络的输入表达，但积分更新仍主要由黑箱时序网络承担，守恒与一致性通常需要额外约束。',
+      summary: '加入塑性应变等物理特征，帮助网络判断当前状态；下一步如何更新，仍由网络学习。',
       traits: ['隐状态', '物理特征', '学习状态更新', '中']
     },
     {
       name: 'Physics-integrator NN', short: '神经辅助积分器', family: '已知方程 · 神经辅助积分', badge: '完整本构方程已知',
       tagline: '网络修正塑性增量初值，完整方程完成一致性校正。',
       nodes: [['输入', 'Δε + zₙ', '增量与状态'], ['力学初值', 'Δλ seed', '解析近似', 'physics'], ['神经修正', 'NN correction', '改善初值', 'learned'], ['方程校正', '返回映射', '屈服一致性', 'physics'], ['输出', 'σₙ₊₁ + zₙ₊₁', '高精度']],
-      summary: '网络不学习新的材料规律；J2 / Chaboche 方程、参数和内部变量均已知。它只帮助求解塑性增量，并由完整方程完成最终校正。',
+      summary: '这里已知完整的 J2 / Chaboche 方程和材料参数。网络提供更好的求解初值，最终结果仍由方程校正，因此它是已知方程条件下的精度参照。',
       traits: ['显式内部变量', '完整方程', '修正塑性增量初值', '强']
     },
     {
-      name: 'Incomplete J2', short: '不完备基线', family: '不完备物理 · 无神经闭合', badge: '骨架正确 · 演化缺失',
+      name: 'Incomplete J2', short: '不完备基线', family: '硬化规律不完整', badge: '部分硬化规律缺失',
       tagline: '保留基本塑性框架，但硬化演化表达不足。',
-      nodes: [['输入', 'Δε + zₙ', '增量与状态'], ['力学骨架', '弹性 + J2 屈服', '基本约束', 'physics'], ['缺失环节', '不完备硬化', '系统偏差'], ['输出', 'σₙ₊₁', '误差累积']],
-      summary: '物理骨架提供基本合理性，但缺少真实材料的复杂记忆与硬化通道，循环和非比例路径下会产生持续误差。',
-      traits: ['有限', '基础骨架', '无', '中—弱']
+      nodes: [['输入', 'Δε + zₙ', '增量与状态'], ['力学方程', '弹性 + J2 屈服', '基本约束', 'physics'], ['缺失环节', '不完备硬化', '系统偏差'], ['输出', 'σₙ₊₁', '误差累积']],
+      summary: '保留弹性和 J2 塑性，但缺少部分硬化规律。因此在循环加载和非比例加载中，难以准确描述应力变化。',
+      traits: ['有限', '基本弹塑性方程', '无', '中—弱']
     },
     {
-      name: 'DENIM', short: '离散能量神经内部变量模型', family: '不完备物理 · 神经闭合', badge: '力学骨架 + 可学习演化',
-      tagline: '保留可验证力学积分，以神经内部变量补全未知演化。',
-      nodes: [['输入', 'Δε + zₙ', '增量与历史状态'], ['力学骨架', '弹性 · J2 · 流动法则', '显式约束', 'physics'], ['神经闭合', '快—慢记忆通道', '未知硬化演化', 'learned memory'], ['隐式积分', '返回映射', '一致性求解', 'physics'], ['输出', 'σₙ₊₁ + zₙ₊₁', '可追踪状态']],
-      summary: '网络不替代整套本构方程，只学习物理骨架未描述的演化项；因此同时保留路径记忆、求解约束和内部状态可解释性。',
-      traits: ['显式神经内部变量', '核心骨架', '闭合未知演化', '强']
+      name: 'DENIM', short: '离散能量神经内部变量模型', family: '已知力学 + 硬化学习', badge: '力学方程 + 可学习演化',
+      tagline: '保留弹塑性计算过程，用网络学习缺失的硬化规律。',
+      nodes: [['输入', 'Δε + zₙ', '增量与历史状态'], ['力学方程', '弹性 · J2 · 流动法则', '显式约束', 'physics'], ['网络补充', '快—慢记忆通道', '未知硬化演化', 'learned memory'], ['隐式积分', '返回映射', '一致性求解', 'physics'], ['输出', 'σₙ₊₁ + zₙ₊₁', '可追踪状态']],
+      summary: 'DENIM 按力学方程计算弹塑性响应，用网络更新未知的硬化项。内部变量随加载过程保留，供下一步计算使用。',
+      traits: ['显式神经内部变量', '弹塑性方程', '学习未知硬化', '强']
     },
     {
       name: 'Causal TCN', short: '因果时序卷积', family: '数据驱动 · 有限历史窗口', badge: '只读当前与过去',
       tagline: '通过多层因果卷积，提取不同时间尺度的加载历史。',
-      summary: '膨胀卷积扩大历史感受野，不读取未来输入；记忆由有限历史窗口提供，而非循环隐状态。',
-      traits: ['历史感受野', '无', '预测全部应力', '依赖训练覆盖']
+      summary: 'TCN 读取当前时刻和此前一段加载记录。多层卷积让它能回看更早的历史，但不会读取未来数据，也不使用循环隐状态。',
+      traits: ['可回看的历史范围', '无', '预测全部应力', '依赖训练覆盖']
     }
   ];
 

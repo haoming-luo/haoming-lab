@@ -61,7 +61,7 @@
       wire(svg,'M240 233 H345','learned');wire(svg,'M815 233 H920','learned');
       text(svg,580,442,t('没有历史状态传递','NO STATE TRANSFER BETWEEN INCREMENTS'),12,C.muted);
     } else if(index===6){
-      text(svg,30,63,t('因果膨胀卷积 · 感受野示意','CAUSAL DILATED CONVOLUTION · RECEPTIVE-FIELD SCHEMATIC'),13,C.learned,'start');
+      text(svg,30,63,t('因果卷积 · 历史读取范围','CAUSAL CONVOLUTION · HISTORY WINDOW'),13,C.learned,'start');
       const xs=Array.from({length:8},(_,i)=>205+i*89), ys=[364,270,176];
       // Kernel size 2, dilations 1 and 2 illustrate causality, not trained widths.
       [1,2].forEach((d,l)=>xs.forEach((x,j)=>[j,j-d].filter(k=>k>=0).forEach(k=>wire(svg,`M${xs[k]} ${ys[l]-10} L${x} ${ys[l+1]+10}`,'learned'))));
@@ -98,16 +98,16 @@
       text(svg,540,424,t('完整方程和内部变量负责最终状态更新','KNOWN EQUATIONS AND INTERNAL VARIABLES COMPLETE THE FINAL UPDATE'),12,C.physics);
     } else {
       box(svg,35,173,175,119,t('增量与历史','Increment + history'),'Δε, zₙ','physics');
-      box(svg,265,173,190,119,t('力学骨架','Mechanical skeleton'),'Elasticity + J2','physics');
+      box(svg,265,173,190,119,t('力学方程','Mechanical equations'),'Elasticity + J2','physics');
       box(svg,515,173,230,119,t('不完备硬化','Incomplete hardening'),'R(p), α','physics',t('有限的记忆表达','Limited memory representation'));
       box(svg,805,173,145,119,t('返回映射','Return map'),'f = 0','physics');
       box(svg,1000,173,135,119,t('应力与状态','Stress + state'),'σₙ₊₁, zₙ₊₁','physics');
       [[210,265],[455,515],[745,805],[950,1000]].forEach(([a,b])=>wire(svg,'M'+a+' 231 H'+b));
       wire(svg,'M1067 292 V397 H122 V292');
       text(svg,580,424,t('显式内部变量沿加载路径更新','EXPLICIT INTERNAL VARIABLES EVOLVE ALONG THE PATH'),12,C.physics);
-      text(svg,630,128,t('缺少神经闭合','NO LEARNED CLOSURE'),12,C.muted);
+      text(svg,630,128,t('缺少网络补充','NO LEARNED CLOSURE'),12,C.muted);
     }
-    const btn=document.getElementById('flowMotion');btn.textContent=paused?t('播放流动','Play flow'):t('暂停流动','Pause flow');btn.setAttribute('aria-pressed',String(!paused));
+    const btn=document.getElementById('flowMotion');btn.textContent=paused?t('播放动效','Play animation'):t('暂停动效','Pause animation');btn.setAttribute('aria-pressed',String(!paused));
     btn.onclick=()=>{paused=!paused;render();};
   }
   window.DenimArchitecture={render};

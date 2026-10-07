@@ -3,16 +3,16 @@ const main=document.querySelector('main'),stage=document.querySelector('.stage')
 document.querySelector('header .eyebrow').textContent='Haoming Luo';
 document.querySelector('header h1').textContent='AgentFEM x GINO 智能结构设计实验室';
 document.title='AgentFEM x GINO 智能结构设计实验室';
-document.querySelector('.intro h2').textContent='承受 10 kN 压力，支撑架能减重多少？';
-document.querySelector('.intro p').textContent='工装承力支架 · 控制承载台下沉，减少结构用料';
-const brief=document.createElement('div');brief.className='brief';brief.innerHTML='承载台均匀向下 <b>10 kN 静力</b> · 两侧底脚固定 · 高 189 mm<br><span class="context-tags">铝材线弹性示范；下沉上限是设计探索目标，不是行业标准。暂不作强度放行。</span>';
+document.querySelector('.intro h2').textContent='承受 10 kN 载荷，支架能减轻多少？';
+document.querySelector('.intro p').textContent='减轻支架重量，同时把顶部下沉量控制在要求以内。';
+const brief=document.createElement('div');brief.className='brief';brief.innerHTML='承载台均匀向下 <b>10 kN 静力</b> · 两侧底脚固定 · 高 189 mm<br><span class="context-tags">铝材线弹性模型 · 可调整下沉上限 · 比较刚度，不作强度判定</span>';
 stage.before(brief);
 stage.insertAdjacentHTML('beforeend','<div class="scene-label" id="before-label">对照 · 初始支架</div><div class="scene-label right" id="after-label">当前 · 初始支架</div>');
 const actions=document.createElement('div');actions.className='scene-actions';actions.innerHTML='<button id="toggle-controls">调节结构</button><span>两图同步旋转 · 相同色标与变形倍数</span><button id="pin-reference">以当前作为对照</button><button id="restore-reference">恢复对照</button>';
 stage.after(actions);
 const strip=document.createElement('div');strip.className='result-strip';strip.innerHTML='<div><small>结构质量 · 对照 → 当前</small><strong id="compare-mass">—</strong><small id="compare-saving">等待模型载入</small></div><div><small>顶部下沉 · 对照 → 当前</small><strong id="compare-motion">—</strong><small id="compare-deflection">相同载荷下比较</small></div><div class="judgement"><small>与设定的下沉上限比较</small><strong id="compare-pass">—</strong><small id="compare-limit">仅判断位移，不代表强度安全</small></div>';
 actions.after(strip);const note=document.createElement('div');note.className='result-note';note.id='comparison-note';strip.after(note);
-const modal=document.createElement('dialog');modal.id='method-dialog';modal.innerHTML='<button id="close-method">关闭</button><h2>计算如何变成设计能力</h2><p>AgentFEM 生成结构与位移数据，GINO + 位移修正网络学习新几何的响应，再按位移条件筛选候选。当前搜索不是拓扑优化或全局最优求解。</p>';
+const modal=document.createElement('dialog');modal.id='method-dialog';modal.innerHTML='<button id="close-method">关闭</button><h2>这个演示怎么做的？</h2><p>先用 AgentFEM 批量计算支架，再训练 GINO 和位移修正网络。本网页按你的下沉要求，从已有候选中选出最轻的方案；手动调参会匹配最接近的已有结构。</p>';
 document.body.append(modal);modal.append($('learning-evidence'),landscape,document.querySelector('.status'));document.querySelector('.status').style.display='block';
 document.querySelector('header a').textContent='数据与方法';document.querySelector('header a').onclick=e=>{e.preventDefault();modal.showModal();};$('close-method').onclick=()=>modal.close();
 const controlsAside=document.querySelector('aside');controlsAside.id='structure-controls';
@@ -27,11 +27,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.class
 mobileControls.addEventListener('change',()=>{if(!mobileControls.matches)closeControls();});
 document.querySelector('label[for="limit"]').firstChild.textContent='顶部最多下沉 ';$('search').textContent='寻找更轻支架结构';$('predict').textContent='查看修改后的效果';
 const names={depth:'支撑臂基础宽度',radius:'支撑臂基础厚度',waist:'中段收窄程度',bow:'支撑臂上拱量'};
-const helps={depth:'完整参考宽度；实际截面随收腰变化。',radius:'完整参考厚度；不是椭圆半轴。',waist:'数值越大，中段越细、用料越少。',bow:'相对直线向上弯起的最大距离。'};
+const helps={depth:'两端的参考宽度，中段会随收窄程度变化。',radius:'支撑臂截面的参考厚度，中段随收窄程度变化。',waist:'数值越大，中段越细、用料越少。',bow:'相对直线向上弯起的最大距离。'};
 let pending=false,reference=null,currentRecord=null,comparisonSurface=null,highlightArms=false;
 for(const [key]of specs){const input=$('p-'+key),label=document.querySelector(`label[for="p-${key}"]`);label.firstChild.textContent=names[key];label.insertAdjacentHTML('afterend',`<small>${helps[key]}</small>`);
 if(key==='depth'||key==='radius'){for(const a of ['min','max','value','step'])input[a]=Number(input[a])*2;}
-const updateLabel=()=>{$('v-'+key).textContent=input.value+(key==='waist'?'%':' mm');};updateLabel();input.addEventListener('input',()=>{updateLabel();pending=true;strip.classList.add('pending');$('after-label').textContent='当前仍是上次结果 · 修改待预测';note.textContent='参数已修改。点击“查看修改后的效果”更新右图与结果。';highlightArms=true;rebuild();});input.addEventListener('focus',()=>{highlightArms=true;rebuild();});input.addEventListener('blur',()=>{highlightArms=false;rebuild();});}
+const updateLabel=()=>{$('v-'+key).textContent=input.value+(key==='waist'?'%':' mm');};updateLabel();input.addEventListener('input',()=>{updateLabel();pending=true;strip.classList.add('pending');$('after-label').textContent='参数已修改 · 尚未更新';note.textContent='参数已修改。点击“查看修改后的效果”更新右图与结果。';highlightArms=true;rebuild();});input.addEventListener('focus',()=>{highlightArms=true;rebuild();});input.addEventListener('blur',()=>{highlightArms=false;rebuild();});}
 document.querySelector('[data-mode="metal"]').textContent='看结构';document.querySelector('[data-mode="displacement"]').textContent='看变形';document.querySelector('[data-mode="stress"]').textContent='看应力';
 function recordNow(){return {surface:current,mass:Number($('mass').textContent),motion:Number($('motion').textContent)*.01,cad:$('cad').getAttribute('href'),id:active,predicted:!!current?.prediction};}
 function updateComparison(){if(!currentRecord||!reference)return;const a=reference,b=currentRecord,lim=committedLimit*.01,save=(1-b.mass/a.mass)*100;comparisonSurface=a.surface;
