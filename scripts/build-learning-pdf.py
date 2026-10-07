@@ -7,6 +7,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, Table, TableStyle, KeepTogether
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib import colors
+from handout_schematics import ProblemDiagram
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE=ROOT/'docs/handout'
@@ -25,6 +26,9 @@ styles['small'].textColor=colors.HexColor('#555555')
 styles['formula'].leftIndent=14
 styles['h2'].spaceBefore=8
 styles['label'].spaceAfter=5
+styles['exercise']=ParagraphStyle('exercise',parent=styles['body'],leading=15,spaceAfter=5)
+styles['exercise_prompt']=ParagraphStyle('exercise_prompt',parent=styles['prompt'],leading=15,spaceBefore=5,spaceAfter=13,borderPadding=8)
+styles['exercise_heading']=ParagraphStyle('exercise_heading',parent=styles['h2'],leading=16,spaceBefore=5,spaceAfter=5)
 
 def P(text,style='body',raw=False):
     markup=text if raw else escape(text)
@@ -34,8 +38,8 @@ def title(text,sub=None):
     content=[P(text,'h1')]
     if sub:content.append(P(sub,'small'))
     return content
-def table(rows,widths,header=False):
-    t=Table([[P(str(v),'small' if header else 'body') for v in row] for row in rows],colWidths=widths,hAlign='LEFT')
+def table(rows,widths,header=False,compact=False):
+    t=Table([[P(str(v),'small' if header else ('exercise' if compact else 'body')) for v in row] for row in rows],colWidths=widths,hAlign='LEFT')
     cmds=[('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),5),('BOTTOMPADDING',(0,0),(-1,-1),2),('LINEBELOW',(0,0),(-1,-1),.35,colors.HexColor('#d6d6d6'))]
     if header:cmds.append(('BACKGROUND',(0,0),(-1,0),colors.HexColor('#ededed')))
     else:cmds.append(('BACKGROUND',(0,0),(0,-1),colors.HexColor('#f3f3f3')))
@@ -53,9 +57,9 @@ for text in ['阅读题目，先判断结果的方向、量级或变化趋势。
 story.extend([P('四、练习安排','h2'),table([['页码','练习','主要核对方法'],['2','悬臂梁的静力变形','梁理论；载荷比例'],['3','厚壁圆筒的内压响应','拉梅解'],['4','矩形板的稳态导热','线性温度分布；傅里叶定律'],['5','矩形板的瞬态升温','解析级数；时间步长比较']],[45,220,234],True),Spacer(1,10),P('每题至少保留建模文件、关键数值表和一张结果图。计算统一采用 SI 单位，展示时按题目要求换算为 mm、μm 或 ℃。','small'),Paragraph('配置资料：<link href="https://github.com/haoming-luo/agentfem/blob/main/INSTALL.md">AgentFEM 安装说明</link>；<link href="https://haoming-luo.github.io/agentfem/agents/mcp/">AI 助手连接说明</link>。Windows 使用 WSL2。',styles['small'])])
 
 for i,x in enumerate(D['lessons'],1):
-    story.extend([PageBreak(),*title(f'实验 {i}  {x["title"]}'),P('学习目标','h2'),P(x['goal']),P('问题条件','h2'),table(x['conditions'],[90,409]),Spacer(1,8),P('建模提示词','h2'),P(x['prompt']+'\n'+D['runInstruction'],'prompt'),P('实验任务','h2')])
-    for j,t in enumerate(x['tasks'],1):story.append(P(f'{j}. {t}'))
-    story.extend([P('对比计算提示词','label'),P(x['follow'],'prompt'),P(x['deliver'],'small'),P('实验记录','h2')])
+    story.extend([PageBreak(),*title(f'实验 {i}  {x["title"]}'),P(x['goal'],'small'),ProblemDiagram(i),P('问题条件','exercise_heading'),table(x['conditions'],[90,409],compact=True),Spacer(1,5),P('建模提示词','exercise_heading'),P(x['prompt']+'\n'+D['runInstruction'],'exercise_prompt'),P('实验任务','exercise_heading')])
+    for j,t in enumerate(x['tasks'],1):story.append(P(f'{j}. {t}','exercise'))
+    story.extend([P('对比计算提示词','label'),P(x['follow'],'exercise_prompt'),P(x['deliver'],'small'),P('实验记录','exercise_heading')])
     for line in x['record']:story.append(P(line,'small'))
 
 story.extend([PageBreak(),*title('参考解答（一）','建议完成实验记录后再核对。表中数值用于核查量级与趋势，不要求不同网格逐位一致。'),P('1  悬臂梁','h2'),P('矩形截面惯性矩与 Euler–Bernoulli 梁的端部挠度为：'),P('I = bh<super>3</super>/12 = 6.667 × 10<super>−9</super> m<super>4</super>；　δ = FL<super>3</super>/(3EI)。','formula',True),table([['总力','梁理论 / mm','有限元或比例推算 / mm'],['200 N','0.381','0.383（有限元）'],['400 N','0.762','0.766（按线性比例推算）']],[95,170,234],True),Spacer(1,5),fig('beam'),P('图 1  基准梁的位移；虚线为原形，变形放大 15 倍。','small'),P('端部向下位移在 y 向上为正时带负号，表中列下沉量的绝对值。基准有限元值比梁理论高约 0.59%；二维弹性解包含剪切及端部约束影响，梁理论属于近似。线弹性条件下，载荷翻倍时位移比例为 2。','small'),P('2  厚壁圆筒','h2'),P('对本题轴向平面应变、外压为零的圆筒，拉梅解为：'),P('A = pa<super>2</super>/(b<super>2</super> − a<super>2</super>)；　B = pa<super>2</super>b<super>2</super>/(b<super>2</super> − a<super>2</super>)。<br/>u<sub>r</sub>(r) = [(1 + ν)/E] [(1 − 2ν)Ar + B/r]。','formula',True),table([['外半径','内壁径向位移 / μm','数值来源'],['50 mm','2.270','解析解与基准有限元'],['60 mm','2.003','解析解']],[95,170,234],True),Spacer(1,5),fig('cylinder'),P('图 2  基准圆筒沿壁厚的径向位移与拉梅解。','small'),P('外半径从 50 mm 增至 60 mm，内壁径向位移降低约 11.76%。这里的轴向约束保持不变；自由伸长或带封头的圆筒不应直接套用上述位移公式。','small')])
