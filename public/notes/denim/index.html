@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>换一种加载方式，材料模型还准吗？ · AgentFEM × DENIM</title>
+<meta name="description" content="从材料记忆出发，理解 DENIM 如何保留塑性力学约束，让神经网络学习未知的硬化规律，以及怎样检验模型能否用于新的加载路径。">
+<link rel="canonical" href="https://lab.haoming-luo.com/notes/denim/">
+<meta property="og:title" content="换一种加载方式，材料模型还准吗？"><meta property="og:type" content="article"><meta property="og:image" content="https://lab.haoming-luo.com/assets/denim-memory.svg">
+<link rel="stylesheet" href="../reading.css">
+</head>
+<body>
+<header><a href="../../">Haoming Luo · Lab</a><a href="../../material-memory/">体验材料记忆案例 ↗</a></header>
+<main>
+<section class="intro"><p class="eyebrow">研究手记 / AGENTFEM × DENIM</p><h1>换一种加载方式，<br>材料模型还准吗？</h1><p class="lead">一条应力曲线拟合得很漂亮，只是开始。把它放进有限元计算，让材料反复受力，才会遇到真正难的问题。</p><p class="meta">Haoming Luo · 2026 年 10 月 7 日 · 约 6 分钟</p></section>
+<p>拿一根金属丝，轻轻掰一下，松手后它会恢复。再用力一些，它就留下了弯曲。接着往反方向掰，你会发现：它已经和最初那根金属丝不一样了。</p>
+<p>有限元中的材料模型，要描述的正是这样的变化。同样的变形，发生在第一次加载，还是反复加载之后，可能对应不同的应力。材料过去经历过什么，会影响它下一步怎样响应。</p>
+<p>这给神经网络出了一道很具体的题：<strong>换一段没见过的加载过程，它还能把材料接下来的响应算对吗？</strong></p>
+<h2>曲线记住了，规律未必学会了</h2>
+<p>如果训练和测试只是从同一段加载记录中随机抽点，模型可能已经见过测试点附近的状态。这样的误差很小，也不能充分说明它掌握了材料记忆。</p>
+<p>更有意义的检验，是把完整的加载过程留出来。例如训练时见过拉伸和简单循环，测试时改成拉伸与剪切交替，或者在循环中改变平均应变。模型要沿着整条新路径一步步算下去，前一步留下的内部状态还会影响后一步。</p>
+<p>这里的难点也不只是“有没有记忆”。带记忆的网络可以保存一串数字，但这些数字是否遵守塑性力学、能否在长时间计算中稳定传递，仍然需要检验。</p>
+<h2>DENIM 把学习放在什么地方？</h2>
+<p>在已有研究中，我们保留了小应变 J2 塑性的基本计算过程：弹性预测、屈服判断、塑性流动和隐式返回映射。神经网络负责补充未知的硬化演化——也就是材料经历塑性变形之后，后续屈服和受力响应怎样改变。</p>
+<div class="flow" aria-label="DENIM 每一步的计算过程"><div>这一步的变形<small>加上上一步的材料状态</small></div><b aria-hidden="true">→</b><div>力学计算 + 神经网络<small>保留约束，学习硬化演化</small></div><b aria-hidden="true">→</b><div>应力与新状态<small>继续传给下一步</small></div></div>
+<p>这使得“物理与数据结合”有了明确的分工。已知的关系继续参与计算；对尚未掌握的演化规律，再利用数据学习。网络不必从头学会整套塑性力学，预测也不只是一组彼此独立的应力值。</p>
+<blockquote>DENIM 最值得研究的地方，是在材料规律不完全已知时，仍能保留一套可用于有限元的状态更新过程。</blockquote>
+<p>早期实验有意给模型设置了这样的缺口：参考材料有三个运动硬化记忆通道，DENIM 只保留两个，也拿不到参考硬化方程与参数。在这一固定材料协议下，完全留出的加载路径上，DENIM 的应力 RMSE 为 1.136 MPa，不完整 J2 模型为 59.541 MPa，参与该组对照的 GRU 为 76.988 MPa。这个结果支持的是这项具体设计的有效性，不代表所有神经本构问题都有同样的差距。<a href="#sources">[1]</a></p>
+<h2>后来，我们把新路径留到训练结束之后</h2>
+<p>目前公开的 v2.2 模型有 8,477 个参数，能够接收材料描述信息。模型权重确定后，又用 128 条未参与训练及模型选择的轨迹进行了封存测试。测试包括新的加载路径、150/200 次循环，以及幅值和平均应变变化。<a href="#sources">[1][2]</a></p>
+<div class="table-wrap"><table><caption class="small">v2.2 封存测试 · 每条轨迹的应力 RMSE 再取平均</caption><thead><tr><th>测试内容</th><th>轨迹数</th><th>误差 / MPa</th></tr></thead><tbody><tr><td>新的加载路径</td><td>64</td><td>0.333</td></tr><tr><td>150/200 次循环</td><td>32</td><td>0.365</td></tr><tr><td>幅值与平均应变变化</td><td>32</td><td>0.912</td></tr><tr><td>全部封存测试</td><td>128</td><td>0.486</td></tr></tbody></table></div>
+<p>这些数字来自受控的 J2/Chaboche 合成材料数据。长循环测试也有明确的适用范围：累计等效塑性应变不超过 0.10。另一组历史上的极端累积塑性测试明显超出了这个范围，误差也更大。循环次数多，不等于材料状态一定更极端；评价模型时，两者需要分开看。</p>
+<p>同样，已知完整本构方程的白盒积分器，应当作为数值精度参照。它和“缺少部分硬化规律”的 DENIM 面对的问题不同，不能把两组误差直接排成一张排行榜。</p>
+<h2>为什么还要放回有限元？</h2>
+<p>材料点上的曲线算得准，是第一关。结构计算还会反复调用材料更新，求解整体平衡。内部状态传递、局部求解和切线都会影响全局迭代。一个只在离线曲线上表现好的模型，未必能顺利完成这一步。</p>
+<p>AgentFEM 在这项工作中承担了两头：前面生成受控的材料响应数据，后面把学到的模型重新接入求解。当前公开模型已有三个三维隐式整体算例的验证记录。这样可以继续追问：曲线上的改进，能否落实到结构响应和求解过程？<a href="#sources">[1]</a></p>
+<p>对研究者来说，这比单独获得一份权重更有用。数据、模型和验证过程可以放在一起检查，也方便更换硬化模型、增加材料试验，再重复同样的检验。</p>
+<h2>接下来真正值得做的事</h2>
+<p>我的判断是，DENIM 的研究空间在于：<strong>当现有本构模型只掌握了一部分规律，如何用数据补足，又保留力学计算中必要的约束和可用性。</strong>这比只追求一条测试曲线上的最小误差，更接近材料建模实际遇到的问题。</p>
+<p>从合成数据走向真实材料试验，还要面对噪声、参数辨识和材料差异。现有工作也没有证明全局离散能量定理。这些是后续要认真解决的研究问题，而目前的数据、代码和模型，已经可以作为一个可复现的起点。</p>
+<div class="links"><a href="../../material-memory/">先在网页里看一看 →</a><a href="https://huggingface.co/datasets/HaomingLuo/AgentFEM-Material-Loading-Memory">下载数据 ↗</a><a href="https://huggingface.co/HaomingLuo/AgentFEM-DENIM">查看模型与验证记录 ↗</a></div>
+<p class="small">交互网页展示早期固定材料版本，本文的封存测试表对应 v2.2；两者的模型与测试范围不同。</p>
+<section class="references" id="sources"><h3>资料与版本</h3><p>[1] <a href="https://huggingface.co/HaomingLuo/AgentFEM-DENIM/blob/main/README.md">AgentFEM DENIM 模型说明</a>：早期不完整物理对照、capability_v4 / v2.2、sealed_test_v1 与有限元验证入口。核对日期：2026-10-07。</p><p>[2] <a href="https://huggingface.co/datasets/HaomingLuo/AgentFEM-Material-Loading-Memory/tree/712756b9fb98b16376d8fd413709f09299a9fd1a">封存测试所绑定的数据版本</a>。数据用于研究复现，合成响应不等同于材料试验。</p><p>软件：<a href="https://github.com/haoming-luo/agentfem">AgentFEM</a> · 作者参与 AgentFEM 与 DENIM 的开发。</p></section>
+</main><footer>Haoming Luo · 计算力学与物理 AI</footer>
+</body></html>
