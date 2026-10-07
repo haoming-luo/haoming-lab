@@ -74,7 +74,7 @@
   "开放数据集 ↗": "Dataset ↗",
   "开放模型 ↗": "Model ↗",
   "模型结构与信息流": "INSIDE THE MODELS",
-  "这些模型怎样处理加载历史？": "How do these models use loading history?",
+  "模型如何保留加载历史？": "How do these models use loading history?",
   "选择一个模型，查看输入、计算过程，以及历史信息如何保留。": "Select a model to see its inputs, computations, and treatment of history.",
   "选择模型": "Choose a model",
   "模型信息流": "Model information flow",
