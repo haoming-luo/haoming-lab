@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080f12">
+  <title>AgentFEM Open Science · Simulation, datasets & neural models</title>
+  <meta name="description" content="Explore AgentFEM's open simulation datasets, DENIM neural constitutive models, GINO structural surrogates, and interactive mechanics demos. Code, data, models: ready to explore.">
+  <link rel="canonical" href="https://lab.haoming-luo.com/open-science/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AgentFEM — From simulation to physical AI">
+  <meta property="og:description" content="Material memory. Structural design. Different thermal futures. Explore the demos, then build with the open data and models.">
+  <meta property="og:url" content="https://lab.haoming-luo.com/open-science/">
+  <meta property="og:image" content="https://lab.haoming-luo.com/assets/bracket-hero.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="style.css">
+  <script src="language.js" defer></script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"CollectionPage","name":"AgentFEM Open Science","url":"https://lab.haoming-luo.com/open-science/","inLanguage":["en","zh-CN"],"description":"Open simulation datasets, neural constitutive models, structural surrogates, and interactive computational mechanics demos.","mainEntity":{"@type":"ItemList","itemListElement":[{"@type":"ListItem","position":1,"url":"https://huggingface.co/datasets/HaomingLuo/AgentFEM-Material-Loading-Memory","name":"AgentFEM Material Loading Memory"},{"@type":"ListItem","position":2,"url":"https://huggingface.co/HaomingLuo/AgentFEM-DENIM","name":"AgentFEM DENIM"},{"@type":"ListItem","position":3,"url":"https://huggingface.co/datasets/HaomingLuo/AgentFEM-Bracket-Elasticity","name":"AgentFEM Bracket Elasticity"},{"@type":"ListItem","position":4,"url":"https://huggingface.co/datasets/HaomingLuo/AgentFEM-Controlled-Transient-Heat","name":"AgentFEM Controlled Transient Heat"}]}}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#resources" data-i18n="skip">Skip to resources</a>
+  <header><a class="identity" href="../">Haoming Luo <span>· Lab</span></a><nav aria-label="Page navigation"><a href="../" data-i18n="back">← Lab</a><button id="language" type="button" aria-label="切换为中文">中文</button></nav></header>
+  <main>
+    <section class="hero">
+      <p class="eyebrow">AGENTFEM / OPEN SCIENCE</p>
+      <h1 data-i18n="title">From simulation.<br>To physical AI.</h1>
+      <p class="lead" data-i18n="intro">Start with a question. Explore the physics.<br>Take the data and build what comes next.</p>
+      <div class="hero-links"><a class="button primary" href="https://github.com/haoming-luo/agentfem" data-i18n="code">Explore AgentFEM ↗</a><a class="text-link" href="https://huggingface.co/collections/HaomingLuo/agentfem-simulation-to-physical-ai-6ac5a1eb006a78b3e107c5fa" data-i18n="hub">Open the collection ↗</a></div>
+      <div class="hero-mark" aria-hidden="true"><span>MODEL</span><i></i><span>SIMULATE</span><i></i><span>LEARN</span></div>
+    </section>
+    <section id="resources" aria-labelledby="resources-title">
+      <div class="section-head"><h2 id="resources-title" data-i18n="questions">Three questions. Open starting points.</h2><span class="eyebrow" data-i18n="label">EXPLORE / DOWNLOAD / BUILD</span></div>
+      <article class="resource memory">
+        <div class="art" aria-hidden="true"><img src="../assets/denim-memory.svg" alt="" width="900" height="850" loading="lazy"></div>
+        <div class="copy"><p class="index">01 / MATERIAL MEMORY</p><h3 data-i18n="memoryTitle">Same strain.<br>Different past.</h3><p data-i18n="memoryText">A metal remembers how it was loaded. Explore hysteresis, then train on complete loading histories and run a neural constitutive model.</p><p class="detail" data-i18n="memoryDetail">DENIM · Synthetic elastoplastic histories · Learned hardening</p><div class="links"><a href="../material-memory/" data-i18n="demo">Try the demo →</a><a href="https://huggingface.co/datasets/HaomingLuo/AgentFEM-Material-Loading-Memory" data-i18n="data">Dataset ↗</a><a href="https://huggingface.co/HaomingLuo/AgentFEM-DENIM" data-i18n="model">Model ↗</a></div></div>
+      </article>
+      <article class="resource structure">
+        <div class="art" aria-hidden="true"><img src="../assets/bracket-hero-small.webp" alt="" width="600" height="700" loading="lazy"></div>
+        <div class="copy"><p class="index">02 / STRUCTURAL DESIGN</p><h3 data-i18n="structureTitle">Same load.<br>Less material?</h3><p data-i18n="structureText">Explore the trade-off between weight and deformation. Use geometry-to-field data to train and compare structural surrogates.</p><p class="detail" data-i18n="structureDetail">GINO-based models · 3D bracket elasticity · Recorded-result demo</p><div class="links"><a href="../structural-design/" data-i18n="demo">Try the demo →</a><a href="https://huggingface.co/datasets/HaomingLuo/AgentFEM-Bracket-Elasticity" data-i18n="data">Dataset ↗</a><a href="https://huggingface.co/HaomingLuo/AgentFEM-GINO-Bracket-128" data-i18n="model">Model ↗</a></div></div>
+      </article>
+      <article class="resource heat">
+        <div class="art branching" aria-hidden="true"><svg viewBox="0 0 600 430" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="warm" x2="1" y2="0"><stop stop-color="#8be1e4"/><stop offset="1" stop-color="#dcab70"/></linearGradient></defs><path class="grid" d="M70 85H540M70 170H540M70 255H540M70 340H540M70 70V355M190 70V355M310 70V355M430 70V355M540 70V355"/><path class="path" d="M70 320C145 320 184 238 265 210"/><path class="path warm" d="M265 210C340 180 418 111 540 87"/><path class="path mid" d="M265 210C350 187 445 187 540 190"/><path class="path cool" d="M265 210C340 228 408 293 540 300"/><circle cx="265" cy="210" r="7" fill="#e6f2f2"/><path class="marker" d="M265 74V340"/><text x="80" y="393">ONE STATE</text><text x="365" y="393">THREE FUTURES</text></svg></div>
+        <div class="copy"><p class="index">03 / CONTROLLED HEAT</p><h3 data-i18n="heatTitle">One state.<br>Three futures.</h3><p data-i18n="heatText">Keep heating, reduce power, or shut down. Learn how the same temperature field evolves under different actions.</p><p class="detail" data-i18n="heatDetail">64 scenarios · 192 trajectories · Fields, controls & sensors</p><div class="links"><a href="https://huggingface.co/datasets/HaomingLuo/AgentFEM-Controlled-Transient-Heat" data-i18n="heatCta">Explore the dataset ↗</a></div></div>
+      </article>
+    </section>
+    <section class="build" aria-labelledby="build-title"><p class="eyebrow">THE ENGINE BEHIND THE DATA</p><h2 id="build-title" data-i18n="buildTitle">Your next experiment<br>starts with AgentFEM.</h2><p data-i18n="buildText">Open-source finite-element workflows built on FEniCSx. Build, run, inspect, and verify simulations through Python, the CLI, or an AI-agent interface.</p><div class="links"><a href="https://haoming-luo.github.io/agentfem/" data-i18n="docs">Read the docs ↗</a><a href="https://github.com/haoming-luo/agentfem-mcp" data-i18n="agent">Connect your AI agent ↗</a><a href="https://github.com/haoming-luo/agentfem/discussions" data-i18n="community">Join the conversation ↗</a></div></section>
+  </main>
+  <footer><a href="../">Haoming Luo · Lab</a><p data-i18n="foot">Open questions. Shared tools. Reusable science.</p><a href="https://huggingface.co/HaomingLuo">Hugging Face ↗</a></footer>
+</body>
+</html>
