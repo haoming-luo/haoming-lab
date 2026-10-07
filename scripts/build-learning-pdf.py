@@ -1,43 +1,68 @@
-"""Build the downloadable guide from the same content as the web tutorial."""
+"""Seven-page classroom handout: exercises first, reference solutions last."""
 import json
 from pathlib import Path
 from xml.sax.saxutils import escape
-from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, KeepTogether
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, Table, TableStyle, KeepTogether
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT
 
 ROOT=Path(__file__).resolve().parents[1]
-DATA=json.loads((ROOT/"public/learn/lessons.json").read_text())
-FONT="/System/Library/Fonts/Supplemental/Arial Unicode.ttf"
-pdfmetrics.registerFont(TTFont("CN",FONT))
-INK=colors.HexColor("#173135");MUTED=colors.HexColor("#596c70");TEAL=colors.HexColor("#237a78")
-styles={
- "title":ParagraphStyle("title",fontName="CN",fontSize=27,leading=39,textColor=INK,spaceAfter=20,wordWrap="CJK"),
- "heading":ParagraphStyle("heading",fontName="CN",fontSize=17,leading=25,textColor=INK,spaceAfter=10,wordWrap="CJK"),
- "body":ParagraphStyle("body",fontName="CN",fontSize=10.5,leading=18,textColor=INK,spaceAfter=9,wordWrap="CJK"),
- "small":ParagraphStyle("small",fontName="CN",fontSize=8.5,leading=14,textColor=MUTED,spaceAfter=8,wordWrap="CJK"),
- "prompt":ParagraphStyle("prompt",fontName="CN",fontSize=10.5,leading=18,textColor=INK,backColor=colors.HexColor("#edf5f3"),borderPadding=12,spaceBefore=9,spaceAfter=19,wordWrap="CJK"),
- "label":ParagraphStyle("label",fontName="CN",fontSize=9,leading=16,textColor=TEAL,spaceAfter=8,wordWrap="CJK")
-}
-def p(text,style="body"):
-    return Paragraph(escape(text),styles[style])
+SOURCE=ROOT/'docs/handout'
+D=json.loads((SOURCE/'content.json').read_text())
+A=json.loads((SOURCE/'answers.json').read_text())
+pdfmetrics.registerFont(TTFont('Song','/System/Library/Fonts/Supplemental/Songti.ttc',subfontIndex=6))
+pdfmetrics.registerFont(TTFont('Hei','/System/Library/Fonts/STHeiti Medium.ttc',subfontIndex=1))
+styles={}
+for name,size,lead,font in [('body',10.5,17,'Song'),('small',8.6,13,'Song'),('title',24,34,'Hei'),('h1',18,27,'Hei'),('h2',12,19,'Hei'),('label',9,15,'Hei'),('prompt',10.5,17,'Song'),('formula',11,19,'Song')]:
+    styles[name]=ParagraphStyle(name,fontName=font,fontSize=size,leading=lead,wordWrap='CJK',textColor=colors.HexColor('#171717'),spaceAfter=8)
+styles['prompt'].backColor=colors.HexColor('#f3f3f3')
+styles['prompt'].borderPadding=10
+styles['prompt'].spaceBefore=8
+styles['prompt'].spaceAfter=18
+styles['small'].textColor=colors.HexColor('#555555')
+styles['formula'].leftIndent=14
+styles['h2'].spaceBefore=8
+styles['label'].spaceAfter=5
+
+def P(text,style='body',raw=False):
+    markup=text if raw else escape(text)
+    markup=markup.replace('⁻⁵','<super>−5</super>')
+    return Paragraph(markup,styles[style])
+def title(text,sub=None):
+    content=[P(text,'h1')]
+    if sub:content.append(P(sub,'small'))
+    return content
+def table(rows,widths,header=False):
+    t=Table([[P(str(v),'small' if header else 'body') for v in row] for row in rows],colWidths=widths,hAlign='LEFT')
+    cmds=[('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),8),('RIGHTPADDING',(0,0),(-1,-1),8),('TOPPADDING',(0,0),(-1,-1),5),('BOTTOMPADDING',(0,0),(-1,-1),2),('LINEBELOW',(0,0),(-1,-1),.35,colors.HexColor('#d6d6d6'))]
+    if header:cmds.append(('BACKGROUND',(0,0),(-1,0),colors.HexColor('#ededed')))
+    else:cmds.append(('BACKGROUND',(0,0),(0,-1),colors.HexColor('#f3f3f3')))
+    t.setStyle(TableStyle(cmds));return t
+def fig(name,width=370):
+    im=Image(str(SOURCE/'figures'/f'{name}.png'));im.drawHeight=im.imageHeight/im.imageWidth*width;im.drawWidth=width;return im
 def page(c,doc):
-    c.setStrokeColor(colors.HexColor("#cbd7d5"));c.line(44,800,551,800);c.line(44,39,551,39)
-    c.setFont("CN",8);c.setFillColor(MUTED);c.drawString(44,810,"Haoming Luo · AgentFEM")
-    c.drawString(44,25,"lab.haoming-luo.com/learn/");c.drawRightString(551,25,str(doc.page))
-story=[Spacer(1,24),p("入门练习 / 四个小案例","label"),p(DATA["title"],"title"),p(DATA["intro"]),Spacer(1,14),p("先确认 AI 能调用软件","heading"),p("在 Codex 等具有工具调用能力的 AI 助手中，打开练习文件夹，先发送下面这段话。只有聊天、尚未接入 AgentFEM 的助手不能直接运行仿真。"),p(DATA["ready"],"prompt"),p("确认可用后，再发一次","heading"),p(DATA["common"],"prompt"),p("然后，从下一页选一个案例开始。每页先给出问题，再给提示词和参考结果。完成后，还可以复制“再问一句”，比较不同条件下的结果。"),Spacer(1,10)]
-for x in DATA["lessons"]:story.append(p(x["number"]+"  "+x["title"]))
-story.extend([Spacer(1,15),Paragraph('安装与连接：<link href="https://github.com/haoming-luo/agentfem/blob/main/INSTALL.md" color="#237a78">AgentFEM 安装说明</link> · <link href="https://haoming-luo.github.io/agentfem/agents/mcp/" color="#237a78">AI 助手连接说明</link>。Windows 使用 WSL2。',styles["small"]),p("提示词可以直接选中复制。网页版提供复制按钮、完整建模说明和版本记录。参考结果用 AgentFEM 0.4.0.dev0 / DOLFINx 0.11.0 于 2026-10-07 计算，供入门学习。","small")])
-for x in DATA["lessons"]:
-    story.extend([PageBreak(),p(x["number"]+" / "+x["label"],"label"),p(x["title"],"heading"),p(x["problem"]),p(x["prompt"],"prompt")])
-    img=Image(str(ROOT/f'public/learn/assets/{x["id"]}.png'))
-    img.drawHeight=img.imageHeight/img.imageWidth*475;img.drawWidth=475
-    story.extend([img,Spacer(1,8),p(x["result"],"heading"),p(x["read"]),p("再问一句","label"),p(x["follow"],"prompt"),p(x["takeaway"]),p(x["technical"],"small")])
-out=ROOT/"public/learn/AgentFEM-first-simulations.pdf"
-doc=SimpleDocTemplate(str(out),pagesize=(595.28,841.89),rightMargin=44,leftMargin=44,topMargin=56,bottomMargin=50,title=DATA["title"],author="Haoming Luo · AgentFEM")
+    c.setStrokeColor(colors.HexColor('#b0b0b0'));c.setLineWidth(.4);c.line(48,798,547,798);c.line(48,41,547,41)
+    c.setFont('Hei',8);c.setFillColor(colors.HexColor('#555555'));c.drawString(48,810,'AgentFEM  /  基础实验讲义')
+    c.setFont('Song',8);c.drawString(48,26,'Haoming Luo · lab.haoming-luo.com/learn/');c.drawRightString(547,26,f'{doc.page} / 7')
+
+story=[Spacer(1,10),P(D['title'],'title'),P(D['subtitle'],'h2'),P('姓名：________________    日期：________________','small'),Spacer(1,7),P('一、实验目的','h2'),P('通过四个基本问题，学习如何向 AI 助手清楚描述有限元任务，检查建模条件，并利用理论解或数值对比判断结果是否合理。学生无需预先编写程序，但应能识别几何、材料、约束、载荷及输出量。'),P('二、运行准备','h2'),P('使用能够调用本地 AgentFEM 的 AI 助手，并准备独立的练习文件夹。首次使用时，发送以下环境检查提示词；确认软件可运行后再开始练习。'),P(D['ready'],'prompt'),P('三、实验步骤','h2')]
+for text in ['阅读题目，先判断结果的方向、量级或变化趋势。','复制本题提示词，请 AI 建立项目并实际运行。','查看图、数值与单位，记录所用网格和求解设置。','完成参数对比或步长检查，再独立作出解释。','完成记录后，阅读第 6—7 页参考解答；差异较大时先核对条件，再加密网格或减小步长。']:
+    story.append(P('• '+text))
+story.extend([P('四、练习安排','h2'),table([['页码','练习','主要核对方法'],['2','悬臂梁的静力变形','梁理论；载荷比例'],['3','厚壁圆筒的内压响应','拉梅解'],['4','矩形板的稳态导热','线性温度分布；傅里叶定律'],['5','矩形板的瞬态升温','解析级数；时间步长比较']],[45,220,234],True),Spacer(1,10),P('每题至少保留建模文件、关键数值表和一张结果图。计算统一采用 SI 单位，展示时按题目要求换算为 mm、μm 或 ℃。','small'),Paragraph('配置资料：<link href="https://github.com/haoming-luo/agentfem/blob/main/INSTALL.md">AgentFEM 安装说明</link>；<link href="https://haoming-luo.github.io/agentfem/agents/mcp/">AI 助手连接说明</link>。Windows 使用 WSL2。',styles['small'])])
+
+for i,x in enumerate(D['lessons'],1):
+    story.extend([PageBreak(),*title(f'实验 {i}  {x["title"]}'),P('学习目标','h2'),P(x['goal']),P('问题条件','h2'),table(x['conditions'],[90,409]),Spacer(1,8),P('建模提示词','h2'),P(x['prompt']+'\n'+D['runInstruction'],'prompt'),P('实验任务','h2')])
+    for j,t in enumerate(x['tasks'],1):story.append(P(f'{j}. {t}'))
+    story.extend([P('对比计算提示词','label'),P(x['follow'],'prompt'),P(x['deliver'],'small'),P('实验记录','h2')])
+    for line in x['record']:story.append(P(line,'small'))
+
+story.extend([PageBreak(),*title('参考解答（一）','建议完成实验记录后再核对。表中数值用于核查量级与趋势，不要求不同网格逐位一致。'),P('1  悬臂梁','h2'),P('矩形截面惯性矩与 Euler–Bernoulli 梁的端部挠度为：'),P('I = bh<super>3</super>/12 = 6.667 × 10<super>−9</super> m<super>4</super>；　δ = FL<super>3</super>/(3EI)。','formula',True),table([['总力','梁理论 / mm','有限元或比例推算 / mm'],['200 N','0.381','0.383（有限元）'],['400 N','0.762','0.766（按线性比例推算）']],[95,170,234],True),Spacer(1,5),fig('beam'),P('图 1  基准梁的位移；虚线为原形，变形放大 15 倍。','small'),P('端部向下位移在 y 向上为正时带负号，表中列下沉量的绝对值。基准有限元值比梁理论高约 0.59%；二维弹性解包含剪切及端部约束影响，梁理论属于近似。线弹性条件下，载荷翻倍时位移比例为 2。','small'),P('2  厚壁圆筒','h2'),P('对本题轴向平面应变、外压为零的圆筒，拉梅解为：'),P('A = pa<super>2</super>/(b<super>2</super> − a<super>2</super>)；　B = pa<super>2</super>b<super>2</super>/(b<super>2</super> − a<super>2</super>)。<br/>u<sub>r</sub>(r) = [(1 + ν)/E] [(1 − 2ν)Ar + B/r]。','formula',True),table([['外半径','内壁径向位移 / μm','数值来源'],['50 mm','2.270','解析解与基准有限元'],['60 mm','2.003','解析解']],[95,170,234],True),Spacer(1,5),fig('cylinder'),P('图 2  基准圆筒沿壁厚的径向位移与拉梅解。','small'),P('外半径从 50 mm 增至 60 mm，内壁径向位移降低约 11.76%。这里的轴向约束保持不变；自由伸长或带封头的圆筒不应直接套用上述位移公式。','small')])
+
+story.extend([PageBreak(),*title('参考解答（二）'),P('3  稳态导热','h2'),P('材料均匀、无内热源且上下绝热，温度只随 x 变化。令 L = 0.1 m，x 从左向右，则：'),P('T(x) = 100 − 80x/L　（℃）；　q<sub>x</sub> = −k dT/dx = 80k/L。','formula',True),table([['导热系数 / W/(m·K)','中心温度 / ℃','热流密度 / W/m²'],['45','60','36 000'],['90','60','72 000']],[195,130,174],True),Spacer(1,5),fig('steady'),P('图 3  基准板沿水平中线的温度。','small'),P('两端温度固定时，改变均匀导热系数不会改变本题的稳态温度分布，但会改变热流密度；正热流指向右侧。','small'),P('4  瞬态升温','h2'),P('热扩散率 α = k/(ρc) = 1.154 × 10⁻⁵ m²/s。中心点的解析级数（t > 0）为：'),P('T(L/2,t) = 60 − (160/π) Σ<sub>n=1</sub><super>∞</super> [sin(nπ/2)/n] exp(−n<super>2</super>π<super>2</super>αt/L<super>2</super>)。','formula',True),table([['时间 / s','Δt = 2 s / ℃','Δt = 1 s / ℃','解析解 / ℃']]+[[str(r['time_s']),f"{r['fe_dt2_c']:.3f}",f"{r['fe_dt1_c']:.3f}",f"{r['analytic_c']:.3f}"] for r in A['time_rows']],[75,141,141,142],True),Spacer(1,5),fig('transient'),P('图 4  中心温度时间历程；虚线为稳态温度 60 ℃。','small'),P(f"共同采样时刻的两步长最大温差为 {A['time_step_max_difference_c']:.3f} ℃，600 s 时温差为 {A['time_step_final_difference_c']:.4f} ℃。终点温度接近不能代替全过程检查；是否足够准确，应结合所需温度精度判断。",'small'),P('参考计算：AgentFEM 0.4.0.dev0 / DOLFINx 0.11.0。梁：80 × 8 二次单元；圆筒：40 × 4 二次单元；导热：80 × 16 一次单元。瞬态采用隐式 Euler；显示值按指定单位换算。','small')])
+
+out=ROOT/'public/learn/AgentFEM-first-simulations.pdf'
+doc=SimpleDocTemplate(str(out),pagesize=(595.28,841.89),leftMargin=48,rightMargin=48,topMargin=56,bottomMargin=51,title=D['title']+'：'+D['subtitle'],author='Haoming Luo',subject='四项有限元实验、可复制提示词与参考解答')
 doc.build(story,onFirstPage=page,onLaterPages=page)
 print(out)

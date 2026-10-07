@@ -41,6 +41,18 @@ translated into and tested as AgentFEM projects by this assistant.
 
 Only generated plots and a compact numeric record are deployed; solver code,
 raw HDF5 fields, local paths, and runtime logs stay outside this frontend repo.
-Website and PDF share `public/learn/lessons.json`; re-render with the scripts
-under `scripts/`. The current PDF uses a local Arial Unicode font (subset
-embedded). Font path can be adapted for another build machine.
+The website uses `public/learn/lessons.json`. The classroom PDF has its own
+formal wording in `docs/handout/content.json`, reference values in
+`docs/handout/answers.json`, and print figures in `docs/handout/figures/`.
+Rebuild with `scripts/build-learning-pdf.py`. The seven-page handout embeds
+Songti SC Regular and Heiti SC Medium font subsets. Exercises precede the
+two-page reference answers, with independent complete prompts and blank
+spaces for student results.
+
+Additional time-step check: dt=1 s on the same mesh gives 59.942987557 °C at
+600 s. Maximum difference at shared saved times is 0.132761850 °C; final
+difference is 0.002210938 °C. The handout distinguishes computed results
+from analytical answers and linear scaling (the 400 N beam value).
+
+Print QA: all seven pages rendered and inspected; corrected unsupported
+Unicode superscripts, checked page boundaries and copyable prompt text.
