@@ -9,6 +9,7 @@
   let timer = null;
 
   function trajectory() { return data.trajectories[state.trajectory]; }
+  const displayScope = scope => scope.replace('训练内', '训练集').replace('验证集 · 未参与拟合', '验证集 · 未用于训练').replace('测试集 · 完全留出路径族', '测试集 · 新加载类型');
   function extent(values) {
     let min = Math.min(...values), max = Math.max(...values);
     if (Math.abs(max - min) < 1e-9) { min -= 1; max += 1; }
@@ -36,7 +37,7 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `path-button${index === state.trajectory ? ' active' : ''}`;
-      button.innerHTML = `<span class="path-index">${String(index + 1).padStart(2, '0')}</span><span class="path-copy"><strong>${item.label}</strong><small>${item.scope}</small></span><span class="split ${item.split}">${item.split === 'validation' ? 'VAL' : item.split.toUpperCase()}</span>`;
+      button.innerHTML = `<span class="path-index">${String(index + 1).padStart(2, '0')}</span><span class="path-copy"><strong>${item.label}</strong><small>${displayScope(item.scope)}</small></span><span class="split ${item.split}">${item.split === 'validation' ? 'VAL' : item.split.toUpperCase()}</span>`;
       button.onclick = () => {
         // Keep the user's transport state; the existing timer reads the current trajectory.
         if (state.trajectory === index) return;
@@ -112,7 +113,7 @@
     $('timeline').max = item.strain_pct.length - 1;
     $('timeline').value = i;
     $('pathName').textContent = item.label;
-    $('pathScope').textContent = item.scope;
+    $('pathScope').textContent = displayScope(item.scope);
     $('component').textContent = `${item.primary.toUpperCase()} / ${item.secondary.toUpperCase()}`;
     $('currentError').textContent = `${item.step_error_mpa[i].toFixed(3)} MPa`;
     $('yieldResidual').textContent = `${item.yield_residual_pa[i].toFixed(1)} Pa`;
@@ -180,8 +181,8 @@
         const heading = document.createElement('div');
         heading.className = 'protocol-heading';
         heading.innerHTML = row[1] === 'closure'
-          ? '<strong>B · 未知硬化预测</strong><span>隐藏三通道 Chaboche 硬化；DENIM、Incomplete J2 与 GRU 按同一协议比较。</span>'
-          : '<strong>A · 已知方程基准</strong><span>完整 J2 / Chaboche 方程与参数已知；比较模型对未见加载路径的预测。</span>';
+          ? '<strong>B · 未知硬化预测</strong><span>不提供三通道 Chaboche 硬化规律；DENIM、Incomplete J2 和 GRU 采用相同的测试条件。</span>'
+          : '<strong>A · 已知方程基准</strong><span>已知完整的 J2 / Chaboche 方程和参数，比较模型对新加载路径的预测。</span>';
         ladder.append(heading);
       }
       const [name, protocol, value, kind] = row;
@@ -199,10 +200,10 @@
 
   const modelAtlas = [
     {
-      name: 'Pointwise MLP', short: '单点映射', family: '数据驱动 · 无记忆', badge: '当前量 → 当前量',
+      name: 'Pointwise MLP', short: '瞬时映射', family: '数据驱动 · 无记忆', badge: '当前应变 → 当前应力',
       tagline: '只看当前应变，不读取加载历史。',
       nodes: [['输入', '当前应变 εₜ', '单个时刻'], ['神经映射', 'MLP', '黑箱回归', 'learned'], ['输出', '当前应力 σₜ', '无内部状态']],
-      summary: '结构最简单、推理很快，但同一应变在不同加载历史下可能对应不同应力，单点映射无法区分。',
+      summary: '结构最简单、推理很快，但同一应变在不同加载历史下可能对应不同应力，瞬时映射无法区分。',
       traits: ['无', '无', '预测全部应力', '弱']
     },
     {
@@ -210,10 +211,10 @@
       tagline: '用隐状态记录此前的加载过程。',
       nodes: [['输入', '应变历史 ε₀:ₜ', '完整序列'], ['序列编码', 'GRU', '隐状态记忆', 'learned'], ['输出', '应力序列 σ₀:ₜ', '端到端预测']],
       summary: 'GRU 用隐状态记录加载历史，再预测应力。遇到训练中没有见过的加载方式时，预测效果取决于训练数据的覆盖范围。',
-      traits: ['隐状态', '无', '学习全部演化', '中—弱']
+      traits: ['隐状态', '无', '学习应力随加载的变化', '中—弱']
     },
     {
-      name: 'Physics-state GRU', short: '带物理特征的时序网络', family: '物理增强 · 隐状态', badge: '物理特征 + 时序网络',
+      name: 'Physics-state GRU', short: '带物理特征的时序网络', family: '物理特征 · 隐状态', badge: '物理特征 + 时序网络',
       tagline: '把物理状态作为特征交给循环网络。',
       nodes: [['输入', '应变 + 物理特征', '状态提示', 'physics'], ['状态更新', 'Physics-state GRU', '学习时序演化', 'learned'], ['输出', '应力 + 隐状态', '弱物理约束']],
       summary: '加入塑性应变等物理特征，帮助网络判断当前状态；下一步如何更新，仍由网络学习。',
@@ -227,14 +228,14 @@
       traits: ['显式内部变量', '完整方程', '修正塑性增量初值', '强']
     },
     {
-      name: 'Incomplete J2', short: '不完备基线', family: '硬化规律不完整', badge: '部分硬化规律缺失',
-      tagline: '保留基本塑性框架，但硬化演化表达不足。',
+      name: 'Incomplete J2', short: '简化本构模型', family: '硬化规律不完整', badge: '部分硬化规律缺失',
+      tagline: '保留基本塑性方程，但硬化规律不完整。',
       nodes: [['输入', 'Δε + zₙ', '增量与状态'], ['力学方程', '弹性 + J2 屈服', '基本约束', 'physics'], ['缺失环节', '不完备硬化', '系统偏差'], ['输出', 'σₙ₊₁', '误差累积']],
       summary: '保留弹性和 J2 塑性，但缺少部分硬化规律。因此在循环加载和非比例加载中，难以准确描述应力变化。',
       traits: ['有限', '基本弹塑性方程', '无', '中—弱']
     },
     {
-      name: 'DENIM', short: '离散能量神经内部变量模型', family: '已知力学 + 硬化学习', badge: '力学方程 + 可学习演化',
+      name: 'DENIM', short: '离散能量神经内部变量模型', family: '已知力学 + 硬化学习', badge: '力学方程 + 硬化学习',
       tagline: '保留弹塑性计算过程，用网络学习缺失的硬化规律。',
       nodes: [['输入', 'Δε + zₙ', '增量与历史状态'], ['力学方程', '弹性 · J2 · 流动法则', '显式约束', 'physics'], ['网络补充', '快—慢记忆通道', '未知硬化演化', 'learned memory'], ['隐式积分', '返回映射', '一致性求解', 'physics'], ['输出', 'σₙ₊₁ + zₙ₊₁', '可追踪状态']],
       summary: 'DENIM 按力学方程计算弹塑性响应，用网络更新未知的硬化项。内部变量随加载过程保留，供下一步计算使用。',
