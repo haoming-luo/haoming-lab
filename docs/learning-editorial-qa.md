@@ -56,3 +56,9 @@ from analytical answers and linear scaling (the 400 N beam value).
 
 Print QA: all seven pages rendered and inspected; corrected unsupported
 Unicode superscripts, checked page boundaries and copyable prompt text.
+
+Problem diagrams added: four native vector schematics show dimensions,
+loads, constraints, temperature boundaries and the transient initial state.
+No predicted response is drawn in the exercise diagrams. Exercise spacing
+was adjusted to preserve one exercise per page and the seven-page total.
+All seven pages re-rendered and inspected; full prompts remain copyable.
