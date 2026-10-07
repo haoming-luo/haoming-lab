@@ -38,7 +38,7 @@ function updateComparison(){if(!currentRecord||!reference)return;const a=referen
 $('compare-mass').textContent=`${a.mass.toFixed(3)} → ${b.mass.toFixed(3)} kg`;$('compare-motion').textContent=`${a.motion.toFixed(3)} → ${b.motion.toFixed(3)} mm`;
 $('compare-saving').textContent=Math.abs(save)<.05?'用料相同':`${save>=0?'减少':'增加'} ${Math.abs(save).toFixed(1)}% 用料`;$('compare-deflection').textContent=`下沉${b.motion>=a.motion?'增加':'减少'} ${Math.abs(b.motion-a.motion).toFixed(3)} mm`;
 $('compare-pass').textContent=b.motion<=lim?'满足下沉限制':'超过下沉限制';$('compare-pass').style.color=b.motion<=lim?'var(--cyan)':'#eea06d';$('compare-limit').textContent=`上限 ${lim.toFixed(2)} mm · 非强度判定`;
-if(!pending)note.textContent=`${save>.05?'用料减少':save<-.05?'用料增加':'用料不变'}，${b.motion>a.motion+.0001?'下沉增大':b.motion<a.motion-.0001?'下沉减小':'下沉基本不变'}。${b.predicted?'右图为 AI 预测响应。':'右图为有限元响应。'}`;
+if(!pending)note.textContent=`${save>.05?'用料减少':save<-.05?'用料增加':'用料不变'}，${b.motion>a.motion+.0001?'下沉增大':b.motion<a.motion-.0001?'下沉减小':'下沉基本不变'}。${b.predicted?'右图显示 AI 预测结果。':'右图显示有限元计算结果。'}`;
 rebuild();}
 const originalShow=showPrediction;showPrediction=async r=>{await originalShow(r);currentRecord=recordNow();pending=false;highlightArms=false;strip.classList.remove('pending');$('after-label').textContent='修改后 · AI 预测';updateComparison();if(document.body.classList.contains('controls-open'))closeControls();};
 const originalLoad=load;load=async name=>{await originalLoad(name);currentRecord=recordNow();pending=false;strip.classList.remove('pending');$('after-label').textContent='当前 · 有限元样本';updateComparison();};
@@ -56,7 +56,7 @@ const meshAtUnitLoad=meshArray;meshArray=function(surface){const saved=factor;fa
 $('limit').max=14;
 function units(){const t=(+$('limit').value*.01).toFixed(2)+' mm';if($('limit-value').textContent!==t)$('limit-value').textContent=t;const title=mode==='stress'?'应力 / MPa':'位移幅值 / mm',max=mode==='stress'?'120':'0.30';if($('legend-title').textContent!==title)$('legend-title').textContent=title;if($('legend-max').textContent!==max)$('legend-max').textContent=max;}
 new MutationObserver(units).observe($('legend'),{subtree:true,childList:true});$('limit').addEventListener('input',units);units();
-modal.insertAdjacentHTML('beforeend','<h2>本次工况：10 kN 静载</h2><p>原始模型与数据以1 kN载荷建立；当前线弹性任务按10倍载荷换算位移和应力，质量不变。已额外真实复算三种结构核对比例关系。该换算不适用于塑性、接触变化或大变形。</p><p>0.10 mm是本演示的设计目标，可自行调整。当前结构的质量和下沉量以主画面对照结果为准。这里展示刚度与用料的取舍，不给出材料屈服或结构安全认证。</p>');
+modal.insertAdjacentHTML('beforeend','<h2>本次工况：10 kN 静载</h2><p>原始数据对应 1 kN 载荷。本例采用线弹性模型，将载荷提高至 10 kN 后，位移和应力按比例放大，质量不变。另选三种结构重新计算，核对了这一关系。该换算不适用于塑性、接触状态变化或大变形问题。</p><p>顶部下沉上限默认为 0.10 mm，可以自行调整。本例比较支架的重量与刚度，不判断屈服或失效。</p>');
 const originalDrawCandidates=drawCandidates;drawCandidates=async(limit,selected)=>{await originalDrawCandidates(limit,selected);const texts=$('candidate-map').querySelectorAll('text');for(const t of texts){if(t.textContent==='预测下移 / μm')t.textContent='预测下沉 / mm';else if(t.getAttribute('x')==='20')t.textContent=(Number(t.textContent)*.01).toFixed(2);}for(const t of $('candidate-map').querySelectorAll('title'))t.textContent=t.textContent.replace(/([\d.]+) μm/,(_,n)=>(+n*.01).toFixed(3)+' mm');};
 function syncParameters(d){if(!d)return;for(const [k]of specs){const v=d[k]*(k==='waist'?100:(k==='depth'||k==='radius')?2000:1000);$('p-'+k).value=v;$('v-'+k).textContent=v.toFixed(1)+(k==='waist'?'%':' mm');}}
 syncParameters({depth:.028,radius:.02,waist:.08,bow:.008});

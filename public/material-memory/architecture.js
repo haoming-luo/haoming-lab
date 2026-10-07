@@ -33,7 +33,7 @@
     text(svg,30,24,'ARCHITECTURE / '+String([1,2,4,5,6,7,3][index]).padStart(2,'0'),10,C.muted,'start');
     text(svg,1130,24,index===5?'918 PARAMETERS / 2 MEMORY CHANNELS':t('信息流与状态更新','INFORMATION FLOW & STATE UPDATE'),10,C.muted,'end');
     if(index===5){
-      box(svg,25,175,145,112,t('增量与历史','Increment + history'),'Δε, zₙ','physics','εᵖ, p, α₁, α₂');
+      box(svg,25,175,145,112,t('增量与历史状态','Increment + history'),'Δε, zₙ','physics','εᵖ, p, α₁, α₂');
       box(svg,215,175,155,112,t('弹性预测','Elastic predictor'),'σᵗʳ = C : εᵉ','physics',t('已知弹性关系','Known elasticity'));
       wire(svg,'M170 231 H215');
       const top=box(svg,440,54,290,110,t('单调硬化','Monotone hardening'),'Rθ(p)','learned',t('12 个饱和模态 + 线性项','12 saturation modes + linear tail'));
@@ -97,7 +97,7 @@
       text(svg,515,128,t('网络只修正初值','NETWORK ONLY CORRECTS THE INITIAL GUESS'),12,C.learned);
       text(svg,540,424,t('完整方程和内部变量负责最终状态更新','KNOWN EQUATIONS AND INTERNAL VARIABLES COMPLETE THE FINAL UPDATE'),12,C.physics);
     } else {
-      box(svg,35,173,175,119,t('增量与历史','Increment + history'),'Δε, zₙ','physics');
+      box(svg,35,173,175,119,t('增量与历史状态','Increment + history'),'Δε, zₙ','physics');
       box(svg,265,173,190,119,t('力学方程','Mechanical equations'),'Elasticity + J2','physics');
       box(svg,515,173,230,119,t('不完备硬化','Incomplete hardening'),'R(p), α','physics',t('有限的记忆表达','Limited memory representation'));
       box(svg,805,173,145,119,t('返回映射','Return map'),'f = 0','physics');
