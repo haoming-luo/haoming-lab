@@ -2,6 +2,7 @@ const button = document.querySelector('#language');
 const elements = [...document.querySelectorAll('[data-i18n]')];
 const english = new Map(elements.map(el => [el, el.innerHTML]));
 const chinese = {
+  learnTitle:'第一次用 AI 做有限元',learnText:'复制提示词，算一个小问题，再看看结果该怎么读。四个入门案例，以及一篇讲清 DENIM 思路的研究手记。',learnLink:'开始入门练习 →',noteLink:'阅读 DENIM 手记 →',
   skip:'跳至案例与数据',back:'← Lab',title:'数据与模型',
   intro:'我们用 AgentFEM 做仿真，也用这些数据训练模型。<br>这里的案例可以在线体验，数据和模型可以下载使用。',code:'AgentFEM 源码 ↗',hub:'Hugging Face 合集 ↗',
   questions:'案例与数据',label:'在线体验 · 数据下载 · 模型代码',

@@ -1,0 +1,46 @@
+# Article and beginner tutorial, 2026-10-07
+
+## Content order
+
+1. DENIM research note, written and evidence-reviewed first.
+2. Four beginner prompts with real AgentFEM reference calculations.
+
+The article separates the legacy fixed-material experiment (918 parameters)
+from capability_v4 v2.2 (8,477 parameters). The 128-trajectory sealed table
+comes from the public model card accessed 2026-10-07. It is not a common
+leaderboard with the known-equation integrator. Synthetic scope, long-cycle
+application domain, and missing formal energy theorem are stated briefly.
+
+Language review: no invented personal anecdote or third-party endorsement;
+the opening metal-wire example is explanatory. No “不是/并非…而是…” rhetorical
+formula is used in the article. Genuine distinctions are stated directly.
+
+## Reference calculations
+
+AgentFEM source commit a05b293104c15f8ca3916b98edb24801e0e9ab6c,
+runtime reports 0.4.0.dev0, DOLFINx 0.11.0, native macOS.
+The development environment's installed distribution metadata remains
+0.3.7.dev0; the tutorial names the imported runtime, not a released package.
+
+- Beam: 80 × 8 Q2 plane stress. Downward traction 1 MPa represents 200 N
+  with the specified 10 mm thickness. Tip -0.383196697 mm; Euler-Bernoulli
+  estimate -0.380952381 mm. End/constraint singularities are not used for safety.
+- Cylinder: 40 × 4 Q2 axisymmetric, axial strain fixed zero. Inner radial
+  displacement 2.269841254 μm, checked against the matching Lamé solution.
+  The generic scalar force-balance diagnostic is 1 for this axisymmetric
+  case; it is not advertised as passing a full engineering verification gate.
+- Steady heat: 80 × 16 Q1, center 60 °C. An explicit zero source with a
+  domain-bound measure avoids the runtime's unbound zero-integral issue.
+- Transient heat: 80 × 16 Q1, implicit Euler, dt=2 s, 300 increments.
+  Center at 600 s: 59.940776620 °C. The plot reads the saved probe history.
+
+All runs are `completed / computed`; analytical spot checks are not a claim
+of product-wide verification or an engineering safety certification. No
+student-facing AI session success rate was measured. The prompts were
+translated into and tested as AgentFEM projects by this assistant.
+
+Only generated plots and a compact numeric record are deployed; solver code,
+raw HDF5 fields, local paths, and runtime logs stay outside this frontend repo.
+Website and PDF share `public/learn/lessons.json`; re-render with the scripts
+under `scripts/`. The current PDF uses a local Arial Unicode font (subset
+embedded). Font path can be adapted for another build machine.
