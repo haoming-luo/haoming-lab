@@ -41,8 +41,8 @@ translated into and tested as AgentFEM projects by this assistant.
 
 Only generated plots and a compact numeric record are deployed; solver code,
 raw HDF5 fields, local paths, and runtime logs stay outside this frontend repo.
-The website uses `public/learn/lessons.json`. The classroom PDF has its own
-formal wording in `docs/handout/content.json`, reference values in
+All formats share prompts from `public/learn/lessons.json`. Classroom-only
+explanations remain in `docs/handout/content.json`, reference values in
 `docs/handout/answers.json`, and print figures in `docs/handout/figures/`.
 Rebuild with `scripts/build-learning-pdf.py`. The seven-page handout embeds
 Songti SC Regular and Heiti SC Medium font subsets. Exercises precede the
@@ -79,3 +79,11 @@ An isolated Chrome test with networking disabled verified embedded images,
 clipboard writing, legacy copy/paste, manual-selection fallback, Escape and
 outside-click closing, and the download menu at 390 px width. MHTML is not
 the supported interactive download because Chromium disables its scripts.
+
+Unified prompts: website, offline HTML, PDF and Word now use the same ten
+prompt blocks. Common instructions appear once, before the four exercises;
+per-exercise prompts retain geometry, material, boundary conditions and
+outputs without repeated workflow instructions. Extracted text matches the
+canonical prompts in both rendered documents after whitespace normalization.
+Both documents remain seven pages; every page was visually inspected.
+The acknowledgment and editable Word footer placeholder are preserved.
