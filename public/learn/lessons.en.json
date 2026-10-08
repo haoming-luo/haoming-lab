@@ -2,7 +2,7 @@
   "title": "Your first finite element analysis with AI",
   "intro": "Four short exercises. Copy a prompt, run a model, then change one condition and compare the results.",
   "ready": "Check whether you can run AgentFEM. Tell me its version and where projects will be saved. Ask for my approval before installing or configuring anything. For now, check the environment only; do not start a simulation.",
-  "common": "I will send a specific exercise next. Once you receive it, create a new AgentFEM project, check the settings and run the calculation. Save the model and results. Provide a result figure and key values with units, report the mesh and solver settings, and briefly explain the results. Tell me if essential information is missing or you cannot run the calculation. For now, reply only: ‘Ready. Please send the exercise.’ Do not start modelling, guess the exercise or suggest topics.",
+  "common": "I will send an exercise next. Once you receive it, create a new AgentFEM project, check and run it, and save the model and results. Show only one result figure, key values with units, and a two- or three-sentence explanation. Avoid lengthy analysis. Tell me if essential information is missing or you cannot run it. For now, reply only: ‘Ready. Please send the exercise.’ Do not start calculating or guess the exercise.",
   "lessons": [
     {
       "id": "beam", "number": "01", "label": "Start with a deformed shape", "title": "How far will this beam deflect?",

@@ -2,7 +2,7 @@
   "title": "Premiers calculs par éléments finis avec l’IA",
   "intro": "Quatre exercices courts. Copiez une consigne, lancez le calcul, puis modifiez une condition pour comparer les résultats.",
   "ready": "Vérifie que tu peux exécuter AgentFEM. Indique sa version et le dossier où seront enregistrés les projets. Demande mon accord avant toute installation ou configuration. Pour le moment, vérifie uniquement l’environnement ; ne lance aucune simulation.",
-  "common": "Je vais t’envoyer un exercice précis. À sa réception, crée un nouveau projet AgentFEM, vérifie les paramètres et exécute le calcul. Conserve le modèle et les résultats. Fournis une figure et les valeurs principales avec leurs unités, précise le maillage et les paramètres du solveur, puis explique brièvement les résultats. Signale toute donnée indispensable manquante ou toute impossibilité d’exécuter le calcul. Pour le moment, réponds uniquement : « Prêt. Envoie-moi l’exercice. » Ne commence pas la modélisation, ne devine pas l’exercice et ne propose pas de sujets.",
+  "common": "Je vais t’envoyer un exercice. À sa réception, crée un nouveau projet AgentFEM, vérifie-le et lance le calcul. Conserve le modèle et les résultats. Présente uniquement une figure, les valeurs principales avec leurs unités et une explication en deux ou trois phrases, sans longue analyse. Signale toute donnée indispensable manquante ou impossibilité de calcul. Pour le moment, réponds seulement : « Prêt. Envoie-moi l’exercice. » Ne lance aucun calcul et ne devine pas l’exercice.",
   "lessons": [
     {
       "id": "beam", "number": "01", "label": "Commencer par une déformée", "title": "Quelle sera la flèche de cette poutre ?",
