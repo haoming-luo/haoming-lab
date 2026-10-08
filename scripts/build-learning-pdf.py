@@ -59,6 +59,8 @@ for text in ['阅读题目，先判断结果的方向、量级或变化趋势。
     story.append(P('• '+text))
 story.extend([P('四、练习安排','h2'),table([['页码','练习','主要核对方法'],['2','悬臂梁的静力变形','梁理论；载荷比例'],['3','厚壁圆筒的内压响应','拉梅解'],['4','矩形板的稳态导热','线性温度分布；傅里叶定律'],['5','矩形板的瞬态升温','解析级数；时间步长比较']],[45,220,234],True),Spacer(1,10),P('每题至少保留建模文件、关键数值表和一张结果图。计算统一采用 SI 单位，展示时按题目要求换算为 mm、μm 或 ℃。','small'),Paragraph('配置资料：<link href="https://github.com/haoming-luo/agentfem/blob/main/INSTALL.md">AgentFEM 安装说明</link>；<link href="https://haoming-luo.github.io/agentfem/agents/mcp/">AI 助手连接说明</link>。Windows 使用 WSL2。',styles['small'])])
 
+story.extend([Spacer(1,8),P('致谢：感谢西北工业大学白任梓老师首次完成 AgentFEM 的 Windows 安装，并为本教学讲义的编制提供支持。','small')])
+
 for i,x in enumerate(D['lessons'],1):
     story.extend([PageBreak(),*title(f'实验 {i}  {x["title"]}'),P(x['goal'],'small'),ProblemDiagram(i),P('问题条件','exercise_heading'),table(x['conditions'],[90,409],compact=True),Spacer(1,5),P('建模提示词','exercise_heading'),P(x['prompt']+'\n'+D['runInstruction'],'exercise_prompt'),P('实验任务','exercise_heading')])
     for j,t in enumerate(x['tasks'],1):story.append(P(f'{j}. {t}','exercise'))
