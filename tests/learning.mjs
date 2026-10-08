@@ -4,6 +4,14 @@ import vm from 'node:vm';
 const data=JSON.parse(fs.readFileSync('public/learn/lessons.json','utf8'));
 assert.equal(data.lessons.length,4);
 const html=fs.readFileSync('public/learn/index.html','utf8');
+assert(data.common.includes('准备好了，请发送题目'));
+assert(data.common.includes('不要开始建模、猜测题目或提供选题'));
+for(const file of ['index.html','AgentFEM-learning-offline.html']){
+ const page=fs.readFileSync('public/learn/'+file,'utf8');
+ assert(page.includes(data.common));
+ assert(page.includes('等 AI 回复后，再从下方选择一个案例'));
+ assert(!page.includes('每例新建一个 AgentFEM 项目，保留建模文件和结果；先检查再运行。'));
+}
 for(const lesson of data.lessons){
   assert(html.includes(lesson.prompt));assert(html.includes(lesson.result));
   assert(fs.statSync(`public/learn/assets/${lesson.id}.png`).size>5000);
