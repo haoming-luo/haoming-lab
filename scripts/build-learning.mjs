@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {buildLanguages} from './build-learning-languages.mjs';
 const data=JSON.parse(fs.readFileSync('public/learn/lessons.json','utf8'));
 const esc=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const prompt=(id,text)=>`<div class="prompt"><div class="prompt-head"><span>复制到 AI 助手</span><button type="button" data-copy="${id}" aria-label="复制提示词">复制提示词</button></div><p id="${id}">${esc(text)}</p></div>`;
@@ -25,3 +26,4 @@ let offline=online.replace(/<link rel="stylesheet" href="([^"]+)">/g,(_m,ref)=>`
   .replace('>离线网页</a>','>离线网页（最新版）</a>')
   .replace('</h1>','</h1><p class="small">离线版 · 提示词和图片可离线使用；外部资料需联网。</p>');
 fs.writeFileSync('public/learn/AgentFEM-learning-offline.html',offline);
+buildLanguages(online);

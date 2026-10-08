@@ -87,3 +87,12 @@ outputs without repeated workflow instructions. Extracted text matches the
 canonical prompts in both rendered documents after whitespace normalization.
 Both documents remain seven pages; every page was visually inspected.
 The acknowledgment and editable Word footer placeholder are preserved.
+
+Trilingual web edition: Chinese, English and French pages share the layout,
+with complete translated lesson prose, prompts, UI feedback and figure labels.
+Numerical results and modelling conditions are unchanged. English/French
+figures were regenerated from the same computed samples. All three languages
+are embedded in one offline HTML download. PDF and Word remain Chinese and
+are explicitly labelled in the translated download menus. Browser checks
+cover 1440 px and 390 px layouts, language switching, loaded figures and
+clipboard equality; the existing copy fallback regression remains in place.
