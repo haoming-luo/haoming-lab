@@ -12,3 +12,15 @@ ${cards}
 const pagePath='public/learn/index.html';
 fs.writeFileSync(pagePath,fs.readFileSync(pagePath,'utf8').replace('下载 PDF</a>','下载 PDF</a><a href="AgentFEM-first-simulations.docx" download>下载 Word</a>').replace('可下载 PDF。','可下载 PDF 和 Word 讲义。'));
 console.log('Built learning page from shared lesson content');
+let online=fs.readFileSync(pagePath,'utf8').replace('下载 Word</a>','下载 Word</a><a href="AgentFEM-learning-offline.html" download>下载离线网页</a>');
+online=online.replace(/<a href="AgentFEM-first-simulations.pdf" download>下载 PDF<\/a><a href="AgentFEM-first-simulations.docx" download>下载 Word<\/a><a href="AgentFEM-learning-offline.html" download>下载离线网页<\/a>/,
+  '<details class="download-menu"><summary>下载 <span aria-hidden="true">⌄</span></summary><div class="download-options"><a href="AgentFEM-first-simulations.pdf" download>PDF 讲义</a><a href="AgentFEM-first-simulations.docx" download>Word 讲义</a><a href="AgentFEM-learning-offline.html" download>离线网页</a></div></details>');
+fs.writeFileSync(pagePath,online);
+let offline=online.replace(/<link rel="stylesheet" href="([^"]+)">/g,(_m,ref)=>`<style>${fs.readFileSync(new URL(ref,new URL('../public/learn/',import.meta.url)),'utf8')}</style>`)
+  .replace('<script src="copy.js" defer></script>','')
+  .replace('</body>',`<script>${fs.readFileSync('public/learn/copy.js','utf8')}</script></body>`)
+  .replace(/src="assets\/([^"]+\.png)"/g,(_m,name)=>`src="data:image/png;base64,${fs.readFileSync('public/learn/assets/'+name).toString('base64')}"`)
+  .replace(/href="([^"#]+)"/g,(match,href)=>/^(https?:|data:)/.test(href)?match:`href="${new URL(href,'https://lab.haoming-luo.com/learn/')}"`)
+  .replace('>离线网页</a>','>离线网页（最新版）</a>')
+  .replace('</h1>','</h1><p class="small">离线版 · 提示词和图片可离线使用；外部资料需联网。</p>');
+fs.writeFileSync('public/learn/AgentFEM-learning-offline.html',offline);
