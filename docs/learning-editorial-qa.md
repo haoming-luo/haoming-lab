@@ -62,3 +62,11 @@ loads, constraints, temperature boundaries and the transient initial state.
 No predicted response is drawn in the exercise diagrams. Exercise spacing
 was adjusted to preserve one exercise per page and the seven-page total.
 All seven pages re-rendered and inspected; full prompts remain copyable.
+
+Added an editable Word handout and a second download link. Both formats have
+seven pages, matching exercises, diagrams, prompts and reference answers.
+Removed the repeated website URL from the PDF footer; three references at
+the end identify the interactive tutorial, installation and AI connection
+instructions. Word paragraphs and tables remain editable. All seven Word
+pages were rendered and visually inspected with explicit macOS Chinese font
+configuration for the isolated LibreOffice renderer.
