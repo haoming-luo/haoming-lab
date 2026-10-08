@@ -22,6 +22,7 @@ export function buildLanguages(original){
     .replace('lang="zh-CN"',`lang="${lang}"`)
     .replace('href="https://lab.haoming-luo.com/learn/"',`href="https://lab.haoming-luo.com/learn/${file}"`)
     .replaceAll('public/learn/lessons.json',`public/learn/lessons.${lang}.json`)
+    .replace(/AgentFEM-first-simulations\.(pdf|docx)/g,`AgentFEM-first-simulations-${lang}.$1`)
     .replace(/src="assets\/(beam|cylinder|steady|transient)\.png"/g,`src="assets/$1-${lang}.png"`);
   }
   const nav=`<nav class="languages" aria-label="Language">${Object.entries(files).map(([l,f])=>`<a href="${f}" lang="${l}" hreflang="${l}" data-language="${l}"${l===lang?' aria-current="page"':''}>${{zh:'中文',en:'EN',fr:'FR'}[l]}</a>`).join('')}</nav>`;

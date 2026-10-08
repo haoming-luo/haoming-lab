@@ -16,6 +16,11 @@ const assert=require('node:assert/strict');
     else await page.goto(pathToFileURL(resolve('public/learn/'+(lang==='zh'?'index':lang)+'.html')).href);
     assert.equal((await page.locator('html').getAttribute('lang')).slice(0,2),lang);
     assert.equal(await page.locator('h1').textContent(),data.title);
+    for(const ext of ['pdf','docx']){
+     const filename=`AgentFEM-first-simulations${lang==='zh'?'':'-'+lang}.${ext}`;
+     assert((await page.locator(`.download-options a[href$=".${ext}"]`).getAttribute('href')).endsWith(filename));
+     assert(fs.statSync('public/learn/'+filename).size>10000);
+    }
     for(const lesson of data.lessons){
      assert.equal(await page.locator('#prompt-'+lesson.id).textContent(),lesson.prompt);
      assert.equal(await page.locator('#follow-'+lesson.id).textContent(),lesson.follow);
@@ -33,6 +38,12 @@ const assert=require('node:assert/strict');
     await page.waitForFunction(()=>['Copied','Copié','已复制'].includes(document.querySelector('[data-copy="prompt-beam"]').textContent));
     assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),data.lessons[0].prompt);
    }
+   // Old exercise hashes must not send a language switch back to Exercise 3.
+   await page.evaluate(()=>{location.hash='steady';});
+   await page.waitForFunction(()=>location.hash==='#steady');
+   await page.locator('header').scrollIntoViewIfNeeded();
+   await page.locator('[data-language="en"]').click();
+   await page.waitForFunction(()=>document.documentElement.lang==='en'&&location.hash===''&&scrollY<5);
   }
   assert.deepEqual(errors,[]);
   console.log('Three languages: complete prompts, desktop/mobile layout, figures, offline switching and clipboard PASS');

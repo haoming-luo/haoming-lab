@@ -7,15 +7,36 @@ INK=HexColor('#343b40')
 BLUE=HexColor('#336b85')
 RED=HexColor('#aa503d')
 PALE=HexColor('#eef1f2')
+LABELS={
+ '左端固定':('Fixed end','Encastrement'),
+ '右端面均布载荷的合力':('Resultant of uniform end load','Résultante sur la face'),
+ '平面应力；厚度 b = 10 mm':('Plane stress; thickness b = 10 mm','Contraintes planes ; b = 10 mm'),
+ '横截面：内压向外':('Section: outward pressure','Section : pression interne'),
+ 'z 轴':('z axis','Axe z'),
+ '轴对称计算区域':('Axisymmetric domain','Domaine axisymétrique'),
+ '全域轴向位移为零':('Zero axial displacement throughout','Déplacement axial nul partout'),
+ '外壁自由':('Free outer wall','Paroi libre'),
+ '上下绝热':('Top/bottom insulated','Haut et bas adiabatiques'),
+ '中心测点':('Centre probe','Point central'),
+ '初始全板 20 ℃':('Initially 20 °C','20 °C partout'),
+ '初始状态':('Initial state','État initial'),
+ '开始加热':('Heating','Chauffage'),
+ '之后保持边界温度':('Fixed boundary temperatures','Températures imposées'),
+ '记录中心温度随时间的变化':('Record centre temperature','Relever la température centrale'),
+ '板尺寸 100 mm × 40 mm':('Plate: 100 mm × 40 mm','Plaque : 100 mm × 40 mm'),
+}
 
 class ProblemDiagram(Flowable):
-    def __init__(self,case):
-        super().__init__(); self.case=case; self.width=499; self.height=112
+    def __init__(self,case,language='zh'):
+        super().__init__(); self.case=case; self.language=language; self.width=499; self.height=112
     def draw(self):
         c=self.canv
         def line(x,y,X,Y,col=INK):
             c.setStrokeColor(col);c.setLineWidth(.8);c.line(x,y,X,Y)
         def text(x,y,s,col=INK,size=8):
+            if self.language!='zh':
+                s=LABELS.get(s,(s,s))[0 if self.language=='en' else 1].replace('℃','°C')
+                size=min(size,7.5)
             c.setFillColor(col);c.setFont('Hei',size);c.drawString(x,y,s)
         def rect(x,y,w,h):
             c.setFillColor(PALE);c.setStrokeColor(INK);c.setLineWidth(.9);c.rect(x,y,w,h,fill=1)
