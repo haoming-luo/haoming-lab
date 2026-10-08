@@ -12,7 +12,8 @@ for(const lesson of handout.lessons){
 assert(fs.readFileSync('scripts/build-learning-pdf.py','utf8').includes("ROOT/'public/learn/lessons.json'"));
 const html=fs.readFileSync('public/learn/index.html','utf8');
 assert(data.common.includes('准备好了，请发送题目'));
-assert(data.common.includes('不要开始建模、猜测题目或提供选题'));
+assert(data.common.includes('不要开始计算或猜测题目'));
+assert(data.common.includes('一张结果图') && data.common.includes('两三句话解释'));
 for(const file of ['index.html','AgentFEM-learning-offline.html']){
  const page=fs.readFileSync('public/learn/'+file,'utf8');
  assert(page.includes(data.common));

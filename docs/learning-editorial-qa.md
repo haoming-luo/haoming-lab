@@ -105,3 +105,12 @@ Latin editions use Times New Roman body text and Arial headings. Word footer
 placeholders are editable and localized. Chinese files are unchanged.
 Language switching no longer carries a stale exercise anchor; online and
 offline regression checks confirm switching from #steady returns to the top.
+
+Concise common instructions: all three languages now request one result figure,
+key values with units, and only two or three explanatory sentences. The initial
+reply remains readiness-only; no guessing or premature calculation. All four
+exercise prompts and reference answers are unchanged. Website, offline HTML,
+PDF and Word use the canonical language JSON. All six handouts remain seven
+pages; every rendered page was visually inspected. Text extraction verifies
+all ten prompt blocks in each PDF and each rendered Word document. Learning
+tests, static-demo tests and the production build pass.
