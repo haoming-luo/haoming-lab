@@ -13,6 +13,7 @@ const pagePath='public/learn/index.html';
 fs.writeFileSync(pagePath,fs.readFileSync(pagePath,'utf8').replace('下载 PDF</a>','下载 PDF</a><a href="AgentFEM-first-simulations.docx" download>下载 Word</a>').replace('可下载 PDF。','可下载 PDF 和 Word 讲义。'));
 console.log('Built learning page from shared lesson content');
 let online=fs.readFileSync(pagePath,'utf8').replace('下载 Word</a>','下载 Word</a><a href="AgentFEM-learning-offline.html" download>下载离线网页</a>');
+online=online.replace('确认可用后，再发一次下面这段要求，然后任选一个案例开始：','确认可用后，先发送下面这段约定，等 AI 回复后，再从下方选择一个案例，发送它的提示词。');
 online=online.replace(/<a href="AgentFEM-first-simulations.pdf" download>下载 PDF<\/a><a href="AgentFEM-first-simulations.docx" download>下载 Word<\/a><a href="AgentFEM-learning-offline.html" download>下载离线网页<\/a>/,
   '<details class="download-menu"><summary>下载 <span aria-hidden="true">⌄</span></summary><div class="download-options"><a href="AgentFEM-first-simulations.pdf" download>PDF 讲义</a><a href="AgentFEM-first-simulations.docx" download>Word 讲义</a><a href="AgentFEM-learning-offline.html" download>离线网页</a></div></details>');
 fs.writeFileSync(pagePath,online);
