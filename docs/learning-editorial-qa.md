@@ -92,7 +92,16 @@ Trilingual web edition: Chinese, English and French pages share the layout,
 with complete translated lesson prose, prompts, UI feedback and figure labels.
 Numerical results and modelling conditions are unchanged. English/French
 figures were regenerated from the same computed samples. All three languages
-are embedded in one offline HTML download. PDF and Word remain Chinese and
-are explicitly labelled in the translated download menus. Browser checks
+are embedded in one offline HTML download. Browser checks
 cover 1440 px and 390 px layouts, language switching, loaded figures and
 clipboard equality; the existing copy fallback regression remains in place.
+
+Localized handouts: English and French PDF and Word editions now follow the
+selected page language. Each has seven pages, translated diagrams and plots,
+the same numerical answers, references and acknowledgment. All pages of all
+four documents were rendered and visually inspected. Extracted text matches
+all ten canonical prompts for each language after whitespace normalization.
+Latin editions use Times New Roman body text and Arial headings. Word footer
+placeholders are editable and localized. Chinese files are unchanged.
+Language switching no longer carries a stale exercise anchor; online and
+offline regression checks confirm switching from #steady returns to the top.

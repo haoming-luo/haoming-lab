@@ -32,8 +32,8 @@ export const translations=[
  ['提问与交流 ↗','Questions and discussion ↗','Questions et échanges ↗'],
  ['继续阅读：材料为什么有记忆 →','Read next: why materials have memory (Chinese) →','À lire ensuite : la mémoire des matériaux (en chinois) →'],
  ['四个案例，可独立练习','Four exercises, each self-contained','Quatre exercices indépendants'],
- ['PDF 讲义','PDF handout · 中文','Support PDF · 中文'],
- ['Word 讲义','Word handout · 中文','Support Word · 中文'],
+ ['PDF 讲义','PDF handout','Support PDF'],
+ ['Word 讲义','Word handout','Support Word'],
  ['离线网页','Offline page','Page hors ligne'],
  ['下载 <span','Download <span','Télécharger <span'],
  ['离线版 · 提示词和图片可离线使用；外部资料需联网。','Offline edition · Prompts and figures work offline; external resources require a connection.','Version hors ligne · Consignes et figures accessibles sans connexion ; les ressources externes nécessitent Internet.']

@@ -1,5 +1,5 @@
 """Create an editable Word edition from the same classroom content as PDF."""
-import runpy,sys,tempfile,subprocess,re
+import runpy,sys,tempfile,subprocess,re,os
 from pathlib import Path
 from lxml import etree
 from docx import Document
@@ -12,17 +12,21 @@ from reportlab.pdfgen.canvas import Canvas
 from handout_schematics import ProblemDiagram
 
 ROOT=Path(__file__).resolve().parents[1]
+LANG=os.environ.get('HANDOUT_LANGUAGE','zh')
+LATIN=LANG!='zh'
+BODY_FONT='Times New Roman' if LATIN else 'Songti SC'
+HEAD_FONT='Arial' if LATIN else 'Heiti SC'
 captured=[]
 original=SimpleDocTemplate.build
 SimpleDocTemplate.build=lambda self,story,**kwargs:captured.extend(story)
-try:runpy.run_path(str(ROOT/'scripts/build-learning-pdf.py'))
+try:edition=runpy.run_path(str(ROOT/('scripts/build-learning-translated.py' if LATIN else 'scripts/build-learning-pdf.py')))
 finally:SimpleDocTemplate.build=original
 doc=Document();sec=doc.sections[0]
 sec.page_width=Pt(595.28);sec.page_height=Pt(841.89)
 sec.left_margin=sec.right_margin=Pt(48)
 sec.top_margin=Pt(48);sec.bottom_margin=Pt(45)
 sec.header_distance=sec.footer_distance=Pt(22)
-for name,font,size in [('Normal','Songti SC',10.5),('Title','Heiti SC',24),('Heading 1','Heiti SC',18),('Heading 2','Heiti SC',12),('Caption','Songti SC',8.6)]:
+for name,font,size in [('Normal',BODY_FONT,10.5),('Title',HEAD_FONT,24),('Heading 1',HEAD_FONT,18),('Heading 2',HEAD_FONT,12),('Caption',BODY_FONT,8.6)]:
     s=doc.styles[name];s.font.name=font;s.font.size=Pt(size);s.font.color.rgb=RGBColor(0,0,0)
     s.element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),font)
     s.paragraph_format.space_after=Pt(5);s.paragraph_format.line_spacing=Pt(15)
@@ -33,11 +37,11 @@ for name,font,size in [('Normal','Songti SC',10.5),('Title','Heiti SC',24),('Hea
     for fonts in s.element.xpath('.//w:rFonts'):
         for attr in list(fonts.attrib):
             if 'theme' in attr.lower():del fonts.attrib[attr]
-doc.core_properties.title='AI 辅助有限元分析'
-doc.core_properties.subject='AgentFEM 基础实验讲义'
+doc.core_properties.title=edition['D']['title']
+doc.core_properties.subject=edition['D']['subtitle']
 doc.core_properties.author='Haoming Luo'
-hp=sec.header.paragraphs[0];hp.text='AgentFEM  /  基础实验讲义';hp.style='Caption'
-fp=sec.footer.paragraphs[0];fp.style='Caption';fp.add_run('添加页脚');fp.paragraph_format.tab_stops.add_tab_stop(Pt(470))
+hp=sec.header.paragraphs[0];hp.text=edition['D']['subtitle'] if LATIN else 'AgentFEM  /  基础实验讲义';hp.style='Caption'
+fp=sec.footer.paragraphs[0];fp.style='Caption';fp.add_run(edition['D']['footer'] if LATIN else '添加页脚');fp.paragraph_format.tab_stops.add_tab_stop(Pt(470))
 fp.add_run('\t');fld=OxmlElement('w:fldSimple');fld.set(qn('w:instr'),'PAGE');fp._p.append(fld)
 
 def runs(p,text):
@@ -68,7 +72,7 @@ def para(obj,parent=doc,existing=None,table=False):
     runs(p,obj.text)
     for r in p.runs:
         r.font.size=Pt(9 if table else st.fontSize)
-        r.font.name='Heiti SC' if st.fontName=='Hei' else 'Songti SC'
+        r.font.name=HEAD_FONT if st.fontName=='Hei' else BODY_FONT
         r._element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),r.font.name)
     return p
 
@@ -103,7 +107,10 @@ for item in captured:
             path=pdf.with_suffix('.png');width=499
         else:path=item.filename;width=item.drawWidth
         p=doc.add_paragraph();p.paragraph_format.space_after=Pt(3);p.paragraph_format.line_spacing=1
+        if LATIN:p.paragraph_format.space_before=Pt(6)
         p.alignment=1;r=p.add_run();r.add_picture(str(path),width=Pt(width))
-        pic=r._r.xpath('.//wp:docPr')[0];pic.set('descr',f'实验 {item.case} 模型与边界条件' if isinstance(item,ProblemDiagram) else Path(path).stem+' 参考结果图')
+        pic=r._r.xpath('.//wp:docPr')[0];pic.set('descr',(f"{edition['D']['exercise']} {item.case}" if isinstance(item,ProblemDiagram) else Path(path).stem) if LATIN else (f'实验 {item.case} 模型与边界条件' if isinstance(item,ProblemDiagram) else Path(path).stem+' 参考结果图'))
 
-out=ROOT/'public/learn/AgentFEM-first-simulations.docx';doc.save(out);print(out)
+if LATIN:
+    lang=OxmlElement('w:lang');lang.set(qn('w:val'),'en-GB' if LANG=='en' else 'fr-FR');doc.styles['Normal'].element.get_or_add_rPr().append(lang)
+out=ROOT/f"public/learn/AgentFEM-first-simulations{('-'+LANG) if LATIN else ''}.docx";doc.save(out);print(out)
