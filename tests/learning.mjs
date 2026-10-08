@@ -25,6 +25,6 @@ assert(fs.readFileSync('public/learn/AgentFEM-first-simulations.pdf').subarray(0
 let click, copied;
 const button={dataset:{copy:'prompt-beam'},addEventListener(_event,fn){click=fn;}};
 const status={classList:{add(){},remove(){}}};
-vm.runInNewContext(fs.readFileSync('public/learn/copy.js','utf8'),{document:{querySelectorAll:()=>[button],getElementById:id=>id==='copy-status'?status:{textContent:data.lessons[0].prompt}},navigator:{clipboard:{async writeText(text){copied=text;}}},setTimeout(){}});
+vm.runInNewContext(fs.readFileSync('public/learn/copy.js','utf8'),{document:{querySelector:()=>null,querySelectorAll:()=>[button],getElementById:id=>id==='copy-status'?status:{textContent:data.lessons[0].prompt}},navigator:{clipboard:{async writeText(text){copied=text;}}},setTimeout(){}});
 await click();assert.equal(copied,data.lessons[0].prompt);assert.equal(button.textContent,'已复制');
 console.log('Four lessons, local links, reference values, PDF and copy interaction PASS');

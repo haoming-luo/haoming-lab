@@ -70,3 +70,12 @@ the end identify the interactive tutorial, installation and AI connection
 instructions. Word paragraphs and tables remain editable. All seven Word
 pages were rendered and visually inspected with explicit macOS Chinese font
 configuration for the isolated LibreOffice renderer.
+
+2026-10-08: Beam result now uses equal geometric scales and a tip detail;
+values unchanged. Exercise diagram uses one resultant arrow labelled as
+the resultant of the uniformly distributed end-face load. Added a single
+download disclosure for PDF, Word and a self-contained offline HTML page.
+An isolated Chrome test with networking disabled verified embedded images,
+clipboard writing, legacy copy/paste, manual-selection fallback, Escape and
+outside-click closing, and the download menu at 390 px width. MHTML is not
+the supported interactive download because Chromium disables its scripts.
