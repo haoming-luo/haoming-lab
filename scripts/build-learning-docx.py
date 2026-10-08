@@ -37,7 +37,7 @@ doc.core_properties.title='AI 辅助有限元分析'
 doc.core_properties.subject='AgentFEM 基础实验讲义'
 doc.core_properties.author='Haoming Luo'
 hp=sec.header.paragraphs[0];hp.text='AgentFEM  /  基础实验讲义';hp.style='Caption'
-fp=sec.footer.paragraphs[0];fp.style='Caption';fp.add_run('Haoming Luo');fp.paragraph_format.tab_stops.add_tab_stop(Pt(470))
+fp=sec.footer.paragraphs[0];fp.style='Caption';fp.add_run('添加页脚');fp.paragraph_format.tab_stops.add_tab_stop(Pt(470))
 fp.add_run('\t');fld=OxmlElement('w:fldSimple');fld.set(qn('w:instr'),'PAGE');fp._p.append(fld)
 
 def runs(p,text):
