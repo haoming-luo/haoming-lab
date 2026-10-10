@@ -49,7 +49,7 @@ def table(rows,widths,header=False,compact=False):
     else:cmds.append(('BACKGROUND',(0,0),(0,-1),colors.HexColor('#f3f3f3')))
     t.setStyle(TableStyle(cmds));return t
 def fig(name,width=370):
-    if name in ('steady','transient'):width=300
+    if name in ('steady','transient'):width=230
     im=Image(str(SOURCE/'figures'/f'{name}.png'));im.drawHeight=im.imageHeight/im.imageWidth*width;im.drawWidth=width;return im
 def page(c,doc):
     c.setStrokeColor(colors.HexColor('#b0b0b0'));c.setLineWidth(.4);c.line(48,798,547,798);c.line(48,41,547,41)
@@ -60,8 +60,6 @@ story=[P(D['title'],'title'),P(D['subtitle'],'h2'),P('姓名：________________ 
 for text in ['阅读题目，预判结果方向和量级；发送本题提示词，检查图、数值和单位。','完成参数对比或步长检查，填写实验记录，独立解释结果。','最后核对第 6—7 页参考解答；差异较大时先检查条件，再加密网格或减小步长。']:
     story.append(P('• '+text,'exercise'))
 story.extend([P('四、练习安排','h2'),table([['页码','练习','主要核对方法'],['2','悬臂梁的静力变形','梁理论；载荷比例'],['3','厚壁圆筒的内压响应','拉梅解'],['4','矩形板的稳态导热','线性温度分布；傅里叶定律'],['5','矩形板的瞬态升温','解析级数；时间步长比较']],[45,220,234],True),Spacer(1,10),P('每题至少保留建模文件、关键数值表和一张结果图。计算统一采用 SI 单位，展示时按题目要求换算为 mm、μm 或 ℃。','small'),Paragraph('配置资料：<link href="https://github.com/haoming-luo/agentfem/blob/main/INSTALL.md">AgentFEM 安装说明</link>；<link href="https://haoming-luo.github.io/agentfem/agents/mcp/">AI 助手连接说明</link>。Windows 使用 WSL2。',styles['small'])])
-
-story.extend([Spacer(1,8),P('致谢：感谢西北工业大学白任梓老师首次完成 AgentFEM 的 Windows 安装，并为本教学讲义的编制提供支持。','small')])
 
 for i,x in enumerate(D['lessons'],1):
     shared=PROMPT_BY_ID[x['id']]
@@ -81,6 +79,8 @@ for label,url in [
     ('[3] AgentFEM：AI 助手连接与配置。','https://haoming-luo.github.io/agentfem/agents/mcp/'),
 ]:
     story.append(P(f'{escape(label)} <link href="{url}" color="#336b85">{url}</link>','reference',True))
+
+story.extend([Spacer(1,4),P('致谢：感谢北京理工大学王猛教授最早提出将 AI 原生有限元仿真引入课堂的建议，感谢西北工业大学白任梓老师在 Windows 安装验证与教学讲义编制中的贡献。','small')])
 
 out=ROOT/'public/learn/AgentFEM-first-simulations.pdf'
 doc=SimpleDocTemplate(str(out),pagesize=(595.28,841.89),leftMargin=48,rightMargin=48,topMargin=56,bottomMargin=51,title=D['title']+'：'+D['subtitle'],author='Haoming Luo',subject='四项有限元实验、可复制提示词与参考解答')
