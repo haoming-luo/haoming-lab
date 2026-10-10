@@ -13,7 +13,7 @@
  "overviewHead":["Page","Exercise","Check"],
  "checks":["Beam theory and load scaling","Lamé solution","Linear temperature and Fourier’s law","Analytical series and time-step comparison"],
  "retain":"Keep the model, a table of key values and a result figure for each exercise. Calculate in SI units and convert displayed values to mm, μm or °C as requested.",
- "install":"Setup: see the installation and AI connection guides in the references. Windows uses WSL2.",
+ "install":"Setup: see the installation guide in the references. Windows uses WSL2.",
  "ack":"Acknowledgments: We thank Professor Meng Wang of Beijing Institute of Technology for first proposing the use of AI-native finite-element simulation in the classroom, and Renzi Bai of Northwestern Polytechnical University for completing the first validated AgentFEM installation on Windows and contributing to this handout.",
  "exercise":"Exercise", "conditions":"Problem conditions", "prompt":"Modelling prompt", "tasksTitle":"Tasks", "follow":"Comparison prompt", "recordTitle":"Observations", "footer":"Add footer",
  "lessons":[
