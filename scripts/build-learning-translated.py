@@ -56,7 +56,7 @@ story.extend([PageBreak(),P(L('Reference answers 2','Corrigé 2'),'h1'),P('3  '+
 for label,url in [
  (L('[1] Interactive web edition with copyable prompts and results.','[1] Version web interactive avec consignes à copier et résultats.'),f'https://lab.haoming-luo.com/learn/{LANG}.html'),
  (L('[2] AgentFEM installation guide.','[2] Guide d’installation d’AgentFEM.'),'https://github.com/haoming-luo/agentfem/blob/main/INSTALL.md'),
- (L('[3] Connecting an AI assistant to AgentFEM.','[3] Connexion d’un assistant IA à AgentFEM.'),'https://haoming-luo.github.io/agentfem/agents/mcp/')]:
+]:
     story.append(P(f'{escape(label)} <link href="{url}" color="#336b85">{url}</link>','reference',True))
 story.extend([Spacer(1,8),P(D['ack'],'small')])
 out=ROOT/f'public/learn/AgentFEM-first-simulations-{LANG}.pdf'

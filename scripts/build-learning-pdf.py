@@ -76,7 +76,6 @@ story.extend([P('参考资料','h2')])
 for label,url in [
     ('[1] 本讲义网页互动版：可复制提示词、查看结果图与操作说明。','https://lab.haoming-luo.com/learn/'),
     ('[2] AgentFEM 安装说明。','https://github.com/haoming-luo/agentfem/blob/main/INSTALL.md'),
-    ('[3] AgentFEM：AI 助手连接与配置。','https://haoming-luo.github.io/agentfem/agents/mcp/'),
 ]:
     story.append(P(f'{escape(label)} <link href="{url}" color="#336b85">{url}</link>','reference',True))
 

@@ -13,7 +13,7 @@
  "overviewHead":["Page","Exercice","Vérification"],
  "checks":["Théorie des poutres et proportionnalité","Solution de Lamé","Profil linéaire et loi de Fourier","Série analytique et pas de temps"],
  "retain":"Conservez le modèle, un tableau de valeurs et une figure pour chaque exercice. Calculez en unités SI, puis convertissez l’affichage en mm, μm ou °C selon la consigne.",
- "install":"Configuration : voir les guides d’installation et de connexion de l’IA en références. Sous Windows, utilisez WSL2.",
+ "install":"Configuration : voir le guide d’installation en références. Sous Windows, utilisez WSL2.",
  "ack":"Remerciements : Nous remercions le professeur Meng Wang, du Beijing Institute of Technology, d’avoir proposé le premier d’introduire la simulation par éléments finis native de l’IA en classe, ainsi que Renzi Bai, de Northwestern Polytechnical University, pour la première installation validée d’AgentFEM sous Windows et sa contribution à ce support pédagogique.",
  "exercise":"Exercice", "conditions":"Données du problème", "prompt":"Consigne de modélisation", "tasksTitle":"Travail demandé", "follow":"Consigne de comparaison", "recordTitle":"Relevé des résultats", "footer":"Ajouter un pied de page",
  "lessons":[
