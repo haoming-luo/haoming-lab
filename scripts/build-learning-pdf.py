@@ -80,7 +80,7 @@ for label,url in [
 ]:
     story.append(P(f'{escape(label)} <link href="{url}" color="#336b85">{url}</link>','reference',True))
 
-story.extend([Spacer(1,4),P('致谢：感谢北京理工大学王猛教授最早提出将 AI 原生有限元仿真引入课堂的建议，感谢西北工业大学白任梓老师在 Windows 安装验证与教学讲义编制中的贡献。','small')])
+story.extend([Spacer(1,4),P('致谢：感谢北京理工大学王猛教授最早提出将 AI 原生有限元仿真引入课堂的建议，感谢西北工业大学白任梓老师首次完成 AgentFEM 的 Windows 安装验证，并参与教学讲义编制。','small')])
 
 out=ROOT/'public/learn/AgentFEM-first-simulations.pdf'
 doc=SimpleDocTemplate(str(out),pagesize=(595.28,841.89),leftMargin=48,rightMargin=48,topMargin=56,bottomMargin=51,title=D['title']+'：'+D['subtitle'],author='Haoming Luo',subject='四项有限元实验、可复制提示词与参考解答')
