@@ -33,7 +33,7 @@ def table(rows,widths,header=False):
     cmds.append(('BACKGROUND',(0,0),(-1,0) if header else (0,-1),colors.HexColor('#eeeeee')))
     obj.setStyle(TableStyle(cmds));return obj
 def fig(name):
-    width=360 if name in ('beam','cylinder') else 300
+    width=360 if name in ('beam','cylinder') else 270
     obj=Image(str(SOURCE/'figures'/f'{name}-{LANG}.png'))
     obj.drawHeight=obj.imageHeight/obj.imageWidth*width;obj.drawWidth=width
     return obj
@@ -43,7 +43,7 @@ def page(c,doc):
 
 story=[P(D['title'],'title'),P(D['subtitle'],'h2'),P(D['name'],'small'),P(D['aimTitle'],'h2'),P(D['aim']),P(D['setup'],'h2'),P(D['setupIntro'],'small'),P(PROMPTS['ready'],'prompt'),P(D['setupNext'],'small'),P(PROMPTS['common'],'prompt'),P(D['stepsTitle'],'h2')]
 for i,text in enumerate(D['steps'],1):story.append(P(f'{i}. {text}','exercise'))
-story.extend([P(D['overview'],'h2'),table([D['overviewHead']]+[[str(i+2),x['title'],D['checks'][i]] for i,x in enumerate(D['lessons'])],[35,228,236],True),Spacer(1,6),P(D['retain'],'small'),P(D['install'],'small'),P(D['ack'],'small')])
+story.extend([P(D['overview'],'h2'),table([D['overviewHead']]+[[str(i+2),x['title'],D['checks'][i]] for i,x in enumerate(D['lessons'])],[35,228,236],True),Spacer(1,6),P(D['retain'],'small'),P(D['install'],'small')])
 for i,(x,shared) in enumerate(zip(D['lessons'],PROMPTS['lessons']),1):
     story.extend([PageBreak(),P(f'{D["exercise"]} {i}  {x["title"]}','h1'),P(x['goal'],'small'),ProblemDiagram(i,LANG),P(D['conditions'],'exercise_heading'),table(x['conditions'],[105,394]),Spacer(1,5),P(D['prompt'],'exercise_heading'),P(shared['prompt'],'prompt'),P(D['tasksTitle'],'exercise_heading')])
     for j,text in enumerate(x['tasks'],1):story.append(P(f'{j}. {text}','exercise'))
@@ -58,6 +58,7 @@ for label,url in [
  (L('[2] AgentFEM installation guide.','[2] Guide d’installation d’AgentFEM.'),'https://github.com/haoming-luo/agentfem/blob/main/INSTALL.md'),
  (L('[3] Connecting an AI assistant to AgentFEM.','[3] Connexion d’un assistant IA à AgentFEM.'),'https://haoming-luo.github.io/agentfem/agents/mcp/')]:
     story.append(P(f'{escape(label)} <link href="{url}" color="#336b85">{url}</link>','reference',True))
+story.extend([Spacer(1,8),P(D['ack'],'small')])
 out=ROOT/f'public/learn/AgentFEM-first-simulations-{LANG}.pdf'
 doc=SimpleDocTemplate(str(out),pagesize=(595.28,841.89),leftMargin=48,rightMargin=48,topMargin=48,bottomMargin=46,title=D['title'],author='Haoming Luo',subject=D['subtitle'])
 doc.build(story,onFirstPage=page,onLaterPages=page)

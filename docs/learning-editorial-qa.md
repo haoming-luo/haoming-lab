@@ -114,3 +114,12 @@ PDF and Word use the canonical language JSON. All six handouts remain seven
 pages; every rendered page was visually inspected. Text extraction verifies
 all ten prompt blocks in each PDF and each rendered Word document. Learning
 tests, static-demo tests and the production build pass.
+
+Acknowledgments update: moved the acknowledgment from page 1 to the end of
+page 7, after references, in Chinese, English and French PDF/Word editions.
+Added Professor Meng Wang of Beijing Institute of Technology for first
+proposing AI-native finite-element simulation in the classroom, alongside
+Renzi Bai's first validated AgentFEM installation on Windows and handout contribution.
+Modestly resized the last-page plots to retain seven pages without deleting
+teaching content. All 42 pages visually checked; all ten prompts verified in
+each PDF and rendered Word file. Both names appear only on the final page.
