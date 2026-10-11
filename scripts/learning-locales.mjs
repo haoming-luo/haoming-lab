@@ -1,5 +1,6 @@
 // Exact template strings; lesson prose and copyable prompts live in lessons.*.json.
 export const translations=[
+ ['下载网格','Download mesh','Télécharger le maillage'],
  ['下载本题附件','Download exercise files','Télécharger les fichiers'],
  ['查看示例代码 ↗','View example code ↗','Voir le code ↗'],
  ['第 5—6 例结果','Results for exercises 5–6','Résultats des exercices 5–6'],

@@ -16,6 +16,20 @@ including the result manifest and XDMF/H5 for ParaView. Keep each XDMF with its 
 
 ## 05 column
 
+The current web exercise runs `load_path.py` through `case.py`: a stress-free
+initial bow of 0.1 mm, geometrically nonlinear plane-stress Neo-Hookean
+elasticity, and total force ramped to 10.7 kN. This nonlinear case uses **N, mm,
+MPa**, E=210000 MPa, nu=0.3, 60x4 quadratic elements and quadrature degree 4.
+Newton absolute tolerance is 1e-6, with adaptive increments and a 1500-step cap.
+The loaded face remains free to rotate. Its mean lateral displacement at 10.7 kN
+is 9.64848 mm; a 90x4 mesh with quadrature degree 6 gives 9.69465 mm (0.48% change).
+With a 0.2 mm initial bow it is 16.81577 mm. Euler's ideal-column load is
+10.79488 kN. This lesson examines **precritical elastic amplification**, not a
+steel failure load. It deliberately avoids interpreting solver failure as buckling.
+
+The `solve()` function below remains an independent **linear eigenvalue** check;
+its SI units and results are distinct from the nonlinear load-path case.
+
 All modeling coordinates are in metres, elastic modulus in Pa, forces in N.
 L=0.2 m, section height and out-of-plane thickness both 0.01 m, E=210 GPa,
 nu=0.3. Plane stress, left clamped, right-face dead axial reference force 100 N.

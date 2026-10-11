@@ -25,7 +25,7 @@
     "Linear temperature and Sixier’s law",
     "Analytical series and time-step comparison"
   ],
-  "retain": "Keep the model, a table of key values and a result figure for each exercise. Calculate in SI units and convert displayed values to mm, μm or °C as requested.",
+  "retain": "Keep the model, a table of key values and a result figure for each exercise. Use consistent units and report results in the requested units.",
   "install": "Setup: see the installation guide in the references. Windows uses WSL2.",
   "ack": "Acknowledgments: We thank Professor Meng Wang of Beijing Institute of Technology for first proposing the use of AI-native finite-element simulation in the classroom, and Renzi Bai of Northwestern Polytechnical University for completing the first validated AgentFEM installation on Windows and contributing to this handout.",
   "exercise": "Exercise",

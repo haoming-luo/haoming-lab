@@ -69,15 +69,15 @@
       "number": "05",
       "label": "From deformation to instability",
       "title": "How much compression can a slender column carry?",
-      "problem": "A lateral force bends a bar. Axial compression can make it buckle. Find the load at which sideways buckling begins.",
-      "prompt": "Use AgentFEM for linear buckling of a steel column: length 200 mm, section height 10 mm and thickness 10 mm, Young’s modulus 210 GPa, Poisson’s ratio 0.3. Use 2D plane stress. Clamp the left end and apply uniform axial compression to the right face with a reference total force of 100 N; leave other boundaries free and neglect gravity. Solve the prestress state, then report the first critical load (N) and mode plot. Check against Euler’s cantilever-column formula and state that mode amplitude is not physical displacement. Set the eigenvalue solver tolerance to 1e-7 and check the residual.",
-      "expect": "The first buckling mode and its critical load.",
-      "result": "Reference critical load: 10.779 kN",
-      "read": "Euler’s formula gives 10.795 kN, a difference of about 0.14%. The plot shows the instability shape, not the actual deflection under a given force.",
-      "follow": "Increase the column length to 400 mm, keeping the section, material and supports unchanged. Recompute the first critical load, compare the two loads and explain their ratio using Euler’s formula.",
-      "takeaway": "Doubling the length reduces the critical load to approximately one quarter. Material strength alone does not determine the capacity of a slender column.",
-      "technical": "Requires AgentFEM with the buckling update merged on 2026-10-10 and SLEPc. The earlier v0.4.1 release lacks this feature. Reference: quadratic elements, 80×6 mesh, 100 N over 10×10 mm² gives 1 MPa. Linear elastic buckling of an ideal column is not postbuckling capacity.",
-      "imageAlt": "Original column and first buckling mode; critical load 10.779 kN. Mode amplitude is for display only."
+      "problem": "As compression increases, does sideways displacement remain proportional to the load? Plot the response and see what happens near Euler’s critical load.",
+      "prompt": "Use AgentFEM to load a column gradually: length L=200 mm, section 10×10 mm, E=210 GPa, Poisson’s ratio 0.3. Clamp the left end; apply uniform horizontal compression to the right face and leave its rotation free. Other boundaries are free; neglect gravity. Use geometrically nonlinear 2D plane stress with a plane-stress Neo-Hookean elastic material having the same E and ν. Add a stress-free initial bow y₀(x)=0.1[1−cos(πx/2L)] mm. Increase total force from 0 to 10.7 kN in increments, using smaller steps near buckling. Plot total force versus mean right-end lateral displacement relative to the initial shape. Mark Euler’s value π²EI/(4L²) and show deformed shapes at several loads. Numerical settings: N, mm, MPa; Newton absolute residual tolerance 1e-6; allow up to 1500 adaptive increments.",
+      "expect": "A load–lateral displacement curve and deformed shapes at several loads.",
+      "result": "Euler critical load: 10.795 kN",
+      "read": "Lateral displacement grows much faster near this load. An initially curved column bends smoothly; it does not jump from perfectly straight to bent at one point.",
+      "follow": "Increase the initial bow from 0.1 to 0.2 mm, keeping other settings unchanged. Overlay the two load–lateral displacement curves and compare their deflections at the same load.",
+      "takeaway": "Initial curvature affects lateral deflection under compression. Euler’s formula gives the critical load of an ideal straight column.",
+      "technical": "Requires an AgentFEM version supporting geometric nonlinearity and plane-stress Neo-Hookean elasticity. Use quadratic elements and incremental loading. The bow is stress-free geometry, not an imposed displacement. Do not prescribe uniform axial displacement over the right face: that prevents rotation and changes the critical load. This is an ideal elastic stability exercise, without steel yielding. Reference run: N, mm, MPa; 60×4 quadratic mesh, quadrature degree 4, Newton absolute residual tolerance 1e-6; maximum precritical load 10.7 kN.",
+      "imageAlt": "Computed column load–lateral displacement curve with the ideal Euler critical load marked."
     },
     {
       "id": "honeycomb",
@@ -85,14 +85,14 @@
       "label": "Geometry changes the response",
       "title": "Why does it get wider when stretched?",
       "problem": "A solid plate usually narrows when stretched. A re-entrant honeycomb made of the same material can widen. Download and unzip the mesh pack, then give the folder to your AI assistant.",
-      "prompt": "Use AgentFEM to import the attached honeycomb.msh without redrawing the geometry. Coordinates are in metres; width 51.9615 mm, height 60 mm. Boundary tags 11/12/13/14 mean left/right/bottom/top. Use small-strain linear elasticity in 2D plane stress, E=1 GPa and Poisson’s ratio 0.3; neglect gravity. Fix horizontal displacement on the left and impose a horizontal extension of 0.1% of the width on the right. Leave vertical motion free except for the bottom-left vertical displacement. Use mean displacements on all four boundaries to calculate axial and transverse strains and apparent Poisson’s ratio. Compare with a solid plate of the same size, material and constraints. Show one deformation comparison plot with its magnification.",
+      "prompt": "Use AgentFEM to import the attached honeycomb.msh without redrawing the geometry. Coordinates are in metres; width 51.9615 mm, height 60 mm. Boundary tags 11/12/13/14 mean left/right/bottom/top. Use small-strain linear elasticity in 2D plane stress, E=1 GPa and Poisson’s ratio 0.3; neglect gravity. Fix horizontal displacement on the left and impose a horizontal extension of 0.1% of the width on the right. Leave vertical motion free except for the bottom-left vertical displacement. Use mean displacements on all four boundaries to calculate axial and transverse strains and apparent Poisson’s ratio. Compare with a solid plate of the same size, material and constraints. Show both deformed shapes side by side with their original outlines; magnify displacement 100 times and label the factor.",
       "expect": "Deformed honeycomb and solid plate, their axial and transverse strains, and apparent Poisson’s ratios.",
       "result": "Honeycomb about −1.30; solid plate 0.30",
       "read": "Both extend horizontally; the honeycomb expands vertically while the plate contracts. The negative ratio comes from geometry: the constituent material still has Poisson’s ratio 0.3.",
-      "follow": "Halve the imposed horizontal extension for both specimens, leaving all other settings unchanged. Compare the apparent Poisson’s ratios and explain why displacement decreases but the ratio barely changes.",
-      "takeaway": "Within small-strain linear elasticity, the apparent Poisson’s ratio is essentially independent of the imposed extension. It describes this finite specimen’s overall response.",
+      "follow": "Use these results to make a looping GIF showing the honeycomb and solid plate stretching together and returning to their original shapes. Keep the view and axis limits fixed, show the original outlines, and label displacement magnification ×100.",
+      "takeaway": "The animation makes the opposite width changes easy to see. ×100 magnifies the display, not the applied extension.",
       "technical": "The pack contains baseline and refined meshes, boundary definitions and a geometry generator. Inclined ligament 10 mm, vertical ligament 15 mm, wall width 1.2 mm, angle −30°, 3×3 rectangular periods; disconnected boundary fragments are removed. Use quadratic displacement elements. Apparent Poisson’s ratio is minus transverse strain divided by axial strain, not the effective ratio of an infinite periodic material.",
-      "imageAlt": "At equal horizontal strain, the solid plate contracts vertically and the re-entrant honeycomb expands; displacement magnified 50 times."
+      "imageAlt": "At equal horizontal strain, the solid plate contracts vertically and the re-entrant honeycomb expands; displacement magnified 100 times, with original outlines."
     }
   ]
 }
