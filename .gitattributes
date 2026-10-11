@@ -1,2 +1,3 @@
 *.pdf binary
 *.docx binary
+*.msh -diff -text
