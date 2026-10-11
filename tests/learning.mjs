@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 const data=JSON.parse(fs.readFileSync('public/learn/lessons.json','utf8'));
-assert.equal(data.lessons.length,4);
+assert.equal(data.lessons.length,6);
 const handout=JSON.parse(fs.readFileSync('docs/handout/content.json','utf8'));
 assert(!('ready' in handout)&&!('runInstruction' in handout));
 for(const lesson of handout.lessons){
@@ -45,4 +45,4 @@ const button={dataset:{copy:'prompt-beam'},addEventListener(_event,fn){click=fn;
 const status={classList:{add(){},remove(){}}};
 vm.runInNewContext(fs.readFileSync('public/learn/copy.js','utf8'),{document:{querySelector:()=>null,querySelectorAll:()=>[button],getElementById:id=>id==='copy-status'?status:{textContent:data.lessons[0].prompt}},navigator:{clipboard:{async writeText(text){copied=text;}}},setTimeout(){}});
 await click();assert.equal(copied,data.lessons[0].prompt);assert.equal(button.textContent,'已复制');
-console.log('Four lessons, local links, reference values, PDF and copy interaction PASS');
+console.log('Six lessons, local links, reference values, PDF and copy interaction PASS');

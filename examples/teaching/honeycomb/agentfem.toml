@@ -1,0 +1,6 @@
+[project]
+name = "teaching_auxetic_honeycomb"
+entrypoint = "case.py"
+schema_version = "0.2.0"
+[run]
+output_directory = "outputs"

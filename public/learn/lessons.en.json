@@ -1,11 +1,14 @@
 {
   "title": "Your first finite element analysis with AI",
-  "intro": "Four short exercises. Copy a prompt, run a model, then change one condition and compare the results.",
+  "intro": "Six short exercises with prompts to copy. Obtain a result, then change one condition.",
   "ready": "Check whether you can run AgentFEM. Tell me its version and where projects will be saved. Ask for my approval before installing or configuring anything. For now, check the environment only; do not start a simulation.",
   "common": "I will send an exercise next. Once you receive it, create a new AgentFEM project, check and run it, and save the model and results. Show only one result figure, key values with units, and a two- or three-sentence explanation. Avoid lengthy analysis. Tell me if essential information is missing or you cannot run it. For now, reply only: ‘Ready. Please send the exercise.’ Do not start calculating or guess the exercise.",
   "lessons": [
     {
-      "id": "beam", "number": "01", "label": "Start with a deformed shape", "title": "How far will this beam deflect?",
+      "id": "beam",
+      "number": "01",
+      "label": "Start with a deformed shape",
+      "title": "How far will this beam deflect?",
       "problem": "Clamp the left end of a steel beam and apply a downward load at the right end. Look at the bent shape, then read the tip deflection.",
       "prompt": "Use AgentFEM to analyse a steel cantilever beam: length 200 mm, height 20 mm, thickness 10 mm, Young’s modulus 210 GPa and Poisson’s ratio 0.3. Fix the left end and distribute a total downward force of 200 N uniformly over the right end face. Use a 2D plane-stress, small-displacement linear-elastic model and neglect gravity. Show the deformed shape and the downward displacement at the midpoint of the right end (mm). State the deformation scale factor on the figure.",
       "expect": "A deformed-shape plot and the downward displacement at the midpoint of the right end. The left end stays fixed; displacement increases towards the tip.",
@@ -17,7 +20,10 @@
       "imageAlt": "Cantilever displacement field, fixed at the left and loaded downwards at the right. Deformation magnified 15 times."
     },
     {
-      "id": "cylinder", "number": "02", "label": "A different loading problem", "title": "How much does internal pressure expand a cylinder?",
+      "id": "cylinder",
+      "number": "02",
+      "label": "A different loading problem",
+      "title": "How much does internal pressure expand a cylinder?",
       "problem": "Apply uniform internal pressure to a thick-walled cylinder. Measure the outward movement of the inner wall and compare it with the outer wall.",
       "prompt": "Use AgentFEM to analyse a thick-walled cylinder: inner radius 25 mm, outer radius 50 mm, length 100 mm, Young’s modulus 210 GPa and Poisson’s ratio 0.3. Apply 10 MPa internal pressure, leave the outer wall radially free and apply no end-cap load. Use a linear-elastic axisymmetric model with zero axial displacement throughout. Report the inner-wall radial displacement (μm) and plot radial displacement through the wall at mid-length. Check against Lamé’s solution.",
       "expect": "The inner-wall radial displacement and a displacement profile from the inner to the outer wall. Radial displacement is the distance moved outwards along the radius.",
@@ -29,7 +35,10 @@
       "imageAlt": "Pressurised cylinder cross-section and radial displacement profile, comparing finite elements with Lamé’s analytical solution."
     },
     {
-      "id": "steady", "number": "03", "label": "From mechanics to heat transfer", "title": "How hot is the centre of the plate?",
+      "id": "steady",
+      "number": "03",
+      "label": "From mechanics to heat transfer",
+      "title": "How hot is the centre of the plate?",
       "problem": "Keep the left side of a metal plate hot and the right side cold. Once temperatures stop changing, what is the temperature at the centre?",
       "prompt": "Use AgentFEM for 2D steady-state heat conduction in a metal plate: length 100 mm, height 40 mm and uniform thermal conductivity 45 W/(m·K). Hold the left boundary at 100 °C and the right at 20 °C. Insulate all other boundaries and use no internal heat source. Show the temperature field, centre temperature (°C), temperature profile along the horizontal centreline and rightward heat flux density (W/m²).",
       "expect": "A temperature field that cools from left to right, and the centre temperature. Steady state means temperature no longer changes with time.",
@@ -41,7 +50,10 @@
       "imageAlt": "Temperature field in a rectangular metal plate: 100 °C on the left, 20 °C on the right and 60 °C at the centre."
     },
     {
-      "id": "transient", "number": "04", "label": "Now follow the evolution", "title": "How does the plate warm up?",
+      "id": "transient",
+      "number": "04",
+      "label": "Now follow the evolution",
+      "title": "How does the plate warm up?",
       "problem": "Use the same plate, initially at 20 °C throughout. This time, follow the heating process rather than looking only at the final state.",
       "prompt": "Use AgentFEM to simulate transient heating of a 2D metal plate: length 100 mm, height 40 mm and initial temperature 20 °C. Keep thermal conductivity 45 W/(m·K), density 7800 kg/m³ and specific heat capacity 500 J/(kg·K) constant. From the start of heating, hold the left boundary at 100 °C and the right at 20 °C. Insulate all other boundaries and use no internal heat source. Run to 600 s using backward Euler with a 2 s time step. Provide the centre-temperature curve and data table (°C). Save the temperature field every 10 s as a time series playable in ParaView.",
       "expect": "A rising centre-temperature curve and a temperature-field time series that you can play as an animation.",
@@ -51,6 +63,36 @@
       "takeaway": "This checks a numerical setting rather than a physical parameter. Agreement after reducing the time step gives more confidence in the predicted heating history.",
       "technical": "The reference uses backward Euler with 300 increments. Equilibrium is not imposed at 600 s; 59.94 °C is the computed temperature at that time. Keep the XDMF file with its accompanying H5 file. Open the XDMF file in ParaView, select Temperature and play the time series.",
       "imageAlt": "Centre temperature rising from 20 °C towards 60 °C over time. The dashed line marks the 60 °C steady state."
+    },
+    {
+      "id": "column",
+      "number": "05",
+      "label": "From deformation to instability",
+      "title": "How much compression can a slender column carry?",
+      "problem": "A lateral force bends a bar. Axial compression can make it buckle. Find the load at which sideways buckling begins.",
+      "prompt": "Use AgentFEM for linear buckling of a steel column: length 200 mm, section height 10 mm and thickness 10 mm, Young’s modulus 210 GPa, Poisson’s ratio 0.3. Use 2D plane stress. Clamp the left end and apply uniform axial compression to the right face with a reference total force of 100 N; leave other boundaries free and neglect gravity. Solve the prestress state, then report the first critical load (N) and mode plot. Check against Euler’s cantilever-column formula and state that mode amplitude is not physical displacement. Set the eigenvalue solver tolerance to 1e-7 and check the residual.",
+      "expect": "The first buckling mode and its critical load.",
+      "result": "Reference critical load: 10.779 kN",
+      "read": "Euler’s formula gives 10.795 kN, a difference of about 0.14%. The plot shows the instability shape, not the actual deflection under a given force.",
+      "follow": "Increase the column length to 400 mm, keeping the section, material and supports unchanged. Recompute the first critical load, compare the two loads and explain their ratio using Euler’s formula.",
+      "takeaway": "Doubling the length reduces the critical load to approximately one quarter. Material strength alone does not determine the capacity of a slender column.",
+      "technical": "Requires AgentFEM with the buckling update merged on 2026-10-10 and SLEPc. The earlier v0.4.1 release lacks this feature. Reference: quadratic elements, 80×6 mesh, 100 N over 10×10 mm² gives 1 MPa. Linear elastic buckling of an ideal column is not postbuckling capacity.",
+      "imageAlt": "Original column and first buckling mode; critical load 10.779 kN. Mode amplitude is for display only."
+    },
+    {
+      "id": "honeycomb",
+      "number": "06",
+      "label": "Geometry changes the response",
+      "title": "Why does it get wider when stretched?",
+      "problem": "A solid plate usually narrows when stretched. A re-entrant honeycomb made of the same material can widen. Download and unzip the mesh pack, then give the folder to your AI assistant.",
+      "prompt": "Use AgentFEM to import the attached honeycomb.msh without redrawing the geometry. Coordinates are in metres; width 51.9615 mm, height 60 mm. Boundary tags 11/12/13/14 mean left/right/bottom/top. Use small-strain linear elasticity in 2D plane stress, E=1 GPa and Poisson’s ratio 0.3; neglect gravity. Fix horizontal displacement on the left and impose a horizontal extension of 0.1% of the width on the right. Leave vertical motion free except for the bottom-left vertical displacement. Use mean displacements on all four boundaries to calculate axial and transverse strains and apparent Poisson’s ratio. Compare with a solid plate of the same size, material and constraints. Show one deformation comparison plot with its magnification.",
+      "expect": "Deformed honeycomb and solid plate, their axial and transverse strains, and apparent Poisson’s ratios.",
+      "result": "Honeycomb about −1.30; solid plate 0.30",
+      "read": "Both extend horizontally; the honeycomb expands vertically while the plate contracts. The negative ratio comes from geometry: the constituent material still has Poisson’s ratio 0.3.",
+      "follow": "Halve the imposed horizontal extension for both specimens, leaving all other settings unchanged. Compare the apparent Poisson’s ratios and explain why displacement decreases but the ratio barely changes.",
+      "takeaway": "Within small-strain linear elasticity, the apparent Poisson’s ratio is essentially independent of the imposed extension. It describes this finite specimen’s overall response.",
+      "technical": "The pack contains baseline and refined meshes, boundary definitions and a geometry generator. Inclined ligament 10 mm, vertical ligament 15 mm, wall width 1.2 mm, angle −30°, 3×3 rectangular periods; disconnected boundary fragments are removed. Use quadratic displacement elements. Apparent Poisson’s ratio is minus transverse strain divided by axial strain, not the effective ratio of an infinite periodic material.",
+      "imageAlt": "At equal horizontal strain, the solid plate contracts vertically and the re-entrant honeycomb expands; displacement magnified 50 times."
     }
   ]
 }

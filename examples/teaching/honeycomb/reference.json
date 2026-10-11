@@ -1,0 +1,85 @@
+{
+  "source_commit": "58af6eaa",
+  "units": "SI (mesh coordinates in metres)",
+  "column": {
+    "length_mm": 200.0,
+    "critical_load_N": 10779.484684250432,
+    "euler_load_N": 10794.879813691485,
+    "relative_error": 0.0014261510740978256,
+    "nx": 80
+  },
+  "column_double_length": {
+    "length_mm": 400.0,
+    "critical_load_N": 2698.183502506767,
+    "euler_load_N": 2698.719953422871,
+    "relative_error": 0.00019877976424476085,
+    "nx": 160
+  },
+  "column_refined": {
+    "length_mm": 200.0,
+    "critical_load_N": 10778.979293876226,
+    "euler_load_N": 10794.879813691485,
+    "relative_error": 0.0014729686749352933,
+    "nx": 160
+  },
+  "honeycomb": {
+    "apparent_poisson_ratio": -1.3025973471439063,
+    "axial_gauge_strain": 0.0010000000000000007,
+    "transverse_gauge_strain": 0.0013025973471439071,
+    "gauge_lengths": [
+      0.05196152422706632,
+      0.06
+    ],
+    "gauge_regions": [
+      "left",
+      "right",
+      "bottom",
+      "top"
+    ]
+  },
+  "solid": {
+    "apparent_poisson_ratio": 0.30000000000007054,
+    "axial_gauge_strain": 0.001,
+    "transverse_gauge_strain": -0.00030000000000007056,
+    "gauge_lengths": [
+      0.05196152422706632,
+      0.06
+    ],
+    "gauge_regions": [
+      "left",
+      "right",
+      "bottom",
+      "top"
+    ]
+  },
+  "half_strain": {
+    "apparent_poisson_ratio": -1.3025973471439063,
+    "axial_gauge_strain": 0.0005000000000000003,
+    "transverse_gauge_strain": 0.0006512986735719536,
+    "gauge_lengths": [
+      0.05196152422706632,
+      0.06
+    ],
+    "gauge_regions": [
+      "left",
+      "right",
+      "bottom",
+      "top"
+    ]
+  },
+  "honeycomb_refined": {
+    "apparent_poisson_ratio": -1.3061854886374191,
+    "axial_gauge_strain": 0.0009999999999999996,
+    "transverse_gauge_strain": 0.0013061854886374186,
+    "gauge_lengths": [
+      0.05196152422706632,
+      0.06
+    ],
+    "gauge_regions": [
+      "left",
+      "right",
+      "bottom",
+      "top"
+    ]
+  }
+}
