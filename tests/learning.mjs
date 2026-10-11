@@ -11,6 +11,16 @@ for(const lesson of handout.lessons){
 }
 assert(fs.readFileSync('scripts/build-learning-pdf.py','utf8').includes("ROOT/'public/learn/lessons.json'"));
 const html=fs.readFileSync('public/learn/index.html','utf8');
+const columnSection=html.match(/<section class="lesson" id="column"[\s\S]*?<\/section>/)[0];
+const honeycombSection=html.match(/<section class="lesson" id="honeycomb"[\s\S]*?<\/section>/)[0];
+assert(!columnSection.includes('files/column.zip'));
+assert(!columnSection.includes('查看示例代码'));
+assert(honeycombSection.includes('下载网格'));
+assert(!honeycombSection.includes('查看示例代码'));
+assert(data.lessons[4].prompt.includes('几何非线性'));
+assert(data.lessons[4].prompt.includes('侧向位移'));
+assert(data.lessons[5].follow.includes('GIF'));
+assert(data.lessons[5].prompt.includes('100 倍'));
 assert(data.common.includes('准备好了，请发送题目'));
 assert(data.common.includes('不要开始计算或猜测题目'));
 assert(data.common.includes('一张结果图') && data.common.includes('两三句话解释'));

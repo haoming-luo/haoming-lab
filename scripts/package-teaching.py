@@ -8,7 +8,7 @@ WEB=ROOT/'public/learn/files'
 WEB.mkdir(parents=True,exist_ok=True)
 for name in ['column','honeycomb']:
     out=DEST/name;out.mkdir(parents=True,exist_ok=True)
-    names=['case.py','agentfem.toml']+(['generate_mesh.py','honeycomb.msh','honeycomb-fine.msh'] if name=='honeycomb' else [])
+    names=['case.py','agentfem.toml']+(['generate_mesh.py','honeycomb.msh','honeycomb-fine.msh'] if name=='honeycomb' else ['load_path.py'])
     if SRC.resolve()!=DEST.resolve():
         for file in names:shutil.copy2(SRC/name/file,out/file)
         shutil.copy2(SRC/'README.md',out/'README.md')

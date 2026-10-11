@@ -28,5 +28,9 @@ def solve(length=.2,nx=80):
     return r,{'length_mm':length*1000,'critical_load_N':critical,'euler_load_N':theory,'relative_error':abs(critical/theory-1),'nx':nx}
 
 if __name__=='__main__':
-    r,answer=solve()
-    print(json.dumps(answer,indent=2))
+    import runpy
+    load_solve=runpy.run_path(str(Path(__file__).with_name('load_path.py')))['solve']
+    run=project.current_run(project_root=Path(__file__).resolve().parent)
+    r,curve,_=load_solve(output=run.artifact('load-path.xdmf'))
+    run.artifact('load-path.json').write_text(json.dumps(curve,indent=2)+'\n')
+    run.publish(r)
