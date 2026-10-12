@@ -107,7 +107,7 @@ for item in captured:
             path=pdf.with_suffix('.png');width=499
         else:path=item.filename;width=item.drawWidth
         p=doc.add_paragraph();p.paragraph_format.space_after=Pt(3);p.paragraph_format.line_spacing=1
-        if LATIN:p.paragraph_format.space_before=Pt(6)
+        p.paragraph_format.space_before=Pt(max(6 if LATIN else 0,getattr(item,'spaceBefore',0)))
         p.alignment=1;r=p.add_run();r.add_picture(str(path),width=Pt(width))
         pic=r._r.xpath('.//wp:docPr')[0];pic.set('descr',(f"{edition['D']['exercise']} {item.case}" if isinstance(item,ProblemDiagram) else Path(path).stem) if LATIN else (f'实验 {item.case} 模型与边界条件' if isinstance(item,ProblemDiagram) else Path(path).stem+' 参考结果图'))
 
