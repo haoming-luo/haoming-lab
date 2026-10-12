@@ -13,8 +13,9 @@ for name in ['column','honeycomb']:
         for file in names:shutil.copy2(SRC/name/file,out/file)
         shutil.copy2(SRC/'README.md',out/'README.md')
         shutil.copy2(SRC/'reference.json',out/'reference.json')
-    manifest={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.iterdir()) if p.is_file() and p.name!='checksums.json'}
+    allowed=names+['README.md','reference.json']
+    manifest={file:hashlib.sha256((out/file).read_bytes()).hexdigest() for file in sorted(allowed)}
     (out/'checksums.json').write_text(json.dumps(manifest,indent=2)+'\n')
     with zipfile.ZipFile(WEB/f'{name}.zip','w',zipfile.ZIP_DEFLATED) as z:
-        for p in sorted(out.iterdir()):z.write(p,arcname=f'{name}/{p.name}')
+        for file in sorted(allowed+['checksums.json']):z.write(out/file,arcname=f'{name}/{file}')
     print(name, (WEB/f'{name}.zip').stat().st_size)

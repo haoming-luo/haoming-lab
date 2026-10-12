@@ -4,12 +4,12 @@ const items={
 zh:[{
 id:'column',number:'05',label:'从变形到失稳',title:'细杆能承受多大的压力？',
 problem:'慢慢加大压力，杆端的侧向位移会一直按比例增加吗？画出载荷与侧向位移的关系，看看接近欧拉临界载荷时发生了什么。',
-prompt:'请用 AgentFEM 计算压杆逐步受压的响应：长 L=200 mm，截面 10×10 mm，E=210 GPa、泊松比 0.3，左端固定，右端受均布水平压力、可自由转动，其余边界自由，忽略重力。采用二维平面应力和几何非线性，材料用相同 E、ν 的平面应力 Neo-Hookean 弹性模型。加入无应力初始弯曲 y₀(x)=0.1[1−cos(πx/2L)] mm。总压力从 0 分步加到 12 kN，临界附近细分。画“总压力—右端平均侧向位移”曲线（位移相对初始形状），标出欧拉值 π²EI/(4L²)，并给出几个载荷下的变形图。',
+prompt:'请用 AgentFEM 计算压杆逐步受压的响应：长 L=200 mm，截面 10×10 mm，E=210 GPa、泊松比 0.3，左端固定，右端受均布水平压力、可自由转动，其余边界自由，忽略重力。采用二维平面应力和几何非线性，材料用相同 E、ν 的平面应力 StVK 弹性模型。加入无应力初始弯曲 y₀(x)=0.1[1−cos(πx/2L)] mm。总压力从 0 分步加到 12 kN，临界附近细分。画“总压力—右端平均侧向位移”曲线（位移相对初始形状），标出欧拉值 π²EI/(4L²)，并给出几个载荷下的变形图。',
 expect:'一条载荷—侧向位移曲线，以及几个载荷下的杆形。',result:'欧拉临界载荷：10.795 kN',
 read:'接近这个载荷时，侧向位移增长明显加快。有初始弯曲的杆会平滑地弯下去，不会在某一点突然从完全笔直跳到弯曲。',
 follow:'把初始弯曲幅值从 0.1 mm 改成 0.2 mm，其他条件不变。将两条载荷—侧向位移曲线画在同一张图上，比较相同载荷下的弯曲程度。',
 takeaway:'初始弯曲会影响受压时的侧向位移；欧拉公式给出的是理想直杆的临界值。',
-technical:'需要支持几何非线性和平面应力 Neo-Hookean 材料的新版 AgentFEM。使用二次单元和逐步加载；初始弯曲是无应力几何，不是预先施加的位移。右端不能规定整面相同的轴向位移，否则会限制转动、改变临界载荷。该例是理想弹性稳定性教学，不包含钢材屈服。',
+technical:'需要支持几何非线性和平面应力 StVK 材料的新版 AgentFEM。使用二次单元和逐步加载；初始弯曲是无应力几何，不是预先施加的位移。右端不能规定整面相同的轴向位移，否则会限制转动、改变临界载荷。该例是理想弹性稳定性教学，不包含钢材屈服。',
 imageAlt:'实际计算的压杆载荷—侧向位移曲线，并标出理想直杆的欧拉临界载荷。'
 },{
 id:'honeycomb',number:'06',label:'让几何改变性能',title:'为什么它越拉越宽？',
@@ -25,12 +25,12 @@ imageAlt:'相同水平拉伸下，实心板竖向收缩，内凹蜂窝竖向展�
 en:[{
 id:'column',number:'05',label:'From deformation to instability',title:'How much compression can a slender column carry?',
 problem:'As compression increases, does sideways displacement remain proportional to the load? Plot the response and see what happens near Euler’s critical load.',
-prompt:'Use AgentFEM to load a column gradually: length L=200 mm, section 10×10 mm, E=210 GPa, Poisson’s ratio 0.3. Clamp the left end; apply uniform horizontal compression to the right face and leave its rotation free. Other boundaries are free; neglect gravity. Use geometrically nonlinear 2D plane stress with a plane-stress Neo-Hookean elastic material having the same E and ν. Add a stress-free initial bow y₀(x)=0.1[1−cos(πx/2L)] mm. Increase total force from 0 to 12 kN in increments, using smaller steps near buckling. Plot total force versus mean right-end lateral displacement relative to the initial shape. Mark Euler’s value π²EI/(4L²) and show deformed shapes at several loads.',
+prompt:'Use AgentFEM to load a column gradually: length L=200 mm, section 10×10 mm, E=210 GPa, Poisson’s ratio 0.3. Clamp the left end; apply uniform horizontal compression to the right face and leave its rotation free. Other boundaries are free; neglect gravity. Use geometrically nonlinear 2D plane stress with a plane-stress StVK elastic material having the same E and ν. Add a stress-free initial bow y₀(x)=0.1[1−cos(πx/2L)] mm. Increase total force from 0 to 12 kN in increments, using smaller steps near buckling. Plot total force versus mean right-end lateral displacement relative to the initial shape. Mark Euler’s value π²EI/(4L²) and show deformed shapes at several loads.',
 expect:'A load–lateral displacement curve and deformed shapes at several loads.',result:'Euler critical load: 10.795 kN',
 read:'Lateral displacement grows much faster near this load. An initially curved column bends smoothly; it does not jump from perfectly straight to bent at one point.',
 follow:'Increase the initial bow from 0.1 to 0.2 mm, keeping other settings unchanged. Overlay the two load–lateral displacement curves and compare their deflections at the same load.',
 takeaway:'Initial curvature affects lateral deflection under compression. Euler’s formula gives the critical load of an ideal straight column.',
-technical:'Requires an AgentFEM version supporting geometric nonlinearity and plane-stress Neo-Hookean elasticity. Use quadratic elements and incremental loading. The bow is stress-free geometry, not an imposed displacement. Do not prescribe uniform axial displacement over the right face: that prevents rotation and changes the critical load. This is an ideal elastic stability exercise, without steel yielding.',
+technical:'Requires an AgentFEM version supporting geometric nonlinearity and plane-stress StVK elasticity. Use quadratic elements and incremental loading. The bow is stress-free geometry, not an imposed displacement. Do not prescribe uniform axial displacement over the right face: that prevents rotation and changes the critical load. This is an ideal elastic stability exercise, without steel yielding.',
 imageAlt:'Computed column load–lateral displacement curve with the ideal Euler critical load marked.'
 },{
 id:'honeycomb',number:'06',label:'Geometry changes the response',title:'Why does it get wider when stretched?',
@@ -46,12 +46,12 @@ imageAlt:'At equal horizontal strain, the solid plate contracts vertically and t
 fr:[{
 id:'column',number:'05',label:'De la déformation à l’instabilité',title:'Quelle compression une tige élancée peut-elle supporter ?',
 problem:'Quand la compression augmente, le déplacement latéral reste-t-il proportionnel à la charge ? Tracez la réponse et observez ce qui se passe près de la charge critique d’Euler.',
-prompt:'Avec AgentFEM, comprimez progressivement une tige de longueur L=200 mm, de section 10×10 mm, E=210 GPa et coefficient de Poisson 0,3. Encastrez la gauche ; appliquez une compression horizontale uniforme à droite, en laissant la rotation libre. Les autres bords sont libres ; négligez la pesanteur. Utilisez les contraintes planes 2D avec non-linéarité géométrique et un matériau élastique Neo-Hookean en contraintes planes de mêmes E et ν. Ajoutez une courbure initiale sans contrainte y₀(x)=0,1[1−cos(πx/2L)] mm. Augmentez la force totale de 0 à 12 kN par incréments, plus petits près du flambement. Tracez la force en fonction du déplacement latéral moyen à droite, mesuré depuis la forme initiale. Indiquez la valeur d’Euler π²EI/(4L²) et les déformées sous plusieurs charges.',
+prompt:'Avec AgentFEM, comprimez progressivement une tige de longueur L=200 mm, de section 10×10 mm, E=210 GPa et coefficient de Poisson 0,3. Encastrez la gauche ; appliquez une compression horizontale uniforme à droite, en laissant la rotation libre. Les autres bords sont libres ; négligez la pesanteur. Utilisez les contraintes planes 2D avec non-linéarité géométrique et un matériau élastique StVK en contraintes planes de mêmes E et ν. Ajoutez une courbure initiale sans contrainte y₀(x)=0,1[1−cos(πx/2L)] mm. Augmentez la force totale de 0 à 12 kN par incréments, plus petits près du flambement. Tracez la force en fonction du déplacement latéral moyen à droite, mesuré depuis la forme initiale. Indiquez la valeur d’Euler π²EI/(4L²) et les déformées sous plusieurs charges.',
 expect:'Une courbe charge–déplacement latéral et plusieurs déformées.',result:'Charge critique d’Euler : 10,795 kN',
 read:'Le déplacement latéral augmente beaucoup plus vite près de cette charge. Une tige initialement courbe fléchit progressivement, sans saut depuis une forme parfaitement droite.',
 follow:'Portez la courbure initiale de 0,1 à 0,2 mm, sans autre modification. Superposez les deux courbes charge–déplacement latéral et comparez les flèches à charge égale.',
 takeaway:'La courbure initiale influe sur la flèche sous compression. La formule d’Euler concerne la tige droite idéale.',
-technical:'Nécessite une version d’AgentFEM avec non-linéarité géométrique et élasticité Neo-Hookean en contraintes planes. Utilisez des éléments quadratiques et un chargement incrémental. La courbure initiale est sans contrainte. Ne prescrivez pas un déplacement axial uniforme sur toute la face droite : cela bloque la rotation et change la charge critique. Exercice élastique idéal, sans plasticité de l’acier.',
+technical:'Nécessite une version d’AgentFEM avec non-linéarité géométrique et élasticité StVK en contraintes planes. Utilisez des éléments quadratiques et un chargement incrémental. La courbure initiale est sans contrainte. Ne prescrivez pas un déplacement axial uniforme sur toute la face droite : cela bloque la rotation et change la charge critique. Exercice élastique idéal, sans plasticité de l’acier.',
 imageAlt:'Courbe charge–déplacement latéral calculée, avec la charge critique d’Euler de la tige idéale.'
 },{
 id:'honeycomb',number:'06',label:'La géométrie change la réponse',title:'Pourquoi s’élargit-il quand on l’étire ?',
@@ -66,9 +66,13 @@ imageAlt:'À déformation horizontale identique, la plaque se contracte vertical
 }]
 };
 for(const [lang,lessons] of Object.entries(items)){
- lessons[0].prompt=lessons[0].prompt.replace('12 kN',lang==='fr'?'10,7 kN':'10.7 kN');
- lessons[0].prompt += {zh:' 数值设置：采用 N、mm、MPa 单位，牛顿绝对残差容差 1e-6，自动加载最多 1500 步。',en:' Numerical settings: N, mm, MPa; Newton absolute residual tolerance 1e-6; allow up to 1500 adaptive increments.',fr:' Réglages : N, mm, MPa ; tolérance absolue du résidu de Newton 1e-6 ; jusqu’à 1500 incréments adaptatifs.'}[lang];
- lessons[0].technical += {zh:' 参考计算采用 N、mm、MPa 单位，60×4 二次网格、4 阶积分，牛顿绝对残差容差 1e-6；临界前最大载荷为 10.7 kN。',en:' Reference run: N, mm, MPa; 60×4 quadratic mesh, quadrature degree 4, Newton absolute residual tolerance 1e-6; maximum precritical load 10.7 kN.',fr:' Calcul de référence : N, mm, MPa ; maillage quadratique 60×4, quadrature de degré 4, tolérance absolue du résidu de Newton 1e-6 ; charge précritique maximale de 10,7 kN.'}[lang];
+ lessons[0].prompt={
+ zh:'请用 AgentFEM 模拟细杆逐步受压：长 200 mm，截面 10×10 mm，E=210 GPa、泊松比 0.3。左端固定，右端受沿原轴线方向的均布压力，其余边界自由。采用线弹性材料，考虑几何非线性；加入幅值 0.1 mm 的一阶屈曲形状作为初始弯曲。将总压力从 0 逐步加到 10.7 kN，画出载荷与端部侧向位移的关系，与欧拉临界载荷比较。展示几个载荷下的变形图，用两三句话解释。',
+ en:'Use AgentFEM to compress a slender column gradually: length 200 mm, section 10×10 mm, E=210 GPa, Poisson’s ratio 0.3. Clamp the left end and apply uniform compression along the original axis at the right end; leave other boundaries free. Use a linear elastic material with geometric nonlinearity. Add the first buckling shape as an initial bow of amplitude 0.1 mm. Increase total force from 0 to 10.7 kN. Plot force against lateral tip displacement and compare with Euler’s critical load. Show several deformed shapes, explain in two or three sentences.',
+ fr:'Avec AgentFEM, comprimez progressivement une tige de longueur 200 mm et de section 10×10 mm, avec E=210 GPa et un coefficient de Poisson de 0,3. Encastrez la gauche et appliquez à droite une compression uniforme suivant l’axe initial ; laissez les autres bords libres. Utilisez un matériau élastique linéaire avec non-linéarité géométrique. Ajoutez le premier mode de flambement comme défaut initial d’amplitude 0,1 mm. Augmentez la force totale de 0 à 10,7 kN. Tracez la force en fonction du déplacement latéral en bout et comparez à la charge critique d’Euler. Montrez quelques déformées, expliquez en deux ou trois phrases.'
+ }[lang];
+ lessons[1].prompt=lessons[1].prompt.replace('仅固定左下角竖向位移','仅固定左边界最下端节点的竖向位移（蜂窝坐标为 x=0、y=5 mm；实心板为左下角）').replace('except for the bottom-left vertical displacement','except at the lowest node on the left boundary (honeycomb: x=0, y=5 mm; solid plate: bottom-left corner)').replace('sauf au coin inférieur gauche','sauf au nœud le plus bas du bord gauche (nid d’abeilles : x=0, y=5 mm ; plaque : coin inférieur gauche)');
+ lessons[0].technical += {zh:' 参考计算采用 N、mm、MPa 单位，80×4 二次网格、4 阶积分，牛顿绝对残差容差 1e-7；临界前最大载荷为 10.7 kN。',en:' Reference run: N, mm, MPa; 80×4 quadratic mesh, quadrature degree 4, Newton absolute residual tolerance 1e-7; maximum precritical load 10.7 kN.',fr:' Calcul de référence : N, mm, MPa ; maillage quadratique 80×4, quadrature de degré 4, tolérance absolue du résidu de Newton 1e-7 ; charge précritique maximale de 10,7 kN.'}[lang];
  if(lang==='en')lessons[1].prompt=lessons[1].prompt.replace('Show one deformation comparison plot with its magnification.','Show both deformed shapes side by side with their original outlines; magnify displacement 100 times and label the factor.');
  if(lang==='fr')lessons[1].prompt=lessons[1].prompt.replace('Donnez une figure comparative avec le facteur d’amplification.','Tracez les deux déformées côte à côte avec leurs contours initiaux ; amplifiez les déplacements 100 fois et indiquez ce facteur.');
  const file=`public/learn/lessons${lang==='zh'?'':'.'+lang}.json`;

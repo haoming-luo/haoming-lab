@@ -1,10 +1,9 @@
 {
-  "LICENSE": "4a8e89fe65965e0b5ab34a6a1b8faa412666e426ce92500dba6af0c8f3e0ca0b",
-  "README.md": "6e7602079793fde379bf8b44d38964ab4b8e4c38be89c5534e3673b8d6a227e5",
+  "README.md": "374dd5d604b14c24f0a2dad06be88b957aba566ca26a7b41ee63f513b607ec40",
   "agentfem.toml": "e2b004074a1bf6e47e65e96bd2f4ae197d20ccea946f06bc056856a4674a5cb8",
-  "case.py": "8ccf0b18b7780547f243c95379dfd1d379deacda0b380a58ec776b7eaa978abe",
+  "case.py": "9d1ccb42b96b22c0bb940a5cf3cc0be8ea010149768ed655715efa02304e8ab7",
   "generate_mesh.py": "89d0dbad9fa215d8bba73350711d6fbb6bf4287701c6e0bf0cfa6a395bc66fbb",
   "honeycomb-fine.msh": "b9575cdf0beaa321d248a72d3ab4786a792acdb2bd8a31fd6c358cf4ca8e25b4",
   "honeycomb.msh": "fa5005b217cde4c4e9e5953bcaa316d6f08df22b46a23491f4a333d2612840bb",
-  "reference.json": "3adef7c6e23a277ec41245882986b0de92b33ad754e92b844ec6adb59a8c7ec7"
+  "reference.json": "6a75acad3c0302efac6d4f4283e32ab337228a1019269b942ce5830c9683351a"
 }

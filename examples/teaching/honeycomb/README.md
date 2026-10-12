@@ -8,7 +8,7 @@ Code: Apache-2.0. Geometry generator adapted from AgentFEM's honeycomb generator
 Use AgentFEM containing the stability update merged on 2026-10-10 (PR #100),
 DOLFINx, PETSc and SLEPc. The earlier v0.4.1 release does not contain buckling.
 Honeycomb import also requires Gmsh. Reference calculations used DOLFINx 0.11.0
-and AgentFEM source commit 58af6eaa. No solver code is bundled here.
+and AgentFEM source commit 36f4c1b0. No solver code is bundled here.
 
 Open each project folder and run `agentfem run` in your configured FEM environment.
 Alternatively run `python case.py`. Outputs are standard AgentFEM run artifacts,
@@ -46,7 +46,7 @@ Physical groups:
 | 1 | 13 | bottom | Free, transverse gauge |
 | 1 | 14 | top | Free, transverse gauge |
 
-W=0.05196152422706632 m, H=0.06 m. Pin uy only at (0,0).
+W=0.05196152422706632 m, H=0.06 m. Pin uy at (0,0.005) m for honeycomb, at (0,0) for the solid control. The honeycomb has no material at the origin.
 Other boundaries, including hole walls, are traction free. E=1 GPa, nu=0.3,
 small-strain plane stress; no gravity. No thickness is needed for the requested
 displacement-ratio outputs; specify one if adding total reactions.
@@ -70,3 +70,5 @@ not periodic homogenized constants or universal material properties.
 
 Français : décompressez le dossier et transmettez-le à l’IA. Les coordonnées du
 maillage sont en mètres. Les étiquettes 11/12/13/14 désignent gauche/droite/bas/haut.
+
+Updated teaching reference requires AgentFEM PR #101 (36f4c1b0): StVK plane-stress geometric elasticity and checked point supports.

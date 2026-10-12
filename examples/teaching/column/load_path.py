@@ -9,7 +9,7 @@ import ufl
 from dolfinx import fem
 from agentfem import mesh, models, studies, fields, constitutive, steps, io, solvers
 
-def solve(nx=60, maximum_force=10700., increment=None, imperfection=.1, output=None, quadrature=4):
+def solve(nx=80, maximum_force=10700., increment=None, imperfection=.1, output=None, quadrature=4):
     increment=300/maximum_force if increment is None else increment
     L,h,b,E=200.,10.,10.,210000.
     d=mesh.rectangle((0.,-h/2),(L,h/2),(nx,4),cell_type='quadrilateral')
@@ -22,11 +22,11 @@ def solve(nx=60, maximum_force=10700., increment=None, imperfection=.1, output=N
     mesh.apply_mode_imperfection(d,[shape],amplitudes=[imperfection])
     m=models.create(study=studies.static_solid(dimension=2,assumption='plane_stress',nonlinear=True),mesh=d)
     u=m.field(fields.displacement(d,degree=2))
-    mat=m.material(constitutive.neo_hookean_plane_stress(young=E,poisson=.3))
+    mat=m.material(constitutive.saint_venant_kirchhoff(young=E,poisson=.3,plane_stress=True))
     m.clamp(u,on=left)
     m.traction((-maximum_force/(h*b),0.),on=right)
     m.check()
-    step=m.step(target=u,material=mat,measure=ufl.Measure('dx',domain=d,metadata={'quadrature_degree':quadrature}),solver_options=solvers.NewtonSolverOptions(absolute_tolerance=1e-6,relative_tolerance=1e-8,maximum_iterations=50),incrementation=steps.automatic(initial=increment,maximum=increment,minimum=1e-5,max_increments=1500,max_cutbacks=12,fast_iterations=30,slow_iterations=45),output_every=1,progress=True)
+    step=m.step(target=u,material=mat,measure=ufl.Measure('dx',domain=d,metadata={'quadrature_degree':quadrature}),solver_options=solvers.NewtonSolverOptions(line_search='basic',absolute_tolerance=1e-7,relative_tolerance=1e-8,maximum_iterations=50),incrementation=steps.automatic(initial=increment,maximum=increment,minimum=1e-5,max_increments=1500,max_cutbacks=12,fast_iterations=30,slow_iterations=45),output_every=1,progress=False)
     try:
         result=step.solve_result(output=output)
     except Exception:
