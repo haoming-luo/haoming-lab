@@ -23,7 +23,11 @@ def solve(solid=False,strain=.001,mesh_file=None):
     m.material(isotropic_elastic(young=1e9,poisson=.3,density=1000.))
     m.constraint(constraints.fixed_component(u,component=0,on=left,value=0.))
     m.constraint(constraints.fixed_component(u,component=0,on=right,value=strain*width))
-    m.constraint(constraints.pin(u,at=(0.,0.),components=(1,)))
+    # The honeycomb has no material at (0, 0): its left edge starts at y=5 mm.
+    pin_at=(0.,0. if solid else .005)
+    coordinates=u.value.function_space.tabulate_dof_coordinates()
+    assert np.any(np.linalg.norm(coordinates[:,:2]-pin_at,axis=1)<1e-10), 'Support must coincide with a mesh DOF'
+    m.constraint(constraints.pin(u,at=pin_at,components=(1,)))
     m.check()
     r=m.step(target=u).solve_result(output=run.artifact('displacement.xdmf'),strict_output=True)
     answer=mechanics.apparent_poisson_ratio(u,axial_axis=0,transverse_axis=1,axial_faces=(left,right),transverse_faces=(bottom,top),axial_length=width,transverse_length=height)
