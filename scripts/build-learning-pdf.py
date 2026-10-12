@@ -23,15 +23,17 @@ for name,size,lead,font in [('body',10.5,17,'Song'),('small',8.6,13,'Song'),('ti
     styles[name]=ParagraphStyle(name,fontName=font,fontSize=size,leading=lead,wordWrap='CJK',textColor=colors.HexColor('#171717'),spaceAfter=8)
 styles['prompt'].backColor=colors.HexColor('#f3f3f3')
 styles['prompt'].borderPadding=10
-styles['prompt'].spaceBefore=8
+styles['prompt'].spaceBefore=18
 styles['prompt'].spaceAfter=18
+styles['prompt'].leftIndent=10
+styles['prompt'].rightIndent=10
 styles['small'].textColor=colors.HexColor('#555555')
 styles['small'].spaceAfter=5
 styles['formula'].leftIndent=14
 styles['h2'].spaceBefore=8
 styles['label'].spaceAfter=5
 styles['exercise']=ParagraphStyle('exercise',parent=styles['body'],leading=15,spaceAfter=5)
-styles['exercise_prompt']=ParagraphStyle('exercise_prompt',parent=styles['prompt'],leading=15,spaceBefore=5,spaceAfter=13,borderPadding=8)
+styles['exercise_prompt']=ParagraphStyle('exercise_prompt',parent=styles['prompt'],leading=15,spaceBefore=16,spaceAfter=16,borderPadding=8,leftIndent=8,rightIndent=8)
 styles['exercise_heading']=ParagraphStyle('exercise_heading',parent=styles['h2'],leading=16,spaceBefore=5,spaceAfter=5)
 styles['reference']=ParagraphStyle('reference',parent=styles['small'],fontSize=8,leading=11,spaceAfter=3)
 
