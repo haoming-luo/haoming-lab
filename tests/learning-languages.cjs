@@ -16,6 +16,15 @@ const assert=require('node:assert/strict');
     else await page.goto(pathToFileURL(resolve('public/learn/'+(lang==='zh'?'index':lang)+'.html')).href);
     assert.equal((await page.locator('html').getAttribute('lang')).slice(0,2),lang);
     assert.equal(await page.locator('h1').textContent(),data.title);
+    const installation=await page.locator('#install-prompt').textContent();
+    assert(installation.includes('https://github.com/haoming-luo/agentfem'));
+    assert(installation.includes('INSTALL.md')&&installation.includes('agentfem doctor'));
+    assert.equal(await page.locator('a[href*="agents/mcp"], a[href*="extend/mcp"]').count(),0);
+    await page.locator('.install-help summary').click();
+    await page.locator('[data-copy="install-prompt"]').click();
+    await page.waitForFunction(()=>['Copied','Copié','已复制'].includes(document.querySelector('[data-copy="install-prompt"]').textContent));
+    assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),installation);
+    await page.locator('.install-help summary').click();
     for(const ext of ['pdf','docx']){
      const filename=`AgentFEM-first-simulations${lang==='zh'?'':'-'+lang}.${ext}`;
      assert((await page.locator(`.download-options a[href$=".${ext}"]`).getAttribute('href')).endsWith(filename));
