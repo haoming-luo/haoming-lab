@@ -44,8 +44,8 @@ def page(c,doc):
 
 story=[P(D['title'],'title'),P(D['subtitle'],'h2'),P(D['name'],'small'),P(D['aimTitle'],'h2'),P(D['aim']),P(D['setup'],'h2'),P(D['setupIntro'],'small'),P(PROMPTS['ready'],'prompt'),P(D['setupNext'],'small'),P(PROMPTS['common'],'prompt'),P(D['stepsTitle'],'h2')]
 for i,text in enumerate(D['steps'],1):story.append(P(f'{i}. {text}','exercise'))
-overview_rows=[[str(i+2),x['title'],D['checks'][i]] for i,x in enumerate(D['lessons'])]
-overview_rows += [['6',L('Column response under compression','Tige en compression'),L('Load curve and Euler load','Courbe de charge et valeur d’Euler')],['7',L('Re-entrant honeycomb','Nid d’abeilles rentrant'),L('Solid plate comparison','Comparaison avec une plaque')]]
+overview_rows=[[str(i+1),x['title'],D['checks'][i]] for i,x in enumerate(D['lessons'])]
+overview_rows += [['5',L('Column response under compression','Tige en compression'),L('Load curve and Euler load','Courbe de charge et valeur d’Euler')],['6',L('Re-entrant honeycomb','Nid d’abeilles rentrant'),L('Solid plate comparison','Comparaison avec une plaque')]]
 story.extend([P(D['overview'],'h2'),table([D['overviewHead']]+overview_rows,[35,228,236],True),Spacer(1,6),P(D['retain'],'small'),P(D['install'],'small')])
 for i,(x,shared) in enumerate(zip(D['lessons'],PROMPTS['lessons']),1):
     story.extend([PageBreak(),P(f'{D["exercise"]} {i}  {x["title"]}','h1'),P(x['goal'],'small'),ProblemDiagram(i,LANG),P(D['conditions'],'exercise_heading'),table(x['conditions'],[105,394]),Spacer(1,5),P(D['prompt'],'exercise_heading'),P(shared['prompt'],'prompt'),P(D['tasksTitle'],'exercise_heading')])
