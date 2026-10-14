@@ -26,6 +26,7 @@ worker.onmessage=({data})=>{busy=false;if(data.id===currentId){if(data.error){$(
  if(data.task==='forward'){state=r.state;k=r.k;error=null;manual=true;frames=null;}
  if(data.task==='branches'){branchStates=r;state=r[branch];error=null;frames=null;}
  if(data.task==='path'){frames=r;playing=true;playStart=performance.now();animate();}
+ if(!cameraReady&&data.task!=='path'){centerRod();cameraReady=true;resize();}
  renderResult();draw();
  }}if(pending)dispatch();};
 worker.onerror=()=>{busy=false;pending=null;$('status').textContent=T('failed');$('play').disabled=true;};
@@ -54,10 +55,10 @@ $('load').oninput=()=>{$('load-value').textContent=Number($('load').value).toFix
 const zoneSelect=document.createElement('div');zoneSelect.id='zone-select';zoneSelect.innerHTML='<label data-i18n="zones" for="zones"></label><select id="zones" aria-label="Actuation zones"><option>3</option><option>6</option><option>12</option><option>24</option></select>';$('presets').after(zoneSelect);
 const baseControl=document.createElement('div');baseControl.id='base-control';baseControl.innerHTML='<label for="base-mode" data-i18n="base"></label><select id="base-mode"><option value="fixed" data-i18n="fixed"></option><option value="motor" data-i18n="motor"></option></select>';zoneSelect.after(baseControl);
 const angleRow=document.createElement('div');angleRow.id='angle-row';angleRow.innerHTML='<label for="base-angle" data-i18n="angle"></label><output id="angle-value">0°</output><input id="base-angle" type="range" min="-180" max="180" step="1"><p class="quiet" data-i18n="motorHelp"></p>';$('controls').append(angleRow);
-$('base-mode').onchange=()=>{rotating=$('base-mode').value==='motor';if(!rotating)baseAngle=0;zoom=1;resize();if(target||curve)queue('design',{target:curve||target,shape:!!curve,warm:k});else queue('forward',{k});renderResult();};
+$('base-mode').onchange=()=>{rotating=$('base-mode').value==='motor';if(!rotating)baseAngle=0;if(target||curve)queue('design',{target:curve||target,shape:!!curve,warm:k});else queue('forward',{k});renderResult();};
 $('base-angle').oninput=()=>{baseAngle=Number($('base-angle').value)*Math.PI/180;target=null;curve=null;queue('forward',{k});};
 const viewTools=document.createElement('div');viewTools.className='view-tools';viewTools.innerHTML='<button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-reset" aria-label="Reset view">⌖</button><button id="zoom-in" aria-label="Zoom in">+</button>';document.querySelector('.stage').append(viewTools);
-for(const [id,factor] of [['zoom-in',1.2],['zoom-out',1/1.2],['zoom-reset',0]])$(id).onclick=()=>{zoom=factor?Math.max(.65,Math.min(2,zoom*factor)):1;resize();};
+for(const [id,factor] of [['zoom-in',1.2],['zoom-out',1/1.2],['zoom-reset',0]])$(id).onclick=()=>{zoom=factor?Math.max(.65,Math.min(2,zoom*factor)):1;centerRod();resize();};
 function buildControls(){document.querySelectorAll('.zone-row').forEach(e=>e.remove());const fragment=document.createDocumentFragment();k.forEach((v,j)=>{const i=j+1,row=document.createElement('div');row.className='zone-row';row.innerHTML=`<label for="k${i}">κ${i}L</label><input id="k${i}" type="range" min="-2.4" max="2.4" step=".01" value="${v}"><output id="k${i}-value">${v.toFixed(2)}</output>`;fragment.append(row);row.querySelector('input').oninput=()=>{k=k.map((_,a)=>Number($('k'+(a+1)).value));target=null;curve=null;queue('forward',{k});};});$('controls').querySelector('summary').after(fragment);}
 $('zones').onchange=()=>{const count=Number($('zones').value),old=k.slice();k=Array.from({length:count},(_,i)=>old[Math.min(old.length-1,Math.floor((i+.5)*old.length/count))]);buildControls();if(target||curve)queue('design',{target:curve||target,shape:!!curve,warm:k});else queue('forward',{k});draw();};
 buildControls();
@@ -65,8 +66,11 @@ $('language').onclick=()=>{lang=lang==='en'?'zh':'en';try{localStorage.setItem('
 $('reset').onclick=()=>setMode(mode);
 $('methods').onclick=()=>$('method-dialog').showModal();$('close-method').onclick=()=>$('method-dialog').close();$('method-dialog').onclick=e=>{if(e.target===$('method-dialog')){const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)e.target.close();}};
 $('export').onclick=()=>{const finalState=mode==='branch'?state:forward(k,true,baseAngle);const record={version:'0.3.0',mode,source:'browser_48_element_mechanics',dimensionless:true,target,curve,controls:mode==='branch'?{chi:.0001,h:.01,delta:.1,p:Number($('load').value),branch}:{chi:.001,fx:.0003,fy:-.0001,k,base_mode:rotating?'motor':'fixed',base_angle_rad:baseAngle,force_frame:'world'},error_over_L:error,result:finalState,playback:'sampled_quasistatic_equilibria_not_physical_time'};const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='morph-design.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);};
-let w=0,h=0,scale=1,ox=0,oy=0;
-function resize(){const r=canvas.getBoundingClientRect();w=r.width;h=r.height;const d=Math.min(devicePixelRatio||1,2);canvas.width=w*d;canvas.height=h*d;ctx.setTransform(d,0,0,d,0,0);const allAround=rotating&&mode!=='branch';scale=zoom*Math.min((w-100)/(allAround?2.2:1.35),(h-105)/(allAround?2.2:1.3));ox=allAround?w/2:w/2-.45*scale;oy=allAround||mode==='branch'?h/2+5:h*.61;draw();}
+// Camera state is independent of physical controls. Only explicit view actions
+// recenter it; dragging, changing zones, presets or the base never reset it.
+let w=0,h=0,scale=1,ox=0,oy=0,cameraReady=false,viewCenter=[.4,.24];
+function centerRod(){const points=state?.xy;if(!points?.length)return;const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);viewCenter=[(Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2];}
+function resize(){const r=canvas.getBoundingClientRect();w=r.width;h=r.height;const d=Math.min(devicePixelRatio||1,2);canvas.width=w*d;canvas.height=h*d;ctx.setTransform(d,0,0,d,0,0);scale=zoom*Math.min((w-100)/1.35,(h-105)/1.3);ox=w/2-viewCenter[0]*scale;oy=h/2+viewCenter[1]*scale;draw();}
 const screen=p=>[ox+p[0]*scale,oy-p[1]*scale];
 function line(points,color,width,dash=[]){ctx.beginPath();points.forEach((p,i)=>{const [x,y]=screen(p);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.setLineDash([]);}
 function draw(){if(!w)return;ctx.clearRect(0,0,w,h);
@@ -99,4 +103,4 @@ canvas.onpointerup=finish;canvas.onpointercancel=finish;
 canvas.onkeydown=e=>{if(mode!=='reach'||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();target=(target||state.tip).slice();const d=e.shiftKey?.005:.025;target[0]+=e.key==='ArrowLeft'?-d:e.key==='ArrowRight'?d:0;target[1]+=e.key==='ArrowUp'?d:e.key==='ArrowDown'?-d:0;queue('design',{target,warm:k});draw();};
 new ResizeObserver(resize).observe(canvas);translate();setMode('reach');
 // Read-only diagnostic hook for numerical/browser regression checks.
-window.morphSnapshot=()=>({mode,k,target,curve,error,busy,pending:!!pending,state,playing,rotating,baseAngle,view:{scale,ox,oy}});
+window.morphSnapshot=()=>({mode,k,target,curve,error,busy,pending:!!pending,state,playing,rotating,baseAngle,view:{scale,ox,oy,zoom,center:viewCenter.slice()}});
