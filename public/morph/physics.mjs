@@ -40,11 +40,14 @@ export function solve(c,seed=null,stability=true){
  const eig=good&&stability?eigen(t.d,t.e)/c.chi:null;
  return {z,xy,tip:xy[N],residual,accepted:good,lambda:eig,stability:eig===null?'unknown':eig>1e-4?'stable':eig< -1e-4?'unstable':'critical',energy:t.energy,iterations:it};
 }
-export function forward(k,stability=true){
- if(![3,6,12].includes(k.length)||!k.every(Number.isFinite))throw Error('Expected 3, 6 or 12 finite controls');
- const c={...base,curvatures:k};let angle=0;
+export function forward(k,stability=true,baseAngle=0){
+ if(![3,6,12,24].includes(k.length)||!k.every(Number.isFinite)||!Number.isFinite(baseAngle))throw Error('Invalid controls');
+ // Prescribed motor angle: transform the fixed WORLD load into the clamp frame.
+ // Stability is conditional on that prescribed angle, never a free hinge.
+ const co=Math.cos(baseAngle),si=Math.sin(baseAngle);
+ const c={...base,curvatures:k,fx:base.fx*co+base.fy*si,fy:-base.fx*si+base.fy*co};let angle=0;
  const seed=Array.from({length:N},(_,i)=>angle+=k[Math.floor(i*k.length/N)]/N);
- return solve(c,seed,stability);
+ const s=solve(c,seed,stability);s.xy=s.xy.map(([x,y])=>[co*x-si*y,si*x+co*y]);s.tip=s.xy[N];s.baseAngle=baseAngle;return s;
 }
 export function resample(points,count=49){
  const s=[0];for(let i=1;i<points.length;i++)s.push(s[i-1]+Math.hypot(points[i][0]-points[i-1][0],points[i][1]-points[i-1][1]));
@@ -57,24 +60,27 @@ function dense3(A,b){
  for(let i=0;i<n;i++){let p=i;for(let j=i+1;j<n;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;[A[i],A[p]]=[A[p],A[i]];if(Math.abs(A[i][i])<1e-15)return Array(n).fill(0);for(let j=i+1;j<n;j++){const t=A[j][i]/A[i][i];for(let k=i;k<=n;k++)A[j][k]-=t*A[i][k];}}
  const x=Array(n).fill(0);for(let i=n-1;i>=0;i--){x[i]=A[i][n];for(let j=i+1;j<n;j++)x[i]-=A[i][j]*x[j];x[i]/=A[i][i];}return x;
 }
-export function design(target,shape=false,warm=null){
- const m=warm?.length||3;
- const residual=k=>{const s=forward(k,false);if(!s.accepted)throw Error('No equilibrium');const a=shape?s.xy.flatMap((p,i)=>p.map((v,j)=>v-target[i][j])):s.tip.map((v,i)=>v-target[i]);return [...a.map(x=>20*x),...k.map(x=>.002*x)];};
+export function design(target,shape=false,warm=null,rotating=false,baseAngle=0){
+ const zones=warm?.length||3,m=zones+(rotating?1:0);
+ const unpack=v=>({k:v.slice(0,zones),angle:rotating?v[zones]:0});
+ const residual=v=>{const u=unpack(v),s=forward(u.k,false,u.angle);if(!s.accepted)throw Error('No equilibrium');const a=shape?s.xy.flatMap((p,i)=>p.map((v,j)=>v-target[i][j])):s.tip.map((v,i)=>v-target[i]);return [...a.map(x=>20*x),...u.k.map(x=>.002*x),...(rotating?[.0002*u.angle]:[])];};
  let best=null;
- for(const initial of [warm||Array(m).fill(0),Array(m).fill(-1.2),Array(m).fill(1.2)]){
+ const aim=shape?target[3]:target,heading=Math.atan2(aim[1],aim[0]);
+ const pack=(k,a)=>rotating?[...k,a]:k;
+ for(const initial of [pack(warm||Array(zones).fill(0),baseAngle),pack(Array(zones).fill(-1.2),heading),pack(Array(zones).fill(1.2),heading)]){
   let k=initial.slice(),r=residual(k),cost=norm(r)**2,mu=.001;
   for(let iter=0;iter<45;iter++){
    const jac=Array.from({length:m},(_,j)=>{const kk=k.slice();kk[j]+=1e-4;const rr=residual(kk);return rr.map((v,i)=>(v-r[i])/1e-4);});
    const A=jac.map((col,i)=>jac.map((other,j)=>col.reduce((s,x,a)=>s+x*other[a],0)+(i===j?mu:0)));
    const b=jac.map(col=>-col.reduce((s,x,i)=>s+x*r[i],0)),delta=dense3(A,b);
-   const trial=k.map((v,i)=>Math.max(-2.4,Math.min(2.4,v+delta[i]))),rr=residual(trial),next=norm(rr)**2;
+   const trial=k.map((v,i)=>{const bound=i===zones?Math.PI:2.4;return Math.max(-bound,Math.min(bound,v+delta[i]));}),rr=residual(trial),next=norm(rr)**2;
    if(next<cost){const change=cost-next;k=trial;r=rr;cost=next;mu=Math.max(1e-7,mu*.4);if(change<1e-12)break;}else mu*=8;
    if(mu>1e8)break;
   }
   if(!best||cost<best.cost)best={k,cost};
  }
- const state=forward(best.k),error=shape?Math.sqrt(state.xy.reduce((s,p,i)=>s+(p[0]-target[i][0])**2+(p[1]-target[i][1])**2,0)/49):Math.hypot(state.tip[0]-target[0],state.tip[1]-target[1]);
- return {k:best.k,state,error,matched:error<.005&&state.accepted};
+ const u=unpack(best.k),state=forward(u.k,true,u.angle),error=shape?Math.sqrt(state.xy.reduce((s,p,i)=>s+(p[0]-target[i][0])**2+(p[1]-target[i][1])**2,0)/49):Math.hypot(state.tip[0]-target[0],state.tip[1]-target[1]);
+ return {k:u.k,baseAngle:u.angle,state,error,matched:error<.005&&state.accepted};
 }
 export function branches(p){
  const c={...base,chi:.0001,h:.01,delta:.1,fx:p,fy:0};const output={};

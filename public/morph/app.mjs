@@ -1,4 +1,4 @@
-import {forward,resample} from './physics.mjs';
+import {forward,resample} from './physics.mjs?v=motor1';
 const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
 let lang='en';try{lang=localStorage.getItem('morph-language')||'en';}catch{}
 const translations={
@@ -7,19 +7,22 @@ zh:{methods:'方法',reach:'拖动目标',shape:'绘制曲线',branch:'力学分
 translations.en.paused='Stop playback';translations.zh.paused='结束播放';
 Object.assign(translations.en,{controls:'Actuation parameters',zones:'Actuation zones',shapeSub:'Start at the white clamp. Hold and drag; release to fit.',shapeHint:'Hold and draw · release to fit',drawing:'Start at the white clamp; hold and drag.',start:'Start here','curvature-help':'Intrinsic curvature controls the bending of each zone.'});
 Object.assign(translations.zh,{controls:'驱动参数',zones:'驱动分区',shapeSub:'从白色固定端起笔，按住拖动绘制，松开计算。',shapeHint:'按住拖动绘制 · 松开计算',drawing:'从白色固定端起笔，按住鼠标拖动画线。',start:'从这里起笔','curvature-help':'各分区的本征曲率，控制局部弯曲。'});
-translations.en['method-body']=translations.en['method-body'].replace('three bounded','3, 6 or 12 bounded');
-translations.zh['method-body']=translations.zh['method-body'].replace('三段本征曲率','3、6 或 12 个分区的本征曲率');
+translations.en['method-body']=translations.en['method-body'].replace('three bounded','3, 6, 12 or 24 bounded')+' The optional motor sets the base angle (±180°); the end force stays fixed in world coordinates. Stability is checked with the motor angle held. Branch mode retains its fixed clamp.';
+translations.zh['method-body']=translations.zh['method-body'].replace('三段本征曲率','3、6、12 或 24 个分区的本征曲率')+' 可控底座角度范围为 ±180°，端部力保持世界坐标方向；稳定性检查时底座角度锁定。力学分支模式仍使用固定底座。';
+Object.assign(translations.en,{base:'Base',fixed:'Fixed',motor:'Motorized',angle:'Base angle',complex:'Alternating bends',motorHelp:'Target matching also adjusts the base angle.',view:'Reset view',zoomIn:'Zoom in',zoomOut:'Zoom out'});
+Object.assign(translations.zh,{base:'底座',fixed:'固定',motor:'可控旋转',angle:'底座角度',complex:'多次转弯',motorHelp:'匹配目标时，底座角度与各段弯曲一起调整。',view:'复位视野',zoomIn:'放大',zoomOut:'缩小'});
 const T=k=>translations[lang][k]||k;
 let mode='reach',state=forward([1,.6,-.3]),k=[1,.6,-.3],target=[.78,.48],curve=null,branchStates=null,branch='down',error=null,manual=false;
+let rotating=false,baseAngle=0,zoom=1;
 let currentId=0,busy=false,pending=null,active=null,playing=false,frames=null,playStart=0,raf=0,stroke=null,dragging=false;
-const worker=new Worker('./worker.mjs',{type:'module'});
+const worker=new Worker('./worker.mjs?v=motor1',{type:'module'});
 const stop=()=>{playing=false;cancelAnimationFrame(raf);$('progress').style.width='0%';updatePlay();};
 function updatePlay(){$('play').innerHTML=`<span aria-hidden="true">${playing?'Ⅱ':'▷'}</span> <span>${T(playing?'paused':'play')}</span>`;}
-function queue(task,args={}){const job={id:++currentId,task,...args};pending=job;stop();$('status').textContent=T('busy');$('play').disabled=true;$('export').disabled=true;if(!busy)dispatch();}
+function queue(task,args={}){const job={id:++currentId,task,rotating:mode!=='branch'&&rotating,baseAngle:mode==='branch'?0:baseAngle,...args};pending=job;stop();$('status').textContent=T('busy');$('play').disabled=true;$('export').disabled=true;if(!busy)dispatch();}
 function dispatch(){if(!pending)return;active=pending;pending=null;busy=true;worker.postMessage(active);}
 worker.onmessage=({data})=>{busy=false;if(data.id===currentId){if(data.error){$('status').textContent=T('failed');$('play').disabled=true;$('export').disabled=true;}else{
  const r=data.result;
- if(data.task==='design'){state=r.state;k=r.k;error=r.error;manual=false;frames=null;}
+ if(data.task==='design'){state=r.state;k=r.k;baseAngle=r.baseAngle;error=r.error;manual=false;frames=null;}
  if(data.task==='forward'){state=r.state;k=r.k;error=null;manual=true;frames=null;}
  if(data.task==='branches'){branchStates=r;state=r[branch];error=null;frames=null;}
  if(data.task==='path'){frames=r;playing=true;playStart=performance.now();animate();}
@@ -35,27 +38,35 @@ function renderResult(){
  $('tip-value').textContent=`${state.tip[0].toFixed(3)}, ${state.tip[1].toFixed(3)}`;
  for(let i=1;i<=k.length;i++){$('k'+i).value=k[i-1];$('k'+i+'-value').textContent=k[i-1].toFixed(2);}
  $('zone-select').hidden=mode==='branch';
+ $('base-control').hidden=mode==='branch';$('angle-row').hidden=!rotating||mode==='branch';
+ $('base-angle').value=baseAngle*180/Math.PI;$('angle-value').textContent=`${(baseAngle*180/Math.PI).toFixed(0)}°`;
  $('play').disabled=busy||mode==='branch'||!state.accepted;$('export').disabled=busy||!state.accepted;updatePlay();
 }
 function animate(){if(!playing||!frames)return;const t=Math.min(1,(performance.now()-playStart)/3000);state=frames[Math.round(t*(frames.length-1))];$('progress').style.width=100*t+'%';$('tip-value').textContent=`${state.tip[0].toFixed(3)}, ${state.tip[1].toFixed(3)}`;const liveError=target?Math.hypot(state.tip[0]-target[0],state.tip[1]-target[1]):curve?Math.sqrt(state.xy.reduce((v,p,i)=>v+(p[0]-curve[i][0])**2+(p[1]-curve[i][1])**2,0)/curve.length):null;$('error-value').textContent=liveError===null?'—':(100*liveError).toFixed(2);$('status').textContent=T(liveError===null?'manual':liveError<.005?'matched':'approx');draw();if(t<1)raf=requestAnimationFrame(animate);else{playing=false;renderResult();}}
 $('play').onclick=()=>{if(playing){stop();state=frames.at(-1);renderResult();draw();return;}if(frames){playing=true;playStart=performance.now();animate();}else queue('path',{k});};
-const presetK=[[1.4,1.4,1.4],[1.8,-1.8,-1.2],[-.9,1.6,1.7]];
-function presets(){const p=$('presets');p.replaceChildren();presetK.forEach((ks,i)=>{const b=document.createElement('button'),xy=forward(ks).xy;const path=xy.map((p,j)=>`${j?'L':'M'}${5+p[0]*32},${19-p[1]*13}`).join(' ');b.innerHTML=`<svg viewBox="0 0 45 30" aria-hidden="true"><path d="${path}"/></svg>`;b.title=`${T('preset')} ${i+1}`;b.setAttribute('aria-label',b.title);b.onclick=()=>{if(mode==='reach'){target=forward(ks).tip;curve=null;queue('design',{target,warm:k});}else{curve=forward(ks).xy;target=null;queue('design',{target:curve,shape:true,warm:k});}draw();};p.append(b);});}
+const presetK=[[1.4,1.4,1.4],[1.8,-1.8,-1.2],[-.9,1.6,1.7],Array.from({length:24},(_,i)=>2.3*Math.cos((i+.5)*Math.PI/6))];
+function presets(){const p=$('presets');p.replaceChildren();presetK.forEach((ks,i)=>{const b=document.createElement('button'),xy=forward(ks).xy;const path=xy.map((p,j)=>`${j?'L':'M'}${5+p[0]*32},${19-p[1]*13}`).join(' ');b.innerHTML=`<svg viewBox="0 0 45 30" aria-hidden="true"><path d="${path}"/></svg>`;b.title=i===3?T('complex'):`${T('preset')} ${i+1}`;b.setAttribute('aria-label',b.title);b.onclick=()=>{if(i===3&&mode!=='shape')setMode('shape');if(mode==='reach'){target=forward(ks).tip;curve=null;queue('design',{target,warm:k});}else{curve=forward(ks).xy;target=null;queue('design',{target:curve,shape:true,warm:k});}draw();};p.append(b);});}
 function translate(){document.documentElement.lang=lang==='zh'?'zh-CN':'en';document.querySelectorAll('[data-i18n]').forEach(e=>e.textContent=T(e.dataset.i18n));$('language').textContent=lang==='en'?'中文':'EN';$('title').textContent=T(mode+'Title');$('subtitle').textContent=T(mode+'Sub');$('interaction-hint').textContent=T(mode+'Hint');$('legend-target').textContent=T(mode==='branch'?'other':'target');canvas.setAttribute('aria-label',T(mode+'Hint'));presets();renderResult();draw();}
-function setMode(next){mode=next;stop();curve=null;target=null;error=null;branchStates=null;manual=false;document.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===mode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on);});$('branch-controls').hidden=mode!=='branch';$('presets').hidden=mode==='branch';$('controls').hidden=mode==='branch';$('motion-controls').hidden=mode==='branch';translate();document.querySelector('.section-caption').textContent=T(mode==='branch'?'choose':'experiment');if(mode==='branch')queue('branches',{p:Number($('load').value)});else if(mode==='reach'){target=[.78,.48];queue('design',{target,warm:k});}else{curve=forward(presetK[1]).xy;queue('design',{target:curve,shape:true,warm:k});}}
+function setMode(next){mode=next;stop();curve=null;target=null;error=null;branchStates=null;manual=false;document.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===mode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on);});$('branch-controls').hidden=mode!=='branch';$('presets').hidden=mode==='branch';$('controls').hidden=mode==='branch';$('motion-controls').hidden=mode==='branch';translate();resize();document.querySelector('.section-caption').textContent=T(mode==='branch'?'choose':'experiment');if(mode==='branch')queue('branches',{p:Number($('load').value)});else if(mode==='reach'){target=[.78,.48];queue('design',{target,warm:k});}else{curve=forward(presetK[1]).xy;queue('design',{target:curve,shape:true,warm:k});}}
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
 document.querySelectorAll('[data-branch]').forEach(b=>b.onclick=()=>{branch=b.dataset.branch;document.querySelectorAll('[data-branch]').forEach(v=>v.classList.toggle('active',v===b));if(branchStates){state=branchStates[branch];renderResult();draw();}});
 $('load').oninput=()=>{$('load-value').textContent=Number($('load').value).toFixed(6);queue('branches',{p:Number($('load').value)});};
-const zoneSelect=document.createElement('div');zoneSelect.id='zone-select';zoneSelect.innerHTML='<label data-i18n="zones" for="zones"></label><select id="zones" aria-label="Actuation zones"><option>3</option><option>6</option><option>12</option></select>';$('presets').after(zoneSelect);
+const zoneSelect=document.createElement('div');zoneSelect.id='zone-select';zoneSelect.innerHTML='<label data-i18n="zones" for="zones"></label><select id="zones" aria-label="Actuation zones"><option>3</option><option>6</option><option>12</option><option>24</option></select>';$('presets').after(zoneSelect);
+const baseControl=document.createElement('div');baseControl.id='base-control';baseControl.innerHTML='<label for="base-mode" data-i18n="base"></label><select id="base-mode"><option value="fixed" data-i18n="fixed"></option><option value="motor" data-i18n="motor"></option></select>';zoneSelect.after(baseControl);
+const angleRow=document.createElement('div');angleRow.id='angle-row';angleRow.innerHTML='<label for="base-angle" data-i18n="angle"></label><output id="angle-value">0°</output><input id="base-angle" type="range" min="-180" max="180" step="1"><p class="quiet" data-i18n="motorHelp"></p>';$('controls').append(angleRow);
+$('base-mode').onchange=()=>{rotating=$('base-mode').value==='motor';if(!rotating)baseAngle=0;zoom=1;resize();if(target||curve)queue('design',{target:curve||target,shape:!!curve,warm:k});else queue('forward',{k});renderResult();};
+$('base-angle').oninput=()=>{baseAngle=Number($('base-angle').value)*Math.PI/180;target=null;curve=null;queue('forward',{k});};
+const viewTools=document.createElement('div');viewTools.className='view-tools';viewTools.innerHTML='<button id="zoom-out" aria-label="Zoom out">−</button><button id="zoom-reset" aria-label="Reset view">⌖</button><button id="zoom-in" aria-label="Zoom in">+</button>';document.querySelector('.stage').append(viewTools);
+for(const [id,factor] of [['zoom-in',1.2],['zoom-out',1/1.2],['zoom-reset',0]])$(id).onclick=()=>{zoom=factor?Math.max(.65,Math.min(2,zoom*factor)):1;resize();};
 function buildControls(){document.querySelectorAll('.zone-row').forEach(e=>e.remove());const fragment=document.createDocumentFragment();k.forEach((v,j)=>{const i=j+1,row=document.createElement('div');row.className='zone-row';row.innerHTML=`<label for="k${i}">κ${i}L</label><input id="k${i}" type="range" min="-2.4" max="2.4" step=".01" value="${v}"><output id="k${i}-value">${v.toFixed(2)}</output>`;fragment.append(row);row.querySelector('input').oninput=()=>{k=k.map((_,a)=>Number($('k'+(a+1)).value));target=null;curve=null;queue('forward',{k});};});$('controls').querySelector('summary').after(fragment);}
 $('zones').onchange=()=>{const count=Number($('zones').value),old=k.slice();k=Array.from({length:count},(_,i)=>old[Math.min(old.length-1,Math.floor((i+.5)*old.length/count))]);buildControls();if(target||curve)queue('design',{target:curve||target,shape:!!curve,warm:k});else queue('forward',{k});draw();};
 buildControls();
 $('language').onclick=()=>{lang=lang==='en'?'zh':'en';try{localStorage.setItem('morph-language',lang);}catch{}translate();document.querySelector('.section-caption').textContent=T(mode==='branch'?'choose':'experiment');};
 $('reset').onclick=()=>setMode(mode);
 $('methods').onclick=()=>$('method-dialog').showModal();$('close-method').onclick=()=>$('method-dialog').close();$('method-dialog').onclick=e=>{if(e.target===$('method-dialog')){const b=e.target.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)e.target.close();}};
-$('export').onclick=()=>{const finalState=mode==='branch'?state:forward(k);const record={version:'0.1.0',mode,source:'browser_48_element_mechanics',dimensionless:true,target,curve,controls:mode==='branch'?{chi:.0001,h:.01,delta:.1,p:Number($('load').value),branch}:{chi:.001,fx:.0003,fy:-.0001,k},error_over_L:error,result:finalState,playback:'sampled_quasistatic_equilibria_not_physical_time'};const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='morph-design.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);};
+$('export').onclick=()=>{const finalState=mode==='branch'?state:forward(k,true,baseAngle);const record={version:'0.3.0',mode,source:'browser_48_element_mechanics',dimensionless:true,target,curve,controls:mode==='branch'?{chi:.0001,h:.01,delta:.1,p:Number($('load').value),branch}:{chi:.001,fx:.0003,fy:-.0001,k,base_mode:rotating?'motor':'fixed',base_angle_rad:baseAngle,force_frame:'world'},error_over_L:error,result:finalState,playback:'sampled_quasistatic_equilibria_not_physical_time'};const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='morph-design.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);};
 let w=0,h=0,scale=1,ox=0,oy=0;
-function resize(){const r=canvas.getBoundingClientRect();w=r.width;h=r.height;const d=Math.min(devicePixelRatio||1,2);canvas.width=w*d;canvas.height=h*d;ctx.setTransform(d,0,0,d,0,0);scale=Math.min((w-70)/1.85,(h-95)/2.15);ox=w/2-.26*scale;oy=h/2+5;draw();}
+function resize(){const r=canvas.getBoundingClientRect();w=r.width;h=r.height;const d=Math.min(devicePixelRatio||1,2);canvas.width=w*d;canvas.height=h*d;ctx.setTransform(d,0,0,d,0,0);const allAround=rotating&&mode!=='branch';scale=zoom*Math.min((w-100)/(allAround?2.2:1.35),(h-105)/(allAround?2.2:1.3));ox=allAround?w/2:w/2-.45*scale;oy=allAround||mode==='branch'?h/2+5:h*.61;draw();}
 const screen=p=>[ox+p[0]*scale,oy-p[1]*scale];
 function line(points,color,width,dash=[]){ctx.beginPath();points.forEach((p,i)=>{const [x,y]=screen(p);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.setLineDash([]);}
 function draw(){if(!w)return;ctx.clearRect(0,0,w,h);
@@ -70,12 +81,17 @@ function draw(){if(!w)return;ctx.clearRect(0,0,w,h);
   for(let i=step;i<48;i+=step){const p=screen(state.xy[i]);ctx.beginPath();ctx.arc(...p,3,0,Math.PI*2);ctx.fillStyle='#d8f4e7';ctx.fill();}
   const tip=screen(state.tip);ctx.beginPath();ctx.arc(...tip,5,0,Math.PI*2);ctx.fillStyle='#e6fff5';ctx.fill();
  }
- ctx.fillStyle='#53686c';ctx.fillRect(ox-12,oy-22,8,44);ctx.strokeStyle='#819495';ctx.lineWidth=1;for(let i=-20;i<23;i+=8){ctx.beginPath();ctx.moveTo(ox-13,oy+i);ctx.lineTo(ox-21,oy+i+7);ctx.stroke();}ctx.beginPath();ctx.arc(ox,oy,6,0,Math.PI*2);ctx.fillStyle='#edf4ec';ctx.fill();
+ if(rotating&&mode!=='branch'){
+  const a=state?.baseAngle||0;ctx.beginPath();ctx.arc(ox,oy,19,0,2*Math.PI);ctx.fillStyle='#14292e';ctx.fill();ctx.strokeStyle='#dfad7b';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.moveTo(ox,oy);ctx.lineTo(ox+27*Math.cos(a),oy-27*Math.sin(a));ctx.stroke();ctx.fillStyle='#dfad7b';ctx.font='11px sans-serif';ctx.fillText(`${(a*180/Math.PI).toFixed(0)}°`,ox-15,oy+36);
+ }else{ctx.fillStyle='#53686c';ctx.fillRect(ox-12,oy-22,8,44);ctx.strokeStyle='#819495';ctx.lineWidth=1;for(let i=-20;i<23;i+=8){ctx.beginPath();ctx.moveTo(ox-13,oy+i);ctx.lineTo(ox-21,oy+i+7);ctx.stroke();}}
+ ctx.beginPath();ctx.arc(ox,oy,6,0,Math.PI*2);ctx.fillStyle='#edf4ec';ctx.fill();
  if(mode==='shape'&&!dragging){ctx.strokeStyle='#dfad7b88';ctx.lineWidth=1;ctx.beginPath();ctx.arc(ox,oy,23,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#dfad7b';ctx.font='11px sans-serif';ctx.fillText(T('start'),ox-20,oy+43);}
  if(target){const p=screen(target),a=screen(state.tip);if(error>.005){ctx.setLineDash([3,4]);ctx.strokeStyle='#dfad7b88';ctx.beginPath();ctx.moveTo(...p);ctx.lineTo(...a);ctx.stroke();ctx.setLineDash([]);}ctx.strokeStyle='#efbc88';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(...p,13,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(...p,3,0,Math.PI*2);ctx.fillStyle='#efbc88';ctx.fill();ctx.fillStyle='#e1ba91';ctx.font='11px sans-serif';ctx.fillText(T('targetLabel'),Math.min(w-60,p[0]+19),Math.max(65,p[1]-16));}
 }
 function point(e){const r=canvas.getBoundingClientRect();return [(e.clientX-r.left-ox)/scale,-(e.clientY-r.top-oy)/scale];}
 let lastMove=0;
+document.addEventListener('pointerdown',()=>canvas.classList.remove('keyboard-focus'),true);
+document.addEventListener('keydown',e=>{if(e.key==='Tab')canvas.classList.add('keyboard-focus');},true);
 canvas.onpointerdown=e=>{if(mode==='branch')return;stop();canvas.focus({preventScroll:true});const p=point(e);if(mode==='shape'){if(Math.hypot(...p)>.22){$('status').textContent=T('drawing');return;}stroke=[[0,0],p];curve=null;}else{target=p;curve=null;queue('design',{target,warm:k});}dragging=true;canvas.setPointerCapture(e.pointerId);draw();};
 canvas.onpointermove=e=>{if(!dragging)return;const p=point(e);if(mode==='shape'){if(Math.hypot(p[0]-stroke.at(-1)[0],p[1]-stroke.at(-1)[1])>.007)stroke.push(p);}else{target=p;if(performance.now()-lastMove>90){lastMove=performance.now();queue('design',{target,warm:k});}}draw();};
 function finish(e){if(!dragging)return;dragging=false;if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId);if(mode==='shape'){if(stroke.length>4){curve=resample(stroke);target=null;queue('design',{target:curve,shape:true,warm:k});}stroke=null;}else queue('design',{target,warm:k});draw();}
@@ -83,4 +99,4 @@ canvas.onpointerup=finish;canvas.onpointercancel=finish;
 canvas.onkeydown=e=>{if(mode!=='reach'||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();target=(target||state.tip).slice();const d=e.shiftKey?.005:.025;target[0]+=e.key==='ArrowLeft'?-d:e.key==='ArrowRight'?d:0;target[1]+=e.key==='ArrowUp'?d:e.key==='ArrowDown'?-d:0;queue('design',{target,warm:k});draw();};
 new ResizeObserver(resize).observe(canvas);translate();setMode('reach');
 // Read-only diagnostic hook for numerical/browser regression checks.
-window.morphSnapshot=()=>({mode,k,target,curve,error,busy,pending:!!pending,state,playing});
+window.morphSnapshot=()=>({mode,k,target,curve,error,busy,pending:!!pending,state,playing,rotating,baseAngle,view:{scale,ox,oy}});
