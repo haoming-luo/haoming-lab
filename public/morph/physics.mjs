@@ -5,7 +5,8 @@ const norm=v=>Math.sqrt(v.reduce((s,x)=>s+x*x,0));
 export function terms(z,c){
  const g=Array(N).fill(0),d=Array(N).fill(0),e=Array(N-1).fill(0);let energy=0;
  for(let i=0;i<N;i++){
-  const l=i?z[i-1]:0,r=z[i],a=(l+r)/2,k=[c.k1,c.k2,c.k3][Math.floor(i/16)],bend=(r-l)*N-k;
+  const ks=c.curvatures||[c.k1,c.k2,c.k3];
+  const l=i?z[i-1]:0,r=z[i],a=(l+r)/2,k=ks[Math.floor(i*ks.length/N)],bend=(r-l)*N-k;
   const f=(c.fx+2*c.h)*Math.cos(a)+c.fy*Math.sin(a),fp=-(c.fx+2*c.h)*Math.sin(a)+c.fy*Math.cos(a),G=4*c.h*c.delta;
   const v=(-(1+f)*fp-G*Math.sin(a))/(2*N),hh=((1+f)*f-fp*fp-G*Math.cos(a))/(4*N),b=c.chi*bend;
   energy+=(.5*c.chi*bend*bend-f-.5*f*f+G*Math.cos(a))/N;
@@ -40,8 +41,9 @@ export function solve(c,seed=null,stability=true){
  return {z,xy,tip:xy[N],residual,accepted:good,lambda:eig,stability:eig===null?'unknown':eig>1e-4?'stable':eig< -1e-4?'unstable':'critical',energy:t.energy,iterations:it};
 }
 export function forward(k,stability=true){
- const c={...base,k1:k[0],k2:k[1],k3:k[2]};let angle=0;
- const seed=Array.from({length:N},(_,i)=>angle+=k[Math.floor(i/16)]/N);
+ if(![3,6,12].includes(k.length)||!k.every(Number.isFinite))throw Error('Expected 3, 6 or 12 finite controls');
+ const c={...base,curvatures:k};let angle=0;
+ const seed=Array.from({length:N},(_,i)=>angle+=k[Math.floor(i*k.length/N)]/N);
  return solve(c,seed,stability);
 }
 export function resample(points,count=49){
@@ -50,17 +52,19 @@ export function resample(points,count=49){
  let j=1;return Array.from({length:count},(_,i)=>{const t=s.at(-1)*i/(count-1);while(j<s.length-1&&s[j]<t)j++;const a=(t-s[j-1])/(s[j]-s[j-1]||1);return points[j-1].map((v,k)=>v+a*(points[j][k]-v));});
 }
 function dense3(A,b){
+ const n=b.length;
  A=A.map((r,i)=>[...r,b[i]]);
- for(let i=0;i<3;i++){let p=i;for(let j=i+1;j<3;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;[A[i],A[p]]=[A[p],A[i]];if(Math.abs(A[i][i])<1e-15)return [0,0,0];for(let j=i+1;j<3;j++){const t=A[j][i]/A[i][i];for(let k=i;k<4;k++)A[j][k]-=t*A[i][k];}}
- const x=[0,0,0];for(let i=2;i>=0;i--){x[i]=A[i][3];for(let j=i+1;j<3;j++)x[i]-=A[i][j]*x[j];x[i]/=A[i][i];}return x;
+ for(let i=0;i<n;i++){let p=i;for(let j=i+1;j<n;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;[A[i],A[p]]=[A[p],A[i]];if(Math.abs(A[i][i])<1e-15)return Array(n).fill(0);for(let j=i+1;j<n;j++){const t=A[j][i]/A[i][i];for(let k=i;k<=n;k++)A[j][k]-=t*A[i][k];}}
+ const x=Array(n).fill(0);for(let i=n-1;i>=0;i--){x[i]=A[i][n];for(let j=i+1;j<n;j++)x[i]-=A[i][j]*x[j];x[i]/=A[i][i];}return x;
 }
 export function design(target,shape=false,warm=null){
+ const m=warm?.length||3;
  const residual=k=>{const s=forward(k,false);if(!s.accepted)throw Error('No equilibrium');const a=shape?s.xy.flatMap((p,i)=>p.map((v,j)=>v-target[i][j])):s.tip.map((v,i)=>v-target[i]);return [...a.map(x=>20*x),...k.map(x=>.002*x)];};
  let best=null;
- for(const initial of [warm||[0,0,0],[-1.2,-1.2,-1.2],[1.2,1.2,1.2]]){
+ for(const initial of [warm||Array(m).fill(0),Array(m).fill(-1.2),Array(m).fill(1.2)]){
   let k=initial.slice(),r=residual(k),cost=norm(r)**2,mu=.001;
   for(let iter=0;iter<45;iter++){
-   const jac=[0,1,2].map(j=>{const kk=k.slice();kk[j]+=1e-4;const rr=residual(kk);return rr.map((v,i)=>(v-r[i])/1e-4);});
+   const jac=Array.from({length:m},(_,j)=>{const kk=k.slice();kk[j]+=1e-4;const rr=residual(kk);return rr.map((v,i)=>(v-r[i])/1e-4);});
    const A=jac.map((col,i)=>jac.map((other,j)=>col.reduce((s,x,a)=>s+x*other[a],0)+(i===j?mu:0)));
    const b=jac.map(col=>-col.reduce((s,x,i)=>s+x*r[i],0)),delta=dense3(A,b);
    const trial=k.map((v,i)=>Math.max(-2.4,Math.min(2.4,v+delta[i]))),rr=residual(trial),next=norm(rr)**2;
