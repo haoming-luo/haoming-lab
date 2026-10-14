@@ -1,4 +1,4 @@
-import {forward,resample} from './physics.mjs?v=motor1';
+import {forward,resample} from './physics.mjs?v=start1';
 const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
 let lang='en';try{lang=localStorage.getItem('morph-language')||'en';}catch{}
 const translations={
@@ -13,9 +13,11 @@ Object.assign(translations.en,{base:'Base',fixed:'Fixed',motor:'Motorized',angle
 Object.assign(translations.zh,{base:'底座',fixed:'固定',motor:'可控旋转',angle:'底座角度',complex:'多次转弯',motorHelp:'匹配目标时，底座角度与各段弯曲一起调整。',view:'复位视野',zoomIn:'放大',zoomOut:'缩小'});
 const T=k=>translations[lang][k]||k;
 let mode='reach',state=forward([1,.6,-.3]),k=[1,.6,-.3],target=[.78,.48],curve=null,branchStates=null,branch='down',error=null,manual=false;
+translations.en['method-body']+=' Curve fitting softly favors the initial direction and opening segment, with a global-error safeguard. The displayed curve RMS remains unweighted.';
+translations.zh['method-body']+=' 曲线拟合适度优先起笔方向与开头一段，同时限制整体误差的增加；页面显示的仍是未加权的全局偏差。';
 let rotating=false,baseAngle=0,zoom=1;
 let currentId=0,busy=false,pending=null,active=null,playing=false,frames=null,playStart=0,raf=0,stroke=null,dragging=false;
-const worker=new Worker('./worker.mjs?v=motor1',{type:'module'});
+const worker=new Worker('./worker.mjs?v=start1',{type:'module'});
 const stop=()=>{playing=false;cancelAnimationFrame(raf);$('progress').style.width='0%';updatePlay();};
 function updatePlay(){$('play').innerHTML=`<span aria-hidden="true">${playing?'Ⅱ':'▷'}</span> <span>${T(playing?'paused':'play')}</span>`;}
 function queue(task,args={}){const job={id:++currentId,task,rotating:mode!=='branch'&&rotating,baseAngle:mode==='branch'?0:baseAngle,...args};pending=job;stop();$('status').textContent=T('busy');$('play').disabled=true;$('export').disabled=true;if(!busy)dispatch();}

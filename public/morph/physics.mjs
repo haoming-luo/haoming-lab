@@ -60,12 +60,45 @@ function dense3(A,b){
  for(let i=0;i<n;i++){let p=i;for(let j=i+1;j<n;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;[A[i],A[p]]=[A[p],A[i]];if(Math.abs(A[i][i])<1e-15)return Array(n).fill(0);for(let j=i+1;j<n;j++){const t=A[j][i]/A[i][i];for(let k=i;k<=n;k++)A[j][k]-=t*A[i][k];}}
  const x=Array(n).fill(0);for(let i=n-1;i>=0;i--){x[i]=A[i][n];for(let j=i+1;j<n;j++)x[i]-=A[i][j]*x[j];x[i]/=A[i][i];}return x;
 }
-export function design(target,shape=false,warm=null,rotating=false,baseAngle=0){
+// Estimate the tangent from the first eighth of the stroke, rather than its
+// first mouse segment. A quadratic fit separates initial heading from bending.
+export function strokeHeading(points){
+ const n=Math.min(7,points.length-1);let a=0,b=0,c=0;
+ const rhs=[[0,0],[0,0]];
+ for(let i=1;i<=n;i++){const t=i/n,w=1-.5*t;a+=w*t*t;b+=w*t*t*t;c+=w*t**4;for(let j=0;j<2;j++){const v=points[i][j]-points[0][j];rhs[j][0]+=w*t*v;rhs[j][1]+=w*t*t*v;}}
+ const det=a*c-b*b,coef=rhs.map(([p,q])=>[(c*p-b*q)/det,(a*q-b*p)/det]);
+ const tangent=coef.map(v=>v[0]),length=Math.hypot(...tangent);let noise=0;
+ for(let i=1;i<=n;i++){const t=i/n;for(let j=0;j<2;j++)noise+=(points[i][j]-points[0][j]-coef[j][0]*t-coef[j][1]*t*t)**2;}
+ const confidence=length>1e-6?Math.exp(-Math.sqrt(noise/n)/(length*.06)):0;
+ return {angle:Math.atan2(tangent[1],tangent[0]),confidence};
+}
+function shapeMetrics(state,target,direction){
+ const squared=state.xy.map((p,i)=>(p[0]-target[i][0])**2+(p[1]-target[i][1])**2);
+ const rms=a=>Math.sqrt(a.reduce((s,v)=>s+v,0)/a.length);
+ return {overall:rms(squared),opening:rms(squared.slice(1,9)),tail:rms(squared.slice(9)),heading:Math.abs(Math.atan2(Math.sin(state.baseAngle-direction.angle),Math.cos(state.baseAngle-direction.angle)))};
+}
+export function design(target,shape=false,warm=null,rotating=false,baseAngle=0,policy='balanced'){
+ if(shape&&policy==='balanced'){
+  const baseline=design(target,true,warm,rotating,baseAngle,'uniform'),direction=strokeHeading(target),before=shapeMetrics(baseline.state,target,direction);
+  let chosen=baseline,after=before,strength=0;
+  // Do not disturb an already accurate fit. Relax start preference when the
+  // stroke is noisy; retain unweighted RMS as the displayed error.
+  if(before.opening>.003||(rotating&&direction.confidence>.25&&before.heading>Math.PI/90)){
+   for(const weight of [1,.25,.0625]){
+    const candidate=design(target,true,baseline.k,rotating,baseline.baseAngle,{weight,direction}),metrics=shapeMetrics(candidate.state,target,direction);
+    const safe=metrics.overall<=Math.max(before.overall*1.15,before.overall+.001)&&metrics.tail<=Math.max(before.tail*1.15,before.tail+.001);
+    const startBetter=metrics.opening<before.opening*.98||(rotating&&direction.confidence>.25&&metrics.heading<before.heading*.9&&metrics.opening<=before.opening+.001);
+    if(safe&&startBetter&&candidate.state.accepted){chosen=candidate;after=metrics;strength=weight;break;}
+   }
+  }
+  return {...chosen,fit:{strategy:'start-aware',strength,direction,before,after}};
+ }
  const zones=warm?.length||3,m=zones+(rotating?1:0);
  const unpack=v=>({k:v.slice(0,zones),angle:rotating?v[zones]:0});
- const residual=v=>{const u=unpack(v),s=forward(u.k,false,u.angle);if(!s.accepted)throw Error('No equilibrium');const a=shape?s.xy.flatMap((p,i)=>p.map((v,j)=>v-target[i][j])):s.tip.map((v,i)=>v-target[i]);return [...a.map(x=>20*x),...u.k.map(x=>.002*x),...(rotating?[.0002*u.angle]:[])];};
+ const preference=typeof policy==='object'?policy:null;
+ const residual=v=>{const u=unpack(v),s=forward(u.k,false,u.angle);if(!s.accepted)throw Error('No equilibrium');const a=shape?s.xy.flatMap((p,i)=>p.map((v,j)=>(v-target[i][j])*Math.sqrt(1+(preference?3*preference.weight*Math.max(0,1-i/10)**2:0)))):s.tip.map((v,i)=>v-target[i]);const orientation=preference&&rotating?[Math.cos(u.angle)-Math.cos(preference.direction.angle),Math.sin(u.angle)-Math.sin(preference.direction.angle)].map(v=>v*2.4*Math.sqrt(preference.weight*preference.direction.confidence)):[];return [...a.map(x=>20*x),...orientation,...u.k.map(x=>.002*x),...(rotating?[.0002*u.angle]:[])];};
  let best=null;
- const aim=shape?target[3]:target,heading=Math.atan2(aim[1],aim[0]);
+ const aim=shape?target[3]:target,heading=preference?preference.direction.angle:Math.atan2(aim[1],aim[0]);
  const pack=(k,a)=>rotating?[...k,a]:k;
  for(const initial of [pack(warm||Array(zones).fill(0),baseAngle),pack(Array(zones).fill(-1.2),heading),pack(Array(zones).fill(1.2),heading)]){
   let k=initial.slice(),r=residual(k),cost=norm(r)**2,mu=.001;

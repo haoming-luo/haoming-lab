@@ -1,4 +1,4 @@
-import {design,forward,branches} from './physics.mjs?v=motor1';
+import {design,forward,branches} from './physics.mjs?v=start1';
 self.onmessage=({data})=>{const {id,task,...args}=data;try{
  let result;
  if(task==='design')result=design(args.target,args.shape,args.warm,args.rotating,args.baseAngle);
