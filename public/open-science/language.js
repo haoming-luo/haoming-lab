@@ -2,6 +2,7 @@ const button = document.querySelector('#language');
 const elements = [...document.querySelectorAll('[data-i18n]')];
 const english = new Map(elements.map(el => [el, el.innerHTML]));
 const chinese = {
+  pipeEntry:'管道搭建实验室 · 体验振动与减振 →',pipeTitle:'搭一条管路，<br>把振动降下来。',pipeText:'拼接直管和弯头，调整支撑，加装阻尼器。比较加装前后的振幅，看看不同频率下的减振效果。',pipeDetail:'组件降阶模型 · 浏览器实时计算 · 热位移与振动',
   learnTitle:'第一次用 AI 做有限元',learnText:'复制提示词，算一个小问题，再看看结果该怎么读。四个入门案例，以及一篇讲清 DENIM 思路的研究手记。',learnLink:'开始入门练习 →',noteLink:'阅读 DENIM 手记 →',
   skip:'跳至案例与数据',back:'← Lab',title:'数据与模型',
   intro:'我们用 AgentFEM 做仿真，也用这些数据训练模型。<br>这里的案例可以在线体验，数据和模型可以下载使用。',code:'AgentFEM 源码 ↗',hub:'Hugging Face 合集 ↗',
@@ -19,6 +20,7 @@ function render() {
   for (const el of elements) el.innerHTML = zh ? chinese[el.dataset.i18n] : english.get(el);
   button.textContent = zh ? 'EN' : '中文';
   button.setAttribute('aria-label', zh ? 'Switch to English' : '切换为中文');
+  document.querySelectorAll('a[href^="./pipe-lab/"]').forEach(a=>a.href='./pipe-lab/?lang='+language);
 }
 button.addEventListener('click', () => { language = language === 'en' ? 'zh' : 'en'; render(); });
 render();
