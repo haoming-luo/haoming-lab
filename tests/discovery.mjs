@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-const pages=['','structural-design/','material-memory/','open-science/'];
+const pages=['','structural-design/','material-memory/','open-science/','morph/','open-science/pipe-lab/'];
 const sitemap=fs.readFileSync('public/sitemap.xml','utf8');
 for(const page of pages){
   const html=fs.readFileSync(`public/${page}index.html`,'utf8');
