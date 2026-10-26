@@ -3,7 +3,9 @@ const elements = [...document.querySelectorAll('[data-i18n]')];
 const english = new Map(elements.map(el => [el, el.innerHTML]));
 const chinese = {
   pipeEntry:'管道搭建实验室 · 体验振动与减振 →',pipeTitle:'搭一条管路，<br>把振动降下来。',pipeText:'拼接直管和弯头，调整支撑，加装阻尼器。比较加装前后的振幅，看看不同频率下的减振效果。',pipeDetail:'组件降阶模型 · 浏览器实时计算 · 热位移与振动',
-  learnTitle:'第一次用 AI 做有限元',learnText:'复制提示词，算一个小问题，再看看结果该怎么读。四个入门案例，以及一篇讲清 DENIM 思路的研究手记。',learnLink:'开始入门练习 →',noteLink:'阅读 DENIM 手记 →',
+  learnTitle:'第一次用 AI 做有限元',learnText:'从悬臂梁到压杆失稳、负泊松比结构，六个练习配有提示词、参考结果和可下载讲义，支持中文、英文和法文。',learnLink:'开始入门练习 →',noteLink:'阅读 DENIM 手记 →',
+  morphTitle:'画一条曲线，<br>让软杆去贴合。',morphText:'拖动目标点，或画出想要的形状。调整驱动分区和底座转角，看看软杆能接近到什么程度。',morphDetail:'平面软杆 · 准静态力学计算 · 形状预测与逆设计数据',
+  collectionsTitle:'按研究问题找数据',collectionMemory:'材料记忆 ↗',collectionElasticity:'弹性力学 ↗',collectionHeat:'传热 ↗',collectionDynamics:'结构动力学与虚拟传感 ↗',collectionPipe:'管道搭建 ↗',collectionRod:'软杆设计 ↗',
   skip:'跳至案例与数据',back:'← Lab',title:'数据与模型',
   intro:'我们用 AgentFEM 做仿真，也用这些数据训练模型。<br>这里的案例可以在线体验，数据和模型可以下载使用。',code:'AgentFEM 源码 ↗',hub:'Hugging Face 合集 ↗',
   questions:'案例与数据',label:'在线体验 · 数据下载 · 模型代码',
@@ -21,6 +23,7 @@ function render() {
   button.textContent = zh ? 'EN' : '中文';
   button.setAttribute('aria-label', zh ? 'Switch to English' : '切换为中文');
   document.querySelectorAll('a[href^="./pipe-lab/"]').forEach(a=>a.href='./pipe-lab/?lang='+language);
+  document.querySelector('#learn-entry').href = zh ? '../learn/' : '../learn/en.html';
 }
 button.addEventListener('click', () => { language = language === 'en' ? 'zh' : 'en'; render(); });
 render();
