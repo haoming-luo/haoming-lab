@@ -2,6 +2,7 @@ const button = document.querySelector('#language');
 const elements = [...document.querySelectorAll('[data-i18n]')];
 const english = new Map(elements.map(el => [el, el.innerHTML]));
 const chinese = {
+  embedTitle:'把演示放进课堂',embedText:'课程页面或文章中也能使用这些交互演示。选好案例，复制嵌入代码即可。',embedLink:'选择演示 →',
   pipeEntry:'管道搭建实验室 · 体验振动与减振 →',pipeTitle:'搭一条管路，<br>把振动降下来。',pipeText:'拼接直管和弯头，调整支撑，加装阻尼器。比较加装前后的振幅，看看不同频率下的减振效果。',pipeDetail:'组件降阶模型 · 浏览器实时计算 · 热位移与振动',
   learnTitle:'第一次用 AI 做有限元',learnText:'从悬臂梁到压杆失稳、负泊松比结构，六个练习配有提示词、参考结果和可下载讲义，支持中文、英文和法文。',learnLink:'开始入门练习 →',noteLink:'阅读 DENIM 手记 →',
   morphTitle:'画一条曲线，<br>让软杆去贴合。',morphText:'拖动目标点，或画出想要的形状。调整驱动分区和底座转角，看看软杆能接近到什么程度。',morphDetail:'平面软杆 · 准静态力学计算 · 形状预测与逆设计数据',
