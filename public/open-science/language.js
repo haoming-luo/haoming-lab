@@ -2,6 +2,8 @@ const button = document.querySelector('#language');
 const elements = [...document.querySelectorAll('[data-i18n]')];
 const english = new Map(elements.map(el => [el, el.innerHTML]));
 const chinese = {
+  examplesJump:'Python 数据示例 ↓',examplesTitle:'先用数据画一张图',examplesText:'下载脚本，按说明安装依赖，即可用已发布的数据复现结果图。不需要重新仿真或训练模型。',
+  exampleMemory:'材料记忆 · 同样的应变，不同的应力 ↗',exampleHeat:'传热 · 比较三种加热方式 ↗',exampleRod:'软杆 · 比较不同平衡形状 ↗',examplePipe:'管道 · 比较不同阻尼系数 ↗',
   embedTitle:'把演示放进课堂',embedText:'课程页面或文章中也能使用这些交互演示。选好案例，复制嵌入代码即可。',embedLink:'选择演示 →',
   pipeEntry:'管道搭建实验室 · 体验振动与减振 →',pipeTitle:'搭一条管路，<br>把振动降下来。',pipeText:'拼接直管和弯头，调整支撑，加装阻尼器。比较加装前后的振幅，看看不同频率下的减振效果。',pipeDetail:'组件降阶模型 · 浏览器实时计算 · 热位移与振动',
   learnTitle:'第一次用 AI 做有限元',learnText:'从悬臂梁到压杆失稳、负泊松比结构，六个练习配有提示词、参考结果和可下载讲义，支持中文、英文和法文。',learnLink:'开始入门练习 →',noteLink:'阅读 DENIM 手记 →',
